@@ -7,6 +7,11 @@ const imagePreview = document.getElementById("image-preview") || document.create
 let feedPosts = [];
 let feedRefreshTimer = null;
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('laoverse_jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 function t(key, vars) {
   if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
     return window.LanguageManager.translate(key, vars);
@@ -251,8 +256,8 @@ async function handlePostSubmit(event) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/post", {
       method: "POST",
-      body: formData,
-      credentials: "include"
+      headers: getAuthHeaders(),
+      body: formData
     });
     const data = await response.json();
 
@@ -273,7 +278,9 @@ async function handlePostSubmit(event) {
 async function loadFeed() {
   try {
     showLoading(true);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/loadFeed", { credentials: "include" });
+    const response = await fetch("https://laoverse-production.up.railway.app/api/loadFeed", { 
+      headers: getAuthHeaders()
+    });
     const data = await response.json();
 
     if (data.success) {
@@ -293,9 +300,11 @@ async function toggleLike(postId, button) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/like", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `post_id=${encodeURIComponent(postId)}`,
-      credentials: "include"
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: `post_id=${encodeURIComponent(postId)}`
     });
     const data = await response.json();
 
@@ -314,9 +323,11 @@ async function submitComment(postId, comment, parentCommentId) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: payload.toString(),
-      credentials: "include"
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: payload.toString()
     });
     const data = await response.json();
 
@@ -420,7 +431,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupEventDelegation();
 
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { credentials: "include" });
+    const response = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+      headers: getAuthHeaders()
+    });
     const data = await response.json();
     if (!data.success) {
       window.location.href = "index2.html";

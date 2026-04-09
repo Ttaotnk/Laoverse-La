@@ -1,4 +1,27 @@
-﻿(function () {
+(function () {
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) {
+    let [resource, config] = args;
+    const url = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
+    const token = localStorage.getItem('laoverse_jwt');
+
+    if (url.includes('laoverse-production.up.railway.app') || url.startsWith('/api')) {
+      config = config || {};
+      if (!config.headers) {
+        config.headers = {};
+      }
+      if (token) {
+        if (typeof Headers !== 'undefined' && config.headers instanceof Headers) {
+          config.headers.set('Authorization', `Bearer ${token}`);
+        } else {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    }
+
+    return originalFetch(resource, config);
+  };
+
   const STORAGE_KEY = "laoverse_lang";
   const DEFAULT_LANG = "lo";
   const SUPPORTED_LANGS = ["lo", "th", "en"];

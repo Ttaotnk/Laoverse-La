@@ -114,11 +114,8 @@
 
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async function () {
-      const res = await fetch("https://laoverse-production.up.railway.app/api/logout", { method: "POST", credentials: "include" });
-      const data = await res.json();
-      if (data.success) {
-        window.location.href = "index2.html";
-      }
+      localStorage.removeItem('laoverse_jwt');
+      window.location.href = "index2.html";
     });
   }
 
@@ -126,9 +123,10 @@
     deleteAccountBtn.addEventListener("click", async function () {
       const ok = confirm(t("settings.deleteConfirm"));
       if (!ok) return;
-      const res = await fetch("https://laoverse-production.up.railway.app/api/delete_account", { method: "POST", credentials: "include" });
+      const res = await fetch("https://laoverse-production.up.railway.app/api/delete_account", { method: "POST" });
       const data = await res.json();
       if (data.success) {
+        localStorage.removeItem('laoverse_jwt');
         alert(t("settings.deleteSuccess"));
         window.location.href = "index2.html";
       } else {

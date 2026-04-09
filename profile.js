@@ -3,6 +3,11 @@ let currentProfilePosts = [];
 let currentProfileId = "current";
 let interactionsBound = false;
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('laoverse_jwt');
+  return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
+
 function t(key, vars) {
   if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
     return window.LanguageManager.translate(key, vars);
@@ -247,6 +252,7 @@ async function loadProfile(profileId) {
   showLoading(true);
   try {
     const response = await fetch(`https://laoverse-production.up.railway.app/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
+      headers: getAuthHeaders(),
       credentials: "include"
     });
     const data = await response.json();
@@ -266,6 +272,7 @@ async function loadProfile(profileId) {
 async function loadProfilePosts(profileId) {
   try {
     const response = await fetch(`https://laoverse-production.up.railway.app/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
+      headers: getAuthHeaders(),
       credentials: "include"
     });
     const data = await response.json();
@@ -283,7 +290,10 @@ async function likePost(postId) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/like", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
       body: `post_id=${encodeURIComponent(postId)}`,
       credentials: "include"
     });
@@ -303,7 +313,10 @@ async function addComment(postId, comment, parentCommentId) {
 
     const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
       body: payload.toString(),
       credentials: "include"
     });
@@ -323,7 +336,10 @@ async function sendFriendRequest(userId) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/send_request", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
       body: `receiver_id=${encodeURIComponent(userId)}`,
       credentials: "include"
     });
@@ -357,6 +373,7 @@ async function handleProfileUpdate(event) {
   try {
     const response = await fetch("https://laoverse-production.up.railway.app/api/updateProfile", {
       method: "POST",
+      headers: getAuthHeaders(),
       body: formData,
       credentials: "include"
     });
@@ -452,7 +469,21 @@ function setupInteractions() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const response = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+      headers: getAuthHeaders()
+    });
+    const data = await response.json();
+    if (!data.success) {
+      window.location.href = "index2.html";
+      return;
+    }
+  } catch (error) {
+    window.location.href = "index2.html";
+    return;
+  }
+
   currentProfileId = getUrlParams().get("id") || "current";
   setupInteractions();
   loadProfile(currentProfileId);

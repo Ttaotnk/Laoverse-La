@@ -42,6 +42,9 @@ if (registerForm) {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          if (data.token) {
+            localStorage.setItem('laoverse_jwt', data.token);
+          }
           showMessage(t('auth.registerSuccess'), "register");
           window.location.href = 'index2.html';
         } else {
@@ -73,6 +76,9 @@ if (loginForm) {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          if (data.token) {
+            localStorage.setItem('laoverse_jwt', data.token);
+          }
           window.location.href = 'index.html';
         } else {
           showMessage(data.message || t('auth.loginFail'), "login");
