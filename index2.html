@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="auth.loginTitle">ເຂົ້າສູ່ລະບົບ - LaoVerse</title>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="css/styles1.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+    <script src="language.js"></script>
+</head>
+<body>
+   <header>
+        <img src="logo.png" alt="LaoVerse" id="logo">
+        <div id="login-message" class="message" style="display: none;"></div>
+    </header>
+    <div class="login-container">
+        <h2 data-i18n="auth.loginHeading">ເຂົ້າສູ່ລະບົບ</h2>
+        <form id="loginForm" novalidate>
+            <input type="text" id="login-username" data-i18n-placeholder="auth.username" placeholder="ຊື່" required>
+            <input type="password" id="login-password" data-i18n-placeholder="auth.password" placeholder="ລະຫັດຜ່ານ" required>
+            <button type="submit" data-i18n="auth.login">ເຂົ້າສູ່ລະບົບ</button>
+        </form>
+        <p><span data-i18n="auth.noAccount">ຍັງບໍ່ມີບັນຊີ?</span> <a href="indexla.html" data-i18n="auth.register">ສະໝັກ</a></p>
+    </div>
+</body>
+</html>

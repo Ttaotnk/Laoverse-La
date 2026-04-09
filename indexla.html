@@ -1,0 +1,30 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="auth.registerTitle">ລົງທະບຽນ - LaoVerse</title>
+    <script src="script.js" defer></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+    <script src="language.js"></script>
+</head>
+<body>
+   <header>
+        <img src="logo.png" alt="LaoVerse" id="logo">
+        <div id="register-message" class="message" style="display: none;"></div>
+    </header>
+    <div class="register-container">
+        <h2 data-i18n="auth.registerHeading">ສະໝັກສະມາຊິກ</h2>
+        <form id="registerForm" novalidate>
+            <input type="text" id="register-username" data-i18n-placeholder="auth.username" placeholder="ຊື່" required>
+            <input type="email" id="register-email" data-i18n-placeholder="auth.email" placeholder="ອີເມວ" required>
+            <input type="password" id="register-password" data-i18n-placeholder="auth.password" placeholder="ລະຫັດຜ່ານ" required>
+            <input type="password" id="confirm-password" data-i18n-placeholder="auth.confirmPassword" placeholder="ຢືນຢັນລະຫັດຜ່ານ" required>
+            <button type="submit" data-i18n="auth.register">ສະໝັກ</button>
+        </form>
+        <p><span data-i18n="auth.haveAccount">ມີບັນຊີຢູ່ແລ້ວ?</span> <a href="index2.html" data-i18n="auth.login">ເຂົ້າສູ່ລະບົບ</a></p>
+    </div>
+</body>
+</html>

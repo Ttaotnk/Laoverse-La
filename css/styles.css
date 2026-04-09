@@ -1,0 +1,190 @@
+/* styles.css - LaoVerse Registration Page */
+/* ==================================== */
+
+:root {
+  --neon-blue: #66f0ff;
+  --light-blue: #00b7d4;
+  --soft-blue: #8bd8e5;
+  --black: #000000;
+  --white: #ffffff;
+  --gray: #222222;
+  --light-gray: #333333;
+  --error-red: #ff3333;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans Lao', sans-serif;
+}
+
+body {
+  background-color: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+-webkit-tap-highlight-color: rgba(255, 0, 0, 0.0);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(102, 240, 255, 0.05) 0%, transparent 20%),
+    radial-gradient(circle at 90% 80%, rgba(102, 240, 255, 0.05) 0%, transparent 20%);
+}
+
+/* Header Styles */
+header {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  background-color: transparent;
+}
+
+#logo {
+  width: 200px;
+ 
+}
+
+/* Message Notification */
+.message {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 25px;
+  border-radius: 8px;
+  color: var(--white);
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+  animation: fadeIn 0.3s ease-out;
+  max-width: 90%;
+}
+
+.message.success {
+  background-color: var(--light-blue);
+  border: 1px solid var(--neon-blue);
+}
+
+.message.error {
+  background-color: var(--error-red);
+  border: 1px solid #ff6666;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* Registration Container */
+.register-container {
+  max-width: 450px;
+  width: 90%;
+  margin: 1rem auto 3rem;
+  padding: 2rem;
+  background-color: var(--gray);
+  border-radius: 10px;
+  border: 1px solid var(--neon-blue);
+  box-shadow: 0 0 20px rgba(102, 240, 255, 0.3);
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 10px rgba(102, 240, 255, 0.3); }
+  to { box-shadow: 0 0 20px rgba(102, 240, 255, 0.6); }
+}
+
+.register-container h2 {
+  color: var(--white);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-shadow: 0 0 5px var(--neon-blue);
+}
+
+/* Form Styles */
+#registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+#registerForm input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--neon-blue);
+  border-radius: 5px;
+  background-color: var(--light-gray);
+  color: var(--white);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+#registerForm input:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--neon-blue);
+  background-color: var(--gray);
+}
+
+#registerForm input::placeholder {
+  color: #aaa;
+}
+
+/* Button Styles */
+#registerForm button {
+  padding: 0.8rem;
+  background-color: transparent;
+  color: var(--neon-blue);
+  border: 2px solid var(--neon-blue);
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+}
+
+#registerForm button:hover {
+  background-color: var(--neon-blue);
+  color: var(--black);
+  box-shadow: 0 0 15px var(--neon-blue);
+}
+
+/* Link Styles */
+.register-container p {
+  color: var(--white);
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.register-container a {
+  color: var(--neon-blue);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.register-container a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 5px var(--neon-blue);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  header {
+    padding: 1.5rem;
+  }
+  
+  #logo {
+    width: 150px;
+  }
+  
+  .register-container {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  #registerForm input,
+  #registerForm button {
+    padding: 0.7rem;
+  }
+}

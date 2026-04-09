@@ -1,0 +1,52 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="support.pageTitle">ຕິດຕໍ່ຊ່ວຍເຫຼືອ</title>
+  <link rel="stylesheet" href="css/settings.css" />
+  <script src="theme.js"></script>
+  <script src="language.js"></script>
+</head>
+<body>
+  <header class="main-header">
+    <div class="logo"><img src="logo.png" alt="Logo" /></div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="settings.html" data-i18n="nav.backSettings">ກັບໄປຕັ້ງຄ່າ</a></li>
+      </ul>
+    </nav>
+  </header>
+  <main class="settings-container">
+    <section class="card">
+      <h2 data-i18n="support.contactTitle">ຂໍ້ມູນຕິດຕໍ່</h2>
+      <div class="contact-list">
+        <a class="contact-item" href="https://facebook.com/yourpage" target="_blank" rel="noopener">
+          <span class="contact-label" data-i18n="support.facebook">Facebook</span>
+          <span class="contact-value">facebook.com/yourpage</span>
+        </a>
+        <a class="contact-item" href="mailto:example@yourdomain.com">
+          <span class="contact-label" data-i18n="support.gmail">Gmail</span>
+          <span class="contact-value">example@yourdomain.com</span>
+        </a>
+        <a class="contact-item" href="tel:+8562000000000">
+          <span class="contact-label" data-i18n="support.tel">Tel</span>
+          <span class="contact-value">+856 20 0000 0000</span>
+        </a>
+        <a class="contact-item" href="https://wa.me/8562000000000" target="_blank" rel="noopener">
+          <span class="contact-label" data-i18n="support.whatsapp">WhatsApp</span>
+          <span class="contact-value">+856 20 0000 0000</span>
+        </a>
+      </div>
+    </section>
+    <section class="card">
+      <h1 data-i18n="support.title">ຕິດຕໍ່ຝ່າຍຊ່ວຍເຫຼືອ</h1>
+      <input id="supportTitle" type="text" data-i18n-placeholder="support.subject" placeholder="ຫົວຂໍ້ບັນຫາ" />
+      <textarea id="supportMessage" rows="6" data-i18n-placeholder="support.message" placeholder="ລາຍລະອຽດບັນຫາ"></textarea>
+      <button id="sendSupportBtn" data-i18n="support.send">ສົ່ງຄຳຮ້ອງຂໍ</button>
+      <div id="message" class="message"></div>
+    </section>
+  </main>
+  <script src="support.js"></script>
+</body>
+</html>

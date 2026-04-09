@@ -1,0 +1,215 @@
+:root {
+  --neon-blue: #66f0ff;
+  --light-blue: #00b7d4;
+  --black: #000000;
+  --white: #ffffff;
+  --gray: #222222;
+  --light-gray: #333333;
+}
+* { box-sizing: border-box; font-family: 'Noto Sans Lao', sans-serif; }
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--white);
+  padding-top: 80px;
+}
+.main-header {
+  width: 100%;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--black);
+  border-bottom: 1px solid var(--neon-blue);
+  box-shadow: 0 0 15px var(--neon-blue);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+.haha {
+ 
+  padding: 5px 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+}
+.logo img { width: 200px; }
+.main-nav ul { display: flex; list-style: none; gap: 1rem; }
+.main-nav a {
+  color: var(--white);
+  text-decoration: none;
+  border: 1px solid var(--neon-blue);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.main-nav a.active { background: var(--neon-blue); color: #000; font-weight: 700; }
+.settings-container { max-width: 760px; margin: 20px auto; padding: 0 16px; }
+.card {
+  background: var(--gray);
+  border: 1px solid var(--neon-blue);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+h1, h2 { margin-top: 0; }
+select, button, input, textarea {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--neon-blue);
+  background: var(--light-gray);
+  color: var(--white);
+}
+input, textarea, select { width: 100%; }
+button { cursor: pointer; margin-right: 8px; }
+.danger-btn { border-color: #ff4b4b; color: #ff4b4b; }
+.hint { opacity: .8; font-size: 13px; margin: 8px 0 4px; }
+.message {
+  display: none;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--light-blue);
+  color: var(--white);
+}
+
+.contact-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.contact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(102, 240, 255, 0.45);
+  border-radius: 10px;
+  background: var(--light-gray);
+  color: var(--white);
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.contact-item:hover {
+  background: rgba(102, 240, 255, 0.12);
+  border-color: var(--neon-blue);
+}
+
+.contact-label {
+  font-weight: 700;
+  color: var(--neon-blue);
+}
+
+.contact-value {
+  text-align: right;
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .main-header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+  }
+  .logo img { width: 160px; }
+  .main-nav ul {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-left: 0;
+  }
+  body { padding-top: 130px; }
+}
+
+@media (max-width: 540px) {
+  .settings-container { padding: 0 10px; }
+  .card { padding: 12px; }
+  button { width: 100%; margin-right: 0; }
+}
+
+/* Consistent responsive behavior (based on feed/note/profile) */
+.settings-container {
+  width: 100%;
+}
+
+.card {
+  overflow: hidden;
+}
+
+.card button + button {
+  margin-top: 8px;
+}
+
+@media (max-width: 1200px) {
+  .settings-container {
+    max-width: 860px;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-top: 140px;
+  }
+
+  .settings-container {
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  .main-nav ul {
+    gap: 0.7rem;
+  }
+
+  .main-nav a {
+    padding: 7px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-top: 150px;
+  }
+
+  .logo img {
+    width: 140px;
+  }
+
+  .main-nav ul {
+    gap: 0.45rem;
+  }
+
+  .main-nav a {
+    padding: 6px 7px;
+    font-size: 0.72rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+  }
+
+  select,
+  button,
+  input,
+  textarea {
+    padding: 9px 10px;
+    font-size: 0.92rem;
+  }
+
+  .contact-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .contact-value {
+    text-align: left;
+  }
+}

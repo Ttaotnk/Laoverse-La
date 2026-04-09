@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="note.title">ໂພສທີ່ເຄີຍໃຫ້ຄຳເຫັນ</title>
+    <link rel="stylesheet" href="css/note.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+    <script src="language.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <img src="logo.png" alt="Logo"><br>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
+                <li><a href="profile.html" data-i18n="nav.profile">ໂປຣໄຟລ໌</a></li>
+                <li><a href="friends.html" data-i18n="nav.friends">ໝູ່ເພື່ອນ</a></li>
+                <li><a href="note.html" class="active" data-i18n="nav.note">ແຈ້ງເຕືອນ</a></li>
+                <li><a href="message.html" data-i18n="nav.message">ຂໍ້ຄວາມ</a></li>
+                <li><a href="settings.html" data-i18n="nav.settings">ຕັ້ງຄ່າ</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="main-content">
+        <div class="page-header">
+            <h1 data-i18n="note.title">ໂພສທີ່ເຄີຍໃຫ້ຄຳເຫັນ</h1>
+        </div>
+        <div id="commentedPostsContainer" class="commented-posts-container"></div>
+    </main>
+    <div id="loading">
+        <div class="spinner"></div>
+        <span data-i18n="common.loading">ກຳລັງໂຫຼດ...</span>
+    </div>
+    <div id="message" class="message"></div>
+    <script src="note.js"></script>
+</body>
+</html>

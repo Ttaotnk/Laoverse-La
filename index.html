@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="feed.title">ໂພສສັງຄົມ</title>
+    <link rel="stylesheet" href="css/feed.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+    <script src="language.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <img src="logo.png" alt="ໂລໂກ້">
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" class="active" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
+                <li><a href="profile.html" data-i18n="nav.profile">ໂປຣໄຟລ໌</a></li>
+                <li><a href="friends.html" data-i18n="nav.friends">ໝູ່ເພື່ອນ</a></li>
+                <li><a href="note.html" data-i18n="nav.note">ແຈ້ງເຕືອນ</a></li>
+                <li><a href="message.html" data-i18n="nav.message">ຂໍ້ຄວາມ</a></li>
+                <li><a href="settings.html" data-i18n="nav.settings">ຕັ້ງຄ່າ</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <form id="postForm" class="post-form">
+            <textarea id="postContent" data-i18n-placeholder="feed.placeholder" placeholder="ທ່ານກຳລັງຄິດຫຍັງຢູ່?"></textarea>
+            <div id="image-preview"></div>
+            <div class="post-actions">
+                <label for="postImage" class="file-input-label" data-i18n="feed.uploadImage">ອັບໂຫຼດຮູບ</label>
+                <input type="file" id="postImage" class="file-input" accept="*/*">
+                <button type="submit" class="post-button-tao" data-i18n="feed.post">ໂພສ</button>
+            </div>
+        </form>
+        <div id="feedContainer" class="feed-container"></div>
+    </div>
+    <div id="message" class="message"></div>
+    <div id="loading" style="display: none;">
+        <div class="spinner"></div>
+        <span data-i18n="common.loading">ກຳລັງໂຫຼດ...</span>
+    </div>
+    <script src="feed.js"></script>
+</body>
+</html>

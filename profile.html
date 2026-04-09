@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="profile.title">ໂປຣໄຟລ໌</title>
+    <link rel="stylesheet" href="css/profile.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="theme.js"></script>
+    <script src="language.js"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <img src="logo.png" alt="Logo"><br>
+        </div>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="index.html" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
+                <li><a href="profile.html" class="active" data-i18n="nav.profile">ໂປຣໄຟລ໌</a></li>
+                <li><a href="friends.html" data-i18n="nav.friends">ໝູ່ເພື່ອນ</a></li>
+                <li><a href="note.html" data-i18n="nav.note">ແຈ້ງເຕືອນ</a></li>
+                <li><a href="message.html" data-i18n="nav.message">ຂໍ້ຄວາມ</a></li>
+                <li><a href="settings.html" data-i18n="nav.settings">ຕັ້ງຄ່າ</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div id="message" class="message"></div>
+    <div class="profile-container">
+        <img id="profilePic" src="default-profile.png" alt="ຮູບໂປຣໄຟລ໌">
+        <div class="profile-info">
+            <h2 id="profileUsername"></h2>
+            <p><span data-i18n="profile.posts">ໂພສ</span>: <span id="postCount">0</span></p>
+            <p><span data-i18n="profile.friends">ໝູ່ເພື່ອນ</span>: <span id="friendCount">0</span></p>
+        </div>
+        <button id="friendBtn" style="display: none;" data-i18n="profile.sendRequest">ສົ່ງຄຳຂໍເປັນໝູ່</button>
+        <button id="editProfileBtn" data-i18n="profile.edit">ແກ້ໄຂໂປຣໄຟລ໌</button>
+    </div>
+    <div id="profilePosts">
+        <h2 data-i18n="profile.posts">ໂພສ</h2>
+    </div>
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEditModal()">&times;</span>
+            <h2 data-i18n="profile.editTitle">ແກ້ໄຂໂປຣໄຟລ໌</h2>
+            <form id="editProfileForm">
+                <div>
+                    <label for="editUsername" data-i18n="profile.username">ຊື່ຜູ້ໃຊ້:</label>
+                    <input type="text" id="editUsername" name="username">
+                </div>
+                <div>
+                    <label for="editProfilePic" class="file-input-label">
+                        <span data-i18n="profile.newPhoto">ຮູບໂປຣໄຟລ໌ໃໝ່</span>
+                        <span id="fileInputName" class="file-input-name"></span>
+                    </label>
+                    <input type="file" id="editProfilePic" name="profile_pic" accept="image/*">
+                </div>
+                <button type="submit" data-i18n="profile.saveChanges">ບັນທຶກການປ່ຽນແປງ</button>
+                <button type="button" class="cancel-button" onclick="closeEditModal()" data-i18n="common.cancel">ຍົກເລີກ</button>
+            </form>
+        </div>
+    </div>
+    <script src="profile.js"></script>
+</body>
+</html>
