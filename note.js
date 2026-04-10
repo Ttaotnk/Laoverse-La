@@ -84,6 +84,91 @@ async function openPostModal() {
     }
 
     const post = data.post;
+    const comments = post.comments || [];
+    
+    // Group comments by parent (for threading)
+    const parentComments = comments.filter(c => !c.parent_comment_id);
+    const childComments = {};
+    comments.forEach(c => {
+      if (c.parent_comment_id) {
+        if (!childComments[c.parent_comment_id]) {
+          childComments[c.parent_comment_id] = [];
+        }
+        childComments[c.parent_comment_id].push(c);
+      }
+    });
+
+    // Build comments HTML
+    let commentsHtml = '';
+    if (comments.length > 0) {
+      commentsHtml += '<div class="comments-section"><h4>💬 Comments</h4>';
+      parentComments.forEach(pComment => {
+        commentsHtml += `
+          <div class="comment-thread">
+            <div class="comment">
+              <img src="${safeHtml(pComment.user_pic || 'default-profile.png')}" 
+                   class="comment-profile-pic"
+                   onclick="goToUserProfile('${safeHtml(pComment.user_id)}')"
+                   style="cursor:pointer;"
+                   onerror="this.src='default-profile.png'">
+              <div class="comment-content">
+                <div class="comment-header">
+                  <strong onclick="goToUserProfile('${safeHtml(pComment.user_id)}')" style="cursor:pointer;">${safeHtml(pComment.username)}</strong>
+                  <small>${safeHtml(formatRelativeTime(pComment.created_at))}</small>
+                </div>
+                <p>${safeHtml(pComment.text)}</p>
+                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')">↩️ ${t("feed.reply")}</button>
+              </div>
+            </div>
+        `;
+        
+        // Add child comments (replies)
+        if (childComments[pComment._id]) {
+          commentsHtml += '<div class="child-comments">';
+          childComments[pComment._id].forEach(childComment => {
+            commentsHtml += `
+              <div class="comment child-comment">
+                <img src="${safeHtml(childComment.user_pic || 'default-profile.png')}" 
+                     class="comment-profile-pic"
+                     onclick="goToUserProfile('${safeHtml(childComment.user_id)}')"
+                     style="cursor:pointer;"
+                     onerror="this.src='default-profile.png'">
+                <div class="comment-content">
+                  <div class="comment-header">
+                    <strong onclick="goToUserProfile('${safeHtml(childComment.user_id)}')" style="cursor:pointer;">${safeHtml(childComment.username)}</strong>
+                    <small>${safeHtml(formatRelativeTime(childComment.created_at))}</small>
+                  </div>
+                  <p>${safeHtml(childComment.text)}</p>
+                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')">↩️ ${t("feed.reply")}</button>
+                </div>
+              </div>
+            `;
+          });
+          commentsHtml += '</div>';
+        }
+        
+        // Reply input for this comment
+        commentsHtml += `
+          <div class="reply-input-section" id="replySection_${safeHtml(pComment._id)}" style="display:none;">
+            <div class="add-reply">
+              <input type="text" 
+                     class="reply-input-field"
+                     placeholder="${t("feed.replyPlaceholder")}"
+                     data-parent-id="${safeHtml(pComment._id)}"
+                     data-post-id="${safeHtml(postId)}">
+              <button class="submit-reply-btn" onclick="submitReplyToComment('${safeHtml(postId)}', '${safeHtml(pComment._id)}', event)">${t("common.submit")}</button>
+              <button class="cancel-reply-btn" onclick="closeReplyInput('${safeHtml(pComment._id)}')">${t("common.cancel")}</button>
+            </div>
+          </div>
+        `;
+        
+        commentsHtml += '</div>';
+      });
+      commentsHtml += '</div>';
+    } else {
+      commentsHtml = '<div class="comments-section"><p class="no-comments">' + t("feed.noComments") + '</p></div>';
+    }
+    
     const modal = document.createElement('div');
     modal.id = 'postModal';
     modal.className = 'post-modal';
@@ -109,17 +194,19 @@ async function openPostModal() {
           </div>
           <div class="post-actions">
             <button class="like-btn" onclick="toggleLike('${safeHtml(post._id)}', event)">❤️ Like</button>
-            <button class="comment-btn" onclick="focusReplyInput()">💬 Comment</button>
+            <button class="comment-btn" onclick="focusReplyInput()">${t("feed.commentPlaceholder")}</button>
           </div>
         </div>
 
+        ${commentsHtml}
+
         <div class="reply-section">
-          <h4>${t("feed.replyPlaceholder")}</h4>
+          <h4>${t("feed.commentPlaceholder")}</h4>
           <div class="add-comment">
             <input type="text" 
                    id="replyInput" 
                    class="comment-input"
-                   placeholder="${t("feed.replyPlaceholder")}"
+                   placeholder="${t("feed.commentPlaceholder")}"
                    data-post-id="${safeHtml(post._id)}">
             <button class="submit-comment" onclick="submitReply('${safeHtml(post._id)}', event)">${t("common.submit")}</button>
           </div>
@@ -179,7 +266,7 @@ async function submitReply(postId, event) {
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     showLoading(true);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/add_comment", {
+    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -193,14 +280,87 @@ async function submitReply(postId, event) {
     if (data.success) {
       showMessage("Comment added successfully", "success");
       input.value = '';
-      // Reload notifications to reflect changes
-      await loadNotifications();
-      closePostModal();
+      // Reload post to show new comment
+      setTimeout(() => {
+        const postId = sessionStorage.getItem('viewPostId');
+        if (postId) {
+          closePostModal();
+          openPostModal();
+        }
+      }, 500);
     } else {
       showMessage(data.message || t("feed.commentFailed") || "Unable to add comment", "error");
     }
   } catch (error) {
     showMessage(t("feed.commentFailed") || "Unable to add comment", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+function showReplyInput(commentId, commenterName) {
+  const replySection = document.getElementById(`replySection_${commentId}`);
+  if (replySection) {
+    replySection.style.display = 'block';
+    const input = replySection.querySelector('.reply-input-field');
+    if (input) {
+      input.focus();
+      input.placeholder = `${t("feed.replyPlaceholder")} @${commenterName}`;
+    }
+  }
+}
+
+function closeReplyInput(commentId) {
+  const replySection = document.getElementById(`replySection_${commentId}`);
+  if (replySection) {
+    replySection.style.display = 'none';
+    const input = replySection.querySelector('.reply-input-field');
+    if (input) input.value = '';
+  }
+}
+
+async function submitReplyToComment(postId, parentCommentId, event) {
+  event.preventDefault();
+  const replySection = document.getElementById(`replySection_${parentCommentId}`);
+  if (!replySection) return;
+  
+  const input = replySection.querySelector('.reply-input-field');
+  if (!input || !input.value.trim()) {
+    showMessage(t("feed.replyRequired") || "Please enter a reply", "error");
+    return;
+  }
+
+  const token = localStorage.getItem('laoverse_jwt') || '';
+  try {
+    showLoading(true);
+    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      },
+      body: `post_id=${encodeURIComponent(postId)}&comment=${encodeURIComponent(input.value.trim())}&parent_comment_id=${encodeURIComponent(parentCommentId)}`,
+      credentials: "include"
+    });
+    const data = await response.json();
+    
+    if (data.success) {
+      showMessage("Reply added successfully", "success");
+      input.value = '';
+      closeReplyInput(parentCommentId);
+      // Reload post to show new reply
+      setTimeout(() => {
+        const postId = sessionStorage.getItem('viewPostId');
+        if (postId) {
+          closePostModal();
+          openPostModal();
+        }
+      }, 500);
+    } else {
+      showMessage(data.message || t("feed.replyFailed") || "Unable to add reply", "error");
+    }
+  } catch (error) {
+    showMessage(t("feed.replyFailed") || "Unable to add reply", "error");
   } finally {
     showLoading(false);
   }
