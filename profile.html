@@ -60,6 +60,27 @@
             </form>
         </div>
     </div>
+    <div id="editPostModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeEditPostModal()">&times;</span>
+            <h2 data-i18n="profile.editPost">ແກ້ໄຂໂພສ</h2>
+            <form id="editPostForm">
+                <div>
+                    <label for="editPostContent" data-i18n="common.content">ເນື້อຫາ:</label>
+                    <textarea id="editPostContent" name="content" rows="4" maxlength="1000"></textarea>
+                </div>
+                <div>
+                    <label for="editPostImage" class="file-input-label">
+                        <span data-i18n="common.image">ຮູບພາບ</span>
+                        <span id="editPostImageName" class="file-input-name"></span>
+                    </label>
+                    <input type="file" id="editPostImage" name="image" accept="image/*,video/*,audio/*">
+                </div>
+                <button type="submit" data-i18n="common.save">ບັນທຶກ</button>
+                <button type="button" class="cancel-button" onclick="closeEditPostModal()" data-i18n="common.cancel">ຍົກເລີກ</button>
+            </form>
+        </div>
+    </div>
     <script src="profile.js"></script>
 </body>
 </html>

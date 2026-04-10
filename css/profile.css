@@ -287,6 +287,30 @@ input[type="file"]#editProfilePic {
   border-radius: 5px;
 }
 
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+}
+
+.edit-btn:hover {
+  background-color: #4a7c59;
+  border-radius: 5px;
+}
+
+.delete-btn:hover {
+  background-color: #8b2e2e;
+  border-radius: 5px;
+}
+
 /* Comments Section */
 .comments-section {
   margin-top: 1rem;
@@ -466,6 +490,27 @@ input[type="file"]#editProfilePic {
 .modal-content input[type="text"]:focus {
   outline: none;
   box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--neon-blue);
+  border-radius: 5px;
+  background-color: var(--light-gray);
+  color: var(--white);
+  font-size: 1rem;
+  font-family: 'Noto Sans Lao', sans-serif;
+  resize: vertical;
+}
+
+.modal-content textarea:focus {
+  outline: none;
+  box-shadow: 0 0 10px var(--neon-blue);
+}
+
+input[type="file"]#editPostImage {
+  display: none;
 }
 
 .file-input-label {

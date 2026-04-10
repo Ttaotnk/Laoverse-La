@@ -1,7 +1,9 @@
 ﻿let currentProfile = null;
 let currentProfilePosts = [];
 let currentProfileId = "current";
+let currentUserId = null;
 let interactionsBound = false;
+let editingPostId = null;
 
 function getAuthHeaders() {
   const token = localStorage.getItem('laoverse_jwt');
@@ -211,6 +213,20 @@ function renderProfilePosts(posts) {
       }
     }
 
+    const isOwnPost = post.user_id === currentUserId;
+    const postActions = `
+      <button class="like-btn" data-id="${safeHtml(post.id)}">
+        ${post.is_liked ? "❤︎" : "♡"} <span class="like-count">${Number(post.likes || 0)}</span>
+      </button>
+      <button class="comment-btn" data-id="${safeHtml(post.id)}">
+        💬 <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+      </button>
+      ${isOwnPost ? `
+        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit") || "Edit")}">✏️ ${safeHtml(t("common.edit") || "Edit")}</button>
+        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete") || "Delete")}">🗑️ ${safeHtml(t("common.delete") || "Delete")}</button>
+      ` : ''}
+    `;
+
     return `
       <div class="post" data-id="${safeHtml(post.id)}">
         <div class="post-header">
@@ -229,12 +245,7 @@ function renderProfilePosts(posts) {
           ${mediaHtml}
         </div>
         <div class="post-actions">
-          <button class="like-btn" data-id="${safeHtml(post.id)}">
-            ${post.is_liked ? "❤︎" : "♡"} <span class="like-count">${Number(post.likes || 0)}</span>
-          </button>
-          <button class="comment-btn" data-id="${safeHtml(post.id)}">
-            💬 <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
-          </button>
+          ${postActions}
         </div>
         <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
           ${renderComments(post.comments || [], post.id)}
@@ -365,6 +376,103 @@ function closeEditModal() {
   if (modal) modal.style.display = "none";
 }
 
+function openEditPostModal(postId) {
+  const modal = document.getElementById("editPostModal");
+  const post = currentProfilePosts.find((p) => p.id === postId);
+  
+  if (!post) return;
+  
+  editingPostId = postId;
+  const contentInput = document.getElementById("editPostContent");
+  const fileInputName = document.getElementById("editPostImageName");
+  
+  if (contentInput) {
+    contentInput.value = post.content || "";
+  }
+  if (fileInputName) {
+    fileInputName.textContent = "";
+  }
+  
+  if (modal) {
+    modal.style.display = "block";
+  }
+}
+
+function closeEditPostModal() {
+  const modal = document.getElementById("editPostModal");
+  if (modal) modal.style.display = "none";
+  editingPostId = null;
+  const form = document.getElementById("editPostForm");
+  if (form) form.reset();
+}
+
+async function deletePost(postId) {
+  if (!confirm(t("common.confirmDelete") || "Are you sure you want to delete this post?")) {
+    return;
+  }
+
+  showLoading(true);
+  try {
+    const response = await fetch("https://laoverse-production.up.railway.app/api/delete_post", {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: `post_id=${encodeURIComponent(postId)}`,
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postDeleted") || "Post deleted successfully", "success");
+      await loadProfile(currentProfileId);
+      return;
+    }
+    showMessage(data.message || t("profile.deleteFailed") || "Failed to delete post", "error");
+  } catch (error) {
+    showMessage(t("profile.deleteFailed") || "Failed to delete post", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function handleEditPost(event) {
+  event.preventDefault();
+  
+  if (!editingPostId) return;
+
+  const form = event.target || document.getElementById("editPostForm");
+  const formData = new FormData(form);
+  formData.set("post_id", editingPostId);
+
+  showLoading(true);
+  try {
+    const response = await fetch("https://laoverse-production.up.railway.app/api/edit_post", {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: formData,
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postUpdated") || "Post updated successfully", "success");
+      closeEditPostModal();
+      await loadProfile(currentProfileId);
+      return;
+    }
+    showMessage(data.message || t("profile.updateFailed") || "Failed to update post", "error");
+  } catch (error) {
+    showMessage(t("profile.updateFailed") || "Failed to update post", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+function closeEditModal() {
+  const modal = document.getElementById("editProfileModal");
+  if (modal) modal.style.display = "none";
+}
+
 async function handleProfileUpdate(event) {
   event.preventDefault();
   const form = event.target || document.getElementById("editProfileForm");
@@ -398,6 +506,9 @@ function setupInteractions() {
   const editForm = document.getElementById("editProfileForm");
   const fileInput = document.getElementById("editProfilePic");
   const fileInputName = document.getElementById("fileInputName");
+  const editPostForm = document.getElementById("editPostForm");
+  const editPostImage = document.getElementById("editPostImage");
+  const editPostImageName = document.getElementById("editPostImageName");
 
   if (editBtn) {
     editBtn.addEventListener("click", openEditModal);
@@ -414,6 +525,17 @@ function setupInteractions() {
     });
   }
 
+  if (editPostForm) {
+    editPostForm.addEventListener("submit", handleEditPost);
+  }
+
+  if (editPostImage && editPostImageName) {
+    editPostImage.addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      editPostImageName.textContent = file ? file.name : "";
+    });
+  }
+
   document.addEventListener("click", async (event) => {
     const likeBtn = event.target.closest(".like-btn");
     if (likeBtn) {
@@ -427,6 +549,18 @@ function setupInteractions() {
       if (section) {
         section.style.display = section.style.display === "none" ? "block" : "none";
       }
+      return;
+    }
+
+    const editPostBtn = event.target.closest(".edit-btn");
+    if (editPostBtn) {
+      openEditPostModal(editPostBtn.dataset.id);
+      return;
+    }
+
+    const deletePostBtn = event.target.closest(".delete-btn");
+    if (deletePostBtn) {
+      await deletePost(deletePostBtn.dataset.id);
       return;
     }
 
@@ -479,6 +613,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.location.href = "index2.html";
       return;
     }
+    currentUserId = data.user?.id;
   } catch (error) {
     window.location.href = "index2.html";
     return;
