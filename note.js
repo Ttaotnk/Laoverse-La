@@ -1,4 +1,4 @@
-﻿let notedPosts = [];
+﻿let notifications = [];
 
 function t(key, vars) {
   if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
@@ -59,280 +59,183 @@ function goToUserProfile(userId) {
   window.location.href = `user-profile.html?id=${encodeURIComponent(userId)}`;
 }
 
-function detectFileKind(fileType, filePath) {
-  const type = String(fileType || "").toLowerCase();
-  const path = String(filePath || "").toLowerCase();
-
-  if (type.startsWith("image/") || ["image", "jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(type) || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(path)) {
-    return "image";
+function getNotificationIcon(type) {
+  switch (type) {
+    case 'like':
+      return '❤️';
+    case 'comment':
+      return '💬';
+    case 'friend-request':
+      return '👥';
+    default:
+      return '🔔';
   }
-  if (type.startsWith("video/") || ["video", "mp4", "webm", "mov", "mkv", "avi", "m4v", "ogv"].includes(type) || /\.(mp4|webm|mov|mkv|avi|m4v|ogv)$/i.test(path)) {
-    return "video";
-  }
-  if (type.startsWith("audio/") || ["audio", "mp3", "wav", "ogg", "aac", "m4a", "flac", "oga"].includes(type) || /\.(mp3|wav|ogg|aac|m4a|flac|oga)$/i.test(path)) {
-    return "audio";
-  }
-  return "file";
 }
 
-function renderComments(comments, postId) {
-  if (!Array.isArray(comments) || comments.length === 0) {
-    return `<div class="no-comments">${safeHtml(t("feed.noComments"))}</div>`;
-  }
-
-  const groups = {};
-  comments.forEach((comment) => {
-    const parent = comment.parent_comment_id || "root";
-    if (!groups[parent]) groups[parent] = [];
-    groups[parent].push(comment);
-  });
-
-  const renderThread = (parentId, level) => {
-    const list = groups[parentId] || [];
-    return list.map((comment) => `
-      <div class="comment ${level > 0 ? "comment-reply" : ""}" style="${level > 0 ? `margin-left:${Math.min(level, 3) * 20}px;` : ""}">
-        <img src="${safeHtml(comment.profile_pic || "default-profile.png")}"
-             class="comment-profile-pic"
-             onclick="goToUserProfile('${safeHtml(comment.user_id || "")}')"
-             style="cursor:pointer;"
-             onerror="this.src='default-profile.png'">
-        <div class="comment-content">
-          <div class="comment-header">
-            <strong onclick="goToUserProfile('${safeHtml(comment.user_id || "")}')" style="cursor:pointer;">${safeHtml(comment.username)}</strong>
-            <small>${safeHtml(formatRelativeTime(comment.created_at))}</small>
-          </div>
-          <p>${safeHtml(comment.comment)}</p>
-          <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("feed.reply"))}</button>
-          </div>
-          <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
-            <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
-            <button class="submit-reply" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("common.submit"))}</button>
-          </div>
-          ${renderThread(comment.id, level + 1)}
-        </div>
-      </div>
-    `).join("");
-  };
-
-  return renderThread("root", 0);
-}
-
-function renderPosts(posts) {
-  notedPosts = Array.isArray(posts) ? posts : [];
-  const container = document.getElementById("commentedPostsContainer");
+function renderNotifications(notifs) {
+  notifications = Array.isArray(notifs) ? notifs : [];
+  const container = document.getElementById("notificationsContainer");
   if (!container) return;
 
-  if (!notedPosts.length) {
-    container.innerHTML = `<div class="no-posts">${safeHtml(t("note.empty"))}</div>`;
+  if (!notifications.length) {
+    container.innerHTML = `<div class="no-notifications">${safeHtml(t("note.empty") || "No notifications")}</div>`;
     return;
   }
 
-  container.innerHTML = notedPosts.map((post) => {
-    let mediaHtml = "";
-    if (post.image) {
-      const kind = detectFileKind(post.file_type, post.image);
-      if (kind === "video") {
-        mediaHtml = `<video controls playsinline preload="metadata" class="post-image" src="${safeHtml(post.image)}"></video>`;
-      } else if (kind === "audio") {
-        mediaHtml = `<audio controls preload="metadata" class="post-audio" src="${safeHtml(post.image)}"></audio>`;
-      } else if (kind === "file") {
-        mediaHtml = `<a href="${safeHtml(post.image)}" class="post-file" target="_blank" rel="noopener">${safeHtml(t("common.downloadFile"))}</a>`;
-      } else {
-        mediaHtml = `<img src="${safeHtml(post.image)}" class="post-image" alt="post-image">`;
-      }
+  container.innerHTML = notifications.map((notif) => {
+    const icon = getNotificationIcon(notif.type);
+    
+    if (notif.type === 'friend-request') {
+      return `
+        <div class="notification friend-request-notif" data-id="${safeHtml(notif.id)}">
+          <img src="${safeHtml(notif.actor_pic || "default-profile.png")}"
+               class="notif-avatar"
+               onclick="goToUserProfile('${safeHtml(notif.actor_id || "")}')"
+               style="cursor:pointer;"
+               onerror="this.src='default-profile.png'">
+          <div class="notif-content">
+            <div class="notif-message">
+              <span class="notif-icon">${icon}</span>
+              <span class="notif-text">
+                <strong onclick="goToUserProfile('${safeHtml(notif.actor_id)}')" style="cursor:pointer;">${safeHtml(notif.actor_name)}</strong>
+                ${safeHtml(t("note.sentFriendRequest"))}
+              </span>
+            </div>
+            <small class="notif-time">${safeHtml(formatRelativeTime(notif.created_at))}</small>
+            <div class="friend-request-actions">
+              <button class="accept-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">✓ ${safeHtml(t("friends.accept"))}</button>
+              <button class="decline-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">✕ ${safeHtml(t("friends.reject"))}</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    let contentPreview = "";
+    if (notif.type === 'like') {
+      contentPreview = `<span class="content-preview">"${safeHtml((notif.target_content || "").substring(0, 50))}"</span>`;
+    } else if (notif.type === 'comment') {
+      contentPreview = `<span class="comment-preview">"${safeHtml((notif.comment_text || "").substring(0, 50))}"</span>`;
     }
 
     return `
-      <div class="post" data-id="${safeHtml(post.id)}">
-        <div class="post-header">
-          <img src="${safeHtml((post.user && post.user.profile_pic) || "default-profile.png")}"
-               class="post-profile-pic"
-               onclick="goToUserProfile('${safeHtml((post.user && post.user.id) || "")}')"
-               style="cursor:pointer;"
-               onerror="this.src='default-profile.png'">
-          <div class="post-user-info">
-            <strong onclick="goToUserProfile('${safeHtml((post.user && post.user.id) || "")}')" style="cursor:pointer;">${safeHtml((post.user && post.user.username) || t("profile.unknownUser"))}</strong>
-            <small>${safeHtml(formatRelativeTime(post.created_at))}</small>
+      <div class="notification ${notif.type}-notif" data-id="${safeHtml(notif.id)}">
+        <img src="${safeHtml(notif.actor_pic || "default-profile.png")}"
+             class="notif-avatar"
+             onclick="goToUserProfile('${safeHtml(notif.actor_id || "")}')"
+             style="cursor:pointer;"
+             onerror="this.src='default-profile.png'">
+        <div class="notif-content">
+          <div class="notif-message">
+            <span class="notif-icon">${icon}</span>
+            <span class="notif-text">
+              <strong onclick="goToUserProfile('${safeHtml(notif.actor_id)}')" style="cursor:pointer;">${safeHtml(notif.actor_name)}</strong>
+              ${safeHtml(t(notif.type === 'like' ? "note.likedYourPost" : "note.commentedOnYourPost"))}
+            </span>
           </div>
-        </div>
-        <div class="post-content">
-          ${post.content ? `<p class="post-text">${safeHtml(post.content)}</p>` : ""}
-          ${mediaHtml}
-        </div>
-        <div class="post-actions">
-          <button class="like-btn ${post.is_liked ? "liked" : ""}" data-id="${safeHtml(post.id)}">
-            ${post.is_liked ? "❤︎" : "♡"} <span class="like-count">${Number(post.likes_count || 0)}</span>
-          </button>
-          <button class="comment-btn" data-id="${safeHtml(post.id)}">
-            💬 <span class="comment-count">${Number(post.comments_count || (post.comments || []).length || 0)}</span>
-          </button>
-        </div>
-        <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
-          ${renderComments(post.comments || [], post.id)}
-          <div class="add-comment">
-            <input type="text" class="comment-input" data-postid="${safeHtml(post.id)}" placeholder="${safeHtml(t("feed.commentPlaceholder"))}">
-            <button class="submit-comment" data-id="${safeHtml(post.id)}">${safeHtml(t("common.submit"))}</button>
-          </div>
+          <small class="notif-time">${safeHtml(formatRelativeTime(notif.created_at))}</small>
+          ${contentPreview}
         </div>
       </div>
     `;
   }).join("");
 }
 
-async function loadCommentedPosts() {
+async function loadNotifications() {
   showLoading(true);
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/note/commented-posts", { credentials: "include" });
-    if (!response.ok) throw new Error("load");
+    const token = localStorage.getItem('laoverse_jwt') || '';
+    const response = await fetch("https://laoverse-production.up.railway.app/api/get-notifications", { 
+      credentials: "include",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     const data = await response.json();
     if (data.success) {
-      renderPosts(data.posts || []);
+      renderNotifications(data.notifications || []);
       return;
     }
-    showMessage(data.message || t("note.loadFailed"), "error");
+    showMessage(data.message || t("note.loadFailed") || "Failed to load notifications", "error");
   } catch (error) {
-    showMessage(t("note.loadFailed"), "error");
+    showMessage(t("note.loadFailed") || "Failed to load notifications", "error");
   } finally {
     showLoading(false);
   }
 }
 
-async function likePost(postId) {
+async function handleFriendRequest(action, userId, requestId) {
   showLoading(true);
   try {
-    const formData = new FormData();
-    formData.append("post_id", postId);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/note/like", {
+    const status = action === 'accept' ? 'accepted' : 'rejected';
+    const token = localStorage.getItem('laoverse_jwt') || '';
+    
+    const response = await fetch("https://laoverse-production.up.railway.app/api/respond_request", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization": `Bearer ${token}`
+      },
+      body: `sender_id=${encodeURIComponent(userId)}&status=${encodeURIComponent(status)}`,
       credentials: "include"
     });
     const data = await response.json();
     if (data.success) {
-      await loadCommentedPosts();
+      showMessage(action === 'accept' ? "Friend request accepted" : "Friend request declined", "success");
+      await loadNotifications();
       return;
     }
-    showMessage(data.message || t("note.likeFailed"), "error");
+    showMessage(data.message || "Action failed", "error");
   } catch (error) {
-    showMessage(t("note.likeFailed"), "error");
+    showMessage("Action failed", "error");
   } finally {
     showLoading(false);
   }
-}
-
-async function addComment(postId, comment, parentCommentId) {
-  showLoading(true);
-  try {
-    const formData = new FormData();
-    formData.append("post_id", postId);
-    formData.append("comment", comment);
-    if (parentCommentId) formData.append("parent_comment_id", parentCommentId);
-
-    const response = await fetch("https://laoverse-production.up.railway.app/api/note/comment", {
-      method: "POST",
-      body: formData,
-      credentials: "include"
-    });
-    const data = await response.json();
-    if (data.success) {
-      await loadCommentedPosts();
-      return true;
-    }
-    showMessage(data.message || t("note.addCommentFailed"), "error");
-  } catch (error) {
-    showMessage(t("note.addCommentFailed"), "error");
-  } finally {
-    showLoading(false);
-  }
-  return false;
 }
 
 function setupInteractions() {
   document.addEventListener("click", async (event) => {
-    const likeBtn = event.target.closest(".like-btn");
-    if (likeBtn) {
-      await likePost(likeBtn.dataset.id);
+    const acceptBtn = event.target.closest(".accept-request");
+    if (acceptBtn) {
+      await handleFriendRequest('accept', acceptBtn.dataset.userId, acceptBtn.dataset.requestId);
       return;
     }
 
-    const commentBtn = event.target.closest(".comment-btn");
-    if (commentBtn) {
-      const section = document.getElementById(`comments-${commentBtn.dataset.id}`);
-      if (section) {
-        section.style.display = section.style.display === "none" ? "block" : "none";
-      }
+    const declineBtn = event.target.closest(".decline-request");
+    if (declineBtn) {
+      await handleFriendRequest('decline', declineBtn.dataset.userId, declineBtn.dataset.requestId);
       return;
-    }
-
-    const submitBtn = event.target.closest(".submit-comment");
-    if (submitBtn) {
-      const input = document.querySelector(`.comment-input[data-postid="${submitBtn.dataset.id}"]`);
-      const comment = input ? input.value.trim() : "";
-      if (!comment) {
-        showMessage(t("feed.commentRequired"), "error");
-        return;
-      }
-      if (await addComment(submitBtn.dataset.id, comment) && input) {
-        input.value = "";
-      }
-      return;
-    }
-
-    const replyToggle = event.target.closest(".reply-toggle");
-    if (replyToggle) {
-      const box = document.getElementById(`reply-box-${replyToggle.dataset.postId}-${replyToggle.dataset.commentId}`);
-      if (box) {
-        box.style.display = box.style.display === "none" ? "block" : "none";
-      }
-      return;
-    }
-
-    const submitReplyBtn = event.target.closest(".submit-reply");
-    if (submitReplyBtn) {
-      const box = document.getElementById(`reply-box-${submitReplyBtn.dataset.postId}-${submitReplyBtn.dataset.commentId}`);
-      const input = box ? box.querySelector(".reply-input") : null;
-      const comment = input ? input.value.trim() : "";
-      if (!comment) {
-        showMessage(t("feed.replyRequired"), "error");
-        return;
-      }
-      if (await addComment(submitReplyBtn.dataset.postId, comment, submitReplyBtn.dataset.commentId) && input) {
-        input.value = "";
-      }
-    }
-  });
-
-  document.addEventListener("keypress", (event) => {
-    if (event.key !== "Enter") return;
-    if (event.target.classList.contains("comment-input")) {
-      event.preventDefault();
-      const postId = event.target.getAttribute("data-postid");
-      const button = document.querySelector(`.submit-comment[data-id="${postId}"]`);
-      if (button) button.click();
-      return;
-    }
-    if (event.target.classList.contains("reply-input")) {
-      event.preventDefault();
-      const box = event.target.closest(".reply-box");
-      const button = box ? box.querySelector(".submit-reply") : null;
-      if (button) button.click();
     }
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const token = localStorage.getItem('laoverse_jwt') || '';
+    const authResponse = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+    const authData = await authResponse.json();
+    if (!authData.success) {
+      window.location.href = "index2.html";
+      return;
+    }
+  } catch (error) {
+    window.location.href = "index2.html";
+    return;
+  }
+
   setupInteractions();
-  loadCommentedPosts();
+  loadNotifications();
 });
 
 document.addEventListener("laoverse:languagechange", () => {
-  renderPosts(notedPosts);
+  renderNotifications(notifications);
   const loading = document.getElementById("loading");
   if (loading) {
     const text = loading.querySelector("span");
     if (text) text.textContent = t("common.loading");
   }
 });
-
-window.goToUserProfile = goToUserProfile;
