@@ -1,5 +1,12 @@
 ﻿let notifications = [];
 
+const UI_EMOJI = {
+  liked: "❤️",
+  unliked: "🤍",
+  comment: "💬",
+  reply: "↩️"
+};
+
 function t(key, vars) {
   if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
     return window.LanguageManager.translate(key, vars);
@@ -101,7 +108,7 @@ async function openPostModal() {
     // Build comments HTML
     let commentsHtml = '';
     if (comments.length > 0) {
-      commentsHtml += '<div class="comments-section"><h4>💬 Comments</h4>';
+      commentsHtml += `<div class="comments-section"><h4>${UI_EMOJI.comment} Comments</h4>`;
       parentComments.forEach(pComment => {
         commentsHtml += `
           <div class="comment-thread">
@@ -117,7 +124,7 @@ async function openPostModal() {
                   <small>${safeHtml(formatRelativeTime(pComment.created_at))}</small>
                 </div>
                 <p>${safeHtml(pComment.text)}</p>
-                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')">↩️ ${t("feed.reply")}</button>
+                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')">${UI_EMOJI.reply} ${t("feed.reply")}</button>
               </div>
             </div>
         `;
@@ -139,7 +146,7 @@ async function openPostModal() {
                     <small>${safeHtml(formatRelativeTime(childComment.created_at))}</small>
                   </div>
                   <p>${safeHtml(childComment.text)}</p>
-                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')">↩️ ${t("feed.reply")}</button>
+                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')">${UI_EMOJI.reply} ${t("feed.reply")}</button>
                 </div>
               </div>
             `;
@@ -193,8 +200,8 @@ async function openPostModal() {
             ${post.image ? `<img src="${safeHtml(post.image)}" class="post-image" onerror="this.style.display='none'">` : ''}
           </div>
           <div class="post-actions">
-            <button class="like-btn" onclick="toggleLike('${safeHtml(post._id)}', event)">❤️ Like</button>
-            <button class="comment-btn" onclick="focusReplyInput()">${t("feed.commentPlaceholder")}</button>
+            <button class="like-btn" onclick="toggleLike('${safeHtml(post._id)}', event)">${post.is_liked ? UI_EMOJI.liked : UI_EMOJI.unliked} Like</button>
+            <button class="comment-btn" onclick="focusReplyInput()">${UI_EMOJI.comment} ${t("feed.commentPlaceholder")}</button>
           </div>
         </div>
 
@@ -369,9 +376,11 @@ async function submitReplyToComment(postId, parentCommentId, event) {
 function getNotificationIcon(type) {
   switch (type) {
     case 'like':
-      return '❤️';
+      return UI_EMOJI.liked;
     case 'comment':
-      return '💬';
+      return UI_EMOJI.comment;
+    case 'reply':
+      return UI_EMOJI.reply;
     case 'friend-request':
       return '👥';
     default:
@@ -423,6 +432,8 @@ function renderNotifications(notifs) {
       contentPreview = `<span class="content-preview" onclick="viewPostFromNotification('${safeHtml(notif.target_id)}')" style="cursor:pointer;">"${safeHtml((notif.target_content || "").substring(0, 50))}"</span>`;
     } else if (notif.type === 'comment') {
       contentPreview = `<span class="comment-preview" onclick="viewPostFromNotification('${safeHtml(notif.target_id)}')" style="cursor:pointer;">"${safeHtml((notif.comment_text || "").substring(0, 50))}"</span>`;
+    } else if (notif.type === 'reply') {
+      contentPreview = `<span class="comment-preview" onclick="viewPostFromNotification('${safeHtml(notif.target_id)}')" style="cursor:pointer;">"${safeHtml((notif.comment_text || "").substring(0, 50))}"</span>`;
     }
 
     return `
@@ -437,7 +448,7 @@ function renderNotifications(notifs) {
             <span class="notif-icon">${icon}</span>
             <span class="notif-text">
               <strong onclick="event.stopPropagation(); goToUserProfile('${safeHtml(notif.actor_id)}')" style="cursor:pointer;">${safeHtml(notif.actor_name)}</strong>
-              ${safeHtml(t(notif.type === 'like' ? "note.likedYourPost" : "note.commentedOnYourPost"))}
+              ${safeHtml(t(notif.type === 'like' ? "note.likedYourPost" : notif.type === 'reply' ? "note.repliedToYourComment" : "note.commentedOnYourPost"))}
             </span>
           </div>
           <small class="notif-time">${safeHtml(formatRelativeTime(notif.created_at))}</small>

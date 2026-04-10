@@ -7,6 +7,13 @@ const imagePreview = document.getElementById("image-preview") || document.create
 let feedPosts = [];
 let feedRefreshTimer = null;
 
+const UI_EMOJI = {
+  liked: "❤️",
+  unliked: "🤍",
+  comment: "💬",
+  reply: "↩️"
+};
+
 function getAuthHeaders() {
   const token = localStorage.getItem('laoverse_jwt');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -165,7 +172,7 @@ function renderComments(comments, postId) {
           </div>
           <p class="comment-text">${safeHtml(comment.comment)}</p>
           <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("feed.reply"))}</button>
+            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${UI_EMOJI.reply} ${safeHtml(t("feed.reply"))}</button>
           </div>
           <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
             <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
@@ -209,10 +216,10 @@ function renderPosts(posts) {
       </div>
       <div class="post-actions">
         <button class="like-btn" data-id="${safeHtml(post.id)}">
-          ${post.is_liked ? "❤︎" : "♡"} <span class="like-count">${Number(post.likes || 0)}</span>
+          ${post.is_liked ? UI_EMOJI.liked : UI_EMOJI.unliked} <span class="like-count">${Number(post.likes || 0)}</span>
         </button>
         <button class="comment-btn" data-id="${safeHtml(post.id)}">
-          💬 <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+          ${UI_EMOJI.comment} <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
         </button>
       </div>
       <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
@@ -309,7 +316,7 @@ async function toggleLike(postId, button) {
     const data = await response.json();
 
     if (data.success) {
-      button.innerHTML = `${data.is_liked ? "❤︎" : "♡"} <span class="like-count">${Number(data.likes || 0)}</span>`;
+      button.innerHTML = `${data.is_liked ? UI_EMOJI.liked : UI_EMOJI.unliked} <span class="like-count">${Number(data.likes || 0)}</span>`;
     }
   } catch (error) {}
 }
