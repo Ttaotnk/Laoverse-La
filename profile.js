@@ -125,7 +125,7 @@ function renderComments(comments, postId) {
           </div>
           <p class="comment-text">${safeHtml(comment.comment)}</p>
           <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${UI_EMOJI.reply} ${safeHtml(t("feed.reply"))}</button>
+            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><span class="btn-icon reply-icon">↩️</span> ${safeHtml(t("feed.reply"))}</button>
           </div>
           <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
             <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
@@ -222,15 +222,15 @@ function renderProfilePosts(posts) {
 
     const isOwnPost = post.user_id === currentUserId;
     const postActions = `
-      <button class="like-btn" data-id="${safeHtml(post.id)}">
-        ${post.is_liked ? UI_EMOJI.liked : UI_EMOJI.unliked} <span class="like-count">${Number(post.likes || 0)}</span>
+      <button class="like-btn ${post.is_liked ? 'liked' : ''}" data-id="${safeHtml(post.id)}">
+        <span class="btn-icon like-icon">${post.is_liked ? "♥" : "♡"}</span> <span class="like-count">${Number(post.likes || 0)}</span>
       </button>
       <button class="comment-btn" data-id="${safeHtml(post.id)}">
-        ${UI_EMOJI.comment} <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+        <span class="btn-icon comment-icon">💬</span> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
       </button>
       ${isOwnPost ? `
-        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit") || "Edit")}">?? ${safeHtml(t("common.edit") || "Edit")}</button>
-        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete") || "Delete")}">??? ${safeHtml(t("common.delete") || "Delete")}</button>
+        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit"))}"><span class="btn-icon edit-icon">✏️</span>${safeHtml(t("common.edit"))}</button>
+        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}"><span class="btn-icon delete-icon">🗑️</span>${safeHtml(t("common.delete"))}</button>
       ` : ''}
     `;
 
@@ -414,7 +414,7 @@ function closeEditPostModal() {
 }
 
 async function deletePost(postId) {
-  if (!confirm(t("common.confirmDelete") || "Are you sure you want to delete this post?")) {
+  if (!confirm(t("common.confirmDelete"))) {
     return;
   }
 
@@ -431,13 +431,13 @@ async function deletePost(postId) {
     });
     const data = await response.json();
     if (data.success) {
-      showMessage(t("profile.postDeleted") || "Post deleted successfully", "success");
+      showMessage(t("profile.postDeleted"), "success");
       await loadProfile(currentProfileId);
       return;
     }
-    showMessage(data.message || t("profile.deleteFailed") || "Failed to delete post", "error");
+    showMessage(data.message || t("profile.deleteFailed"), "error");
   } catch (error) {
-    showMessage(t("profile.deleteFailed") || "Failed to delete post", "error");
+    showMessage(t("profile.deleteFailed"), "error");
   } finally {
     showLoading(false);
   }
@@ -462,14 +462,14 @@ async function handleEditPost(event) {
     });
     const data = await response.json();
     if (data.success) {
-      showMessage(t("profile.postUpdated") || "Post updated successfully", "success");
+      showMessage(t("profile.postUpdated"), "success");
       closeEditPostModal();
       await loadProfile(currentProfileId);
       return;
     }
-    showMessage(data.message || t("profile.updateFailed") || "Failed to update post", "error");
+    showMessage(data.message || t("profile.updateFailed"), "error");
   } catch (error) {
-    showMessage(t("profile.updateFailed") || "Failed to update post", "error");
+    showMessage(t("profile.updateFailed"), "error");
   } finally {
     showLoading(false);
   }

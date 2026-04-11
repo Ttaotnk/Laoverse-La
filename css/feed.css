@@ -263,6 +263,15 @@ body {
   border-top: 1px solid rgba(102, 240, 255, 0.2);
 }
 
+/* Icon styling for buttons with theme support */
+.btn-icon {
+  display: inline-block;
+  font-size: 1em;
+  line-height: 1;
+  margin-right: 0.3rem;
+  transition: all 0.3s ease;
+}
+
 .like-btn {
   background: none;
   border: none;
@@ -278,6 +287,20 @@ body {
   line-height: 1;
   width: fit-content;
   flex-shrink: 1;
+}
+
+.like-btn .like-icon {
+  color: var(--neon-blue);
+  filter: drop-shadow(0 0 2px var(--neon-blue));
+}
+
+.like-btn.liked {
+  color: #ff4444;
+}
+
+.like-btn.liked .like-icon {
+  color: #ff4444;
+  filter: drop-shadow(0 0 3px #ff4444);
 }
 
 .like-btn:hover {
@@ -302,9 +325,19 @@ body {
   flex-shrink: 1;
 }
 
+.comment-btn .comment-icon {
+  color: var(--light-blue);
+  filter: drop-shadow(0 0 2px var(--light-blue));
+}
+
 .comment-btn:hover {
   background-color: var(--light-blue);
   border-radius: 5px;
+}
+
+.reply-toggle .reply-icon {
+  color: var(--soft-blue);
+  font-size: 0.9em;
 }
 
 /* Comments Section */
