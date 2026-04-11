@@ -414,30 +414,41 @@ function closeEditPostModal() {
 }
 
 async function deletePost(postId) {
+  console.log('deletePost called with:', postId);
   const confirmed = await showConfirm(t("common.confirmDelete"));
+  console.log('Confirmation result:', confirmed);
+  
   if (!confirmed) {
+    console.log('Delete cancelled by user');
     return;
   }
 
   showLoading(true);
   try {
+    console.log('Sending delete request to API...');
     const response = await fetch("https://laoverse.vercel.app/api/delete_post", {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         ...getAuthHeaders()
       },
       body: `post_id=${encodeURIComponent(postId)}`,
       credentials: "include"
     });
+    
+    console.log('Response status:', response.status);
     const data = await response.json();
+    console.log('Response data:', data);
+    
     if (data.success) {
       showMessage(t("profile.postDeleted"), "success");
       await loadProfile(currentProfileId);
       return;
     }
+    console.error('Delete failed:', data.message);
     showMessage(data.message || t("profile.deleteFailed"), "error");
   } catch (error) {
+    console.error('Delete post error:', error);
     showMessage(t("profile.deleteFailed"), "error");
   } finally {
     showLoading(false);
