@@ -240,9 +240,25 @@ function viewProfile(userId) {
 
 function handleImagePreview(event) {
   const file = event.target.files && event.target.files[0];
-  imagePreview.innerHTML = file
-    ? `<img src="${URL.createObjectURL(file)}" alt="preview" style="max-width:100%;max-height:200px;">`
-    : "";
+  if (!file) {
+    imagePreview.innerHTML = "";
+    return;
+  }
+
+  const fileURL = URL.createObjectURL(file);
+  let previewHTML = "";
+
+  if (file.type.startsWith("image/")) {
+    previewHTML = `<img src="${fileURL}" alt="preview" style="max-width:100%;max-height:200px;">`;
+  } else if (file.type.startsWith("video/")) {
+    previewHTML = `<video src="${fileURL}" controls style="max-width:100%;max-height:200px;"></video>`;
+  } else if (file.type.startsWith("audio/")) {
+    previewHTML = `<audio src="${fileURL}" controls style="width:100%;max-width:400px;"></audio>`;
+  } else {
+    previewHTML = `<div style="padding:1rem;background:rgba(255,255,255,0.1);border-radius:5px;">📄 ${file.name}</div>`;
+  }
+
+  imagePreview.innerHTML = previewHTML;
 }
 
 async function handlePostSubmit(event) {
