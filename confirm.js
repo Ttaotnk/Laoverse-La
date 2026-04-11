@@ -169,13 +169,20 @@
 
     // Event listeners
     document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+      console.log('Cancel button clicked!');
       hideConfirmModal();
     });
 
     document.getElementById('confirmOkBtn').addEventListener('click', () => {
-      hideConfirmModal();
-      if (confirmCallback) {
-        confirmCallback(true);
+      console.log('Confirm OK button clicked!');
+      const callback = confirmCallback;
+      confirmCallback = null;
+      confirmModal.style.display = 'none';
+      if (callback) {
+        console.log('Calling callback with true');
+        callback(true);
+      } else {
+        console.error('No callback found!');
       }
     });
 
@@ -193,6 +200,7 @@
   }
 
   function showConfirmModal(message, title, callback) {
+    console.log('showConfirmModal called with:', { message, title });
     if (!confirmModal) {
       createConfirmModal();
     }
@@ -205,6 +213,7 @@
 
     confirmCallback = callback;
     confirmModal.style.display = 'flex';
+    console.log('Modal displayed, callback set.');
   }
 
   function hideConfirmModal() {
@@ -213,15 +222,19 @@
       modal.style.display = 'none';
     }
     if (confirmCallback) {
-      confirmCallback(false);
+      console.log('Hide confirm modal - calling callback with false');
+      const callback = confirmCallback;
       confirmCallback = null;
+      callback(false);
     }
   }
 
   // Expose to global scope
   window.showConfirm = function(message, title) {
+    console.log('window.showConfirm called');
     return new Promise((resolve) => {
       showConfirmModal(message, title, (result) => {
+        console.log('Confirm modal resolved with:', result);
         resolve(result);
       });
     });

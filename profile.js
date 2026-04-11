@@ -556,6 +556,8 @@ function setupInteractions() {
   }
 
   document.addEventListener("click", async (event) => {
+    console.log('Click event detected on:', event.target);
+    
     const likeBtn = event.target.closest(".like-btn");
     if (likeBtn) {
       await likePost(likeBtn.dataset.id);
@@ -579,6 +581,7 @@ function setupInteractions() {
 
     const deletePostBtn = event.target.closest(".delete-btn");
     if (deletePostBtn) {
+      console.log('Delete button clicked! Post ID:', deletePostBtn.dataset.id);
       await deletePost(deletePostBtn.dataset.id);
       return;
     }
