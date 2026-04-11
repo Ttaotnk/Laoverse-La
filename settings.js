@@ -121,13 +121,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (deleteAccountBtn) {
     deleteAccountBtn.addEventListener("click", async function () {
-      const ok = confirm(t("settings.deleteConfirm"));
-      if (!ok) return;
+      const confirmed = await showConfirm(t("settings.deleteConfirm"));
+      if (!confirmed) return;
+      
       const res = await fetch("https://laoverse.vercel.app/api/delete_account", { method: "POST" });
       const data = await res.json();
       if (data.success) {
         localStorage.removeItem('laoverse_jwt');
-        alert(t("settings.deleteSuccess"));
+        showMessage(t("settings.deleteSuccess"), "success");
         window.location.href = "index2.html";
       } else {
         showMessage(data.message || t("settings.deleteFail"));

@@ -414,7 +414,8 @@ function closeEditPostModal() {
 }
 
 async function deletePost(postId) {
-  if (!confirm(t("common.confirmDelete"))) {
+  const confirmed = await showConfirm(t("common.confirmDelete"));
+  if (!confirmed) {
     return;
   }
 

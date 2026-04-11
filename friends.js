@@ -207,7 +207,8 @@ async function sendFriendRequest(userId) {
 }
 
 async function removeFriend(friendId) {
-  if (!window.confirm(t("friends.removeConfirm"))) return;
+  const confirmed = await showConfirm(t("friends.removeConfirm"));
+  if (!confirmed) return;
 
   try {
     const response = await fetch("https://laoverse.vercel.app/api/remove_friend", {
