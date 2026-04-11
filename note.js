@@ -1,10 +1,10 @@
-﻿let notifications = [];
+let notifications = [];
 
 const UI_EMOJI = {
-  liked: "❤️",
-  unliked: "🤍",
-  comment: "💬",
-  reply: "↩️"
+  liked: "??",
+  unliked: "??",
+  comment: "??",
+  reply: "??"
 };
 
 function t(key, vars) {
@@ -79,7 +79,7 @@ async function openPostModal() {
 
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
-    const response = await fetch(`https://laoverse-production.up.railway.app/api/get_post/${postId}`, {
+    const response = await fetch(`https://laoverse.vercel.app/api/get_post/${postId}`, {
       headers: { "Authorization": `Bearer ${token}` },
       credentials: "include"
     });
@@ -239,7 +239,7 @@ async function toggleLike(postId, event) {
   event.stopPropagation();
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/toggle_like", {
+    const response = await fetch("https://laoverse.vercel.app/api/toggle_like", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -273,7 +273,7 @@ async function submitReply(postId, event) {
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     showLoading(true);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
+    const response = await fetch("https://laoverse.vercel.app/api/comment", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -340,7 +340,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     showLoading(true);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
+    const response = await fetch("https://laoverse.vercel.app/api/comment", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -382,9 +382,9 @@ function getNotificationIcon(type) {
     case 'reply':
       return UI_EMOJI.reply;
     case 'friend-request':
-      return '👥';
+      return '??';
     default:
-      return '🔔';
+      return '??';
   }
 }
 
@@ -419,8 +419,8 @@ function renderNotifications(notifs) {
             </div>
             <small class="notif-time">${safeHtml(formatRelativeTime(notif.created_at))}</small>
             <div class="friend-request-actions">
-              <button class="accept-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">✓ ${safeHtml(t("friends.accept"))}</button>
-              <button class="decline-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">✕ ${safeHtml(t("friends.reject"))}</button>
+              <button class="accept-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">? ${safeHtml(t("friends.accept"))}</button>
+              <button class="decline-request" data-user-id="${safeHtml(notif.actor_id)}" data-request-id="${safeHtml(notif.id)}">? ${safeHtml(t("friends.reject"))}</button>
             </div>
           </div>
         </div>
@@ -463,7 +463,7 @@ async function loadNotifications() {
   showLoading(true);
   try {
     const token = localStorage.getItem('laoverse_jwt') || '';
-    const response = await fetch("https://laoverse-production.up.railway.app/api/get-notifications", { 
+    const response = await fetch("https://laoverse.vercel.app/api/get-notifications", { 
       credentials: "include",
       headers: {
         "Authorization": `Bearer ${token}`
@@ -488,7 +488,7 @@ async function handleFriendRequest(action, userId, requestId) {
     const status = action === 'accept' ? 'accepted' : 'rejected';
     const token = localStorage.getItem('laoverse_jwt') || '';
     
-    const response = await fetch("https://laoverse-production.up.railway.app/api/respond_request", {
+    const response = await fetch("https://laoverse.vercel.app/api/respond_request", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -530,7 +530,7 @@ function setupInteractions() {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem('laoverse_jwt') || '';
-    const authResponse = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+    const authResponse = await fetch("https://laoverse.vercel.app/api/check_auth", { 
       headers: {
         "Authorization": `Bearer ${token}`
       }

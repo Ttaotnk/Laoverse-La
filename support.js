@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   const title = document.getElementById("supportTitle");
   const content = document.getElementById("supportMessage");
   const btn = document.getElementById("sendSupportBtn");
@@ -16,7 +16,7 @@
       show(t("support.fillAll"));
       return;
     }
-    const res = await fetch("https://laoverse-production.up.railway.app/api/support_request", {
+    const res = await fetch("https://laoverse.vercel.app/api/support_request", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

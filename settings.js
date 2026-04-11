@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   const themeSelect = document.getElementById("themeSelect");
   const logoutBtn = document.getElementById("logoutBtn");
   const deleteAccountBtn = document.getElementById("deleteAccountBtn");
@@ -53,7 +53,7 @@
   }
 
   async function loadCurrentProfile() {
-    const res = await fetch("https://laoverse-production.up.railway.app/api/loadProfile?user_id=current", { credentials: "include" });
+    const res = await fetch("https://laoverse.vercel.app/api/loadProfile?user_id=current", { credentials: "include" });
     const data = await res.json();
     if (data.success && data.profile) {
       usernameInput.value = data.profile.username || "";
@@ -67,7 +67,7 @@
         username: usernameInput.value.trim(),
         email: emailInput.value.trim()
       };
-      const res = await fetch("https://laoverse-production.up.railway.app/api/update_profile_info", {
+      const res = await fetch("https://laoverse.vercel.app/api/update_profile_info", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@
         showMessage(t("settings.pwMismatch"));
         return;
       }
-      const res = await fetch("https://laoverse-production.up.railway.app/api/change_password", {
+      const res = await fetch("https://laoverse.vercel.app/api/change_password", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -123,7 +123,7 @@
     deleteAccountBtn.addEventListener("click", async function () {
       const ok = confirm(t("settings.deleteConfirm"));
       if (!ok) return;
-      const res = await fetch("https://laoverse-production.up.railway.app/api/delete_account", { method: "POST" });
+      const res = await fetch("https://laoverse.vercel.app/api/delete_account", { method: "POST" });
       const data = await res.json();
       if (data.success) {
         localStorage.removeItem('laoverse_jwt');

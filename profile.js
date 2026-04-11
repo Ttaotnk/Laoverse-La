@@ -1,4 +1,4 @@
-﻿let currentProfile = null;
+let currentProfile = null;
 let currentProfilePosts = [];
 let currentProfileId = "current";
 let currentUserId = null;
@@ -6,10 +6,10 @@ let interactionsBound = false;
 let editingPostId = null;
 
 const UI_EMOJI = {
-  liked: "❤️",
-  unliked: "🤍",
-  comment: "💬",
-  reply: "↩️"
+  liked: "??",
+  unliked: "??",
+  comment: "??",
+  reply: "??"
 };
 
 function getAuthHeaders() {
@@ -229,8 +229,8 @@ function renderProfilePosts(posts) {
         ${UI_EMOJI.comment} <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
       </button>
       ${isOwnPost ? `
-        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit") || "Edit")}">✏️ ${safeHtml(t("common.edit") || "Edit")}</button>
-        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete") || "Delete")}">🗑️ ${safeHtml(t("common.delete") || "Delete")}</button>
+        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit") || "Edit")}">?? ${safeHtml(t("common.edit") || "Edit")}</button>
+        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete") || "Delete")}">??? ${safeHtml(t("common.delete") || "Delete")}</button>
       ` : ''}
     `;
 
@@ -269,7 +269,7 @@ function renderProfilePosts(posts) {
 async function loadProfile(profileId) {
   showLoading(true);
   try {
-    const response = await fetch(`https://laoverse-production.up.railway.app/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`https://laoverse.vercel.app/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -289,7 +289,7 @@ async function loadProfile(profileId) {
 
 async function loadProfilePosts(profileId) {
   try {
-    const response = await fetch(`https://laoverse-production.up.railway.app/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`https://laoverse.vercel.app/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -306,7 +306,7 @@ async function loadProfilePosts(profileId) {
 
 async function likePost(postId) {
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/like", {
+    const response = await fetch("https://laoverse.vercel.app/api/like", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -329,7 +329,7 @@ async function addComment(postId, comment, parentCommentId) {
     payload.set("comment", comment);
     if (parentCommentId) payload.set("parent_comment_id", parentCommentId);
 
-    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
+    const response = await fetch("https://laoverse.vercel.app/api/comment", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -352,7 +352,7 @@ async function addComment(postId, comment, parentCommentId) {
 
 async function sendFriendRequest(userId) {
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/send_request", {
+    const response = await fetch("https://laoverse.vercel.app/api/send_request", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -420,7 +420,7 @@ async function deletePost(postId) {
 
   showLoading(true);
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/delete_post", {
+    const response = await fetch("https://laoverse.vercel.app/api/delete_post", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -454,7 +454,7 @@ async function handleEditPost(event) {
 
   showLoading(true);
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/edit_post", {
+    const response = await fetch("https://laoverse.vercel.app/api/edit_post", {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -486,7 +486,7 @@ async function handleProfileUpdate(event) {
   const formData = new FormData(form);
 
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/updateProfile", {
+    const response = await fetch("https://laoverse.vercel.app/api/updateProfile", {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -612,7 +612,7 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+    const response = await fetch("https://laoverse.vercel.app/api/check_auth", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();

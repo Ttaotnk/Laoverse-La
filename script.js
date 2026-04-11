@@ -1,4 +1,4 @@
-﻿const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
+const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
 
 const showMessage = (message, type = "info", duration = 3000) => {
   const messageDiv = document.getElementById(type === "login" ? "login-message" : "register-message");
@@ -34,7 +34,7 @@ if (registerForm) {
       return;
     }
 
-    fetch('https://laoverse-production.up.railway.app/api/register', {
+    fetch('https://laoverse.vercel.app/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, confirmPassword })
@@ -68,7 +68,7 @@ if (loginForm) {
       return;
     }
 
-    fetch('https://laoverse-production.up.railway.app/api/login', {
+    fetch('https://laoverse.vercel.app/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

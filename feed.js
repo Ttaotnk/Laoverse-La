@@ -1,4 +1,4 @@
-﻿const postForm = document.getElementById("postForm");
+const postForm = document.getElementById("postForm");
 const feedContainer = document.getElementById("feedContainer");
 const postContent = document.getElementById("postContent");
 const postImage = document.getElementById("postImage");
@@ -8,10 +8,10 @@ let feedPosts = [];
 let feedRefreshTimer = null;
 
 const UI_EMOJI = {
-  liked: "❤️",
-  unliked: "🤍",
-  comment: "💬",
-  reply: "↩️"
+  liked: "??",
+  unliked: "??",
+  comment: "??",
+  reply: "??"
 };
 
 function getAuthHeaders() {
@@ -255,7 +255,7 @@ function handleImagePreview(event) {
   } else if (file.type.startsWith("audio/")) {
     previewHTML = `<audio src="${fileURL}" controls style="width:100%;max-width:400px;"></audio>`;
   } else {
-    previewHTML = `<div style="padding:1rem;background:rgba(255,255,255,0.1);border-radius:5px;">📄 ${file.name}</div>`;
+    previewHTML = `<div style="padding:1rem;background:rgba(255,255,255,0.1);border-radius:5px;">?? ${file.name}</div>`;
   }
 
   imagePreview.innerHTML = previewHTML;
@@ -277,7 +277,7 @@ async function handlePostSubmit(event) {
   if (image) formData.append("image", image);
 
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/post", {
+    const response = await fetch("https://laoverse.vercel.app/api/post", {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData
@@ -301,7 +301,7 @@ async function handlePostSubmit(event) {
 async function loadFeed() {
   try {
     showLoading(true);
-    const response = await fetch("https://laoverse-production.up.railway.app/api/loadFeed", { 
+    const response = await fetch("https://laoverse.vercel.app/api/loadFeed", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();
@@ -321,7 +321,7 @@ async function loadFeed() {
 
 async function toggleLike(postId, button) {
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/like", {
+    const response = await fetch("https://laoverse.vercel.app/api/like", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -344,7 +344,7 @@ async function submitComment(postId, comment, parentCommentId) {
   if (parentCommentId) payload.set("parent_comment_id", parentCommentId);
 
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/comment", {
+    const response = await fetch("https://laoverse.vercel.app/api/comment", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -454,7 +454,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupEventDelegation();
 
   try {
-    const response = await fetch("https://laoverse-production.up.railway.app/api/check_auth", { 
+    const response = await fetch("https://laoverse.vercel.app/api/check_auth", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();

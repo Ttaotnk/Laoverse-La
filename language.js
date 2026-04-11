@@ -5,7 +5,7 @@
     const url = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
     const token = localStorage.getItem('laoverse_jwt');
 
-    if (url.includes('laoverse-production.up.railway.app') || url.startsWith('/api')) {
+    if (url.includes('laoverse.vercel.app') || url.startsWith('/api')) {
       config = config || {};
       if (!config.headers) {
         config.headers = {};
