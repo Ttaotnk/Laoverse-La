@@ -125,7 +125,7 @@ function renderComments(comments, postId) {
           </div>
           <p class="comment-text">${safeHtml(comment.comment)}</p>
           <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><span class="btn-icon reply-icon">↩️</span> ${safeHtml(t("feed.reply"))}</button>
+            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${safeHtml(t("feed.reply"))}</button>
           </div>
           <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
             <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
@@ -223,14 +223,14 @@ function renderProfilePosts(posts) {
     const isOwnPost = post.user_id === currentUserId;
     const postActions = `
       <button class="like-btn ${post.is_liked ? 'liked' : ''}" data-id="${safeHtml(post.id)}">
-        <span class="btn-icon like-icon">${post.is_liked ? "♥" : "♡"}</span> <span class="like-count">${Number(post.likes || 0)}</span>
+        <img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> <span class="like-count">${Number(post.likes || 0)}</span>
       </button>
       <button class="comment-btn" data-id="${safeHtml(post.id)}">
-        <span class="btn-icon comment-icon">💬</span> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+        <img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
       </button>
       ${isOwnPost ? `
-        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit"))}"><span class="btn-icon edit-icon">✏️</span>${safeHtml(t("common.edit"))}</button>
-        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}"><span class="btn-icon delete-icon">🗑️</span>${safeHtml(t("common.delete"))}</button>
+        <button class="edit-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.edit"))}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon">${safeHtml(t("common.edit"))}</button>
+        <button class="delete-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon">${safeHtml(t("common.delete"))}</button>
       ` : ''}
     `;
 

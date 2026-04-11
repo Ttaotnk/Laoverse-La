@@ -172,7 +172,7 @@ function renderComments(comments, postId) {
           </div>
           <p class="comment-text">${safeHtml(comment.comment)}</p>
           <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><span class="btn-icon reply-icon">↩️</span> ${safeHtml(t("feed.reply"))}</button>
+            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${safeHtml(t("feed.reply"))}</button>
           </div>
           <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
             <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
@@ -216,10 +216,10 @@ function renderPosts(posts) {
       </div>
       <div class="post-actions">
         <button class="like-btn ${post.is_liked ? 'liked' : ''}" data-id="${safeHtml(post.id)}">
-          <span class="btn-icon like-icon">${post.is_liked ? "♥" : "♡"}</span> <span class="like-count">${Number(post.likes || 0)}</span>
+          <img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> <span class="like-count">${Number(post.likes || 0)}</span>
         </button>
         <button class="comment-btn" data-id="${safeHtml(post.id)}">
-          <span class="btn-icon comment-icon">💬</span> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+          <img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
         </button>
       </div>
       <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
@@ -332,7 +332,7 @@ async function toggleLike(postId, button) {
     const data = await response.json();
 
     if (data.success) {
-      button.innerHTML = `<span class="btn-icon like-icon">${data.is_liked ? "♥" : "♡"}</span> <span class="like-count">${Number(data.likes || 0)}</span>`;
+      button.innerHTML = `<img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> <span class="like-count">${Number(data.likes || 0)}</span>`;
       button.className = `like-btn ${data.is_liked ? 'liked' : ''}`;
     }
   } catch (error) {}

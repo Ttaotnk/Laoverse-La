@@ -108,7 +108,7 @@ async function openPostModal() {
     // Build comments HTML
     let commentsHtml = '';
     if (comments.length > 0) {
-      commentsHtml += `<div class="comments-section"><h4><span class="btn-icon comment-icon">💬</span> Comments</h4>`;
+      commentsHtml += `<div class="comments-section"><h4><img src="icons/comment.svg" alt="comments" class="btn-icon comment-icon"> Comments</h4>`;
       parentComments.forEach(pComment => {
         commentsHtml += `
           <div class="comment-thread">
@@ -124,7 +124,7 @@ async function openPostModal() {
                   <small>${safeHtml(formatRelativeTime(pComment.created_at))}</small>
                 </div>
                 <p>${safeHtml(pComment.text)}</p>
-                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><span class="btn-icon reply-icon">↩️</span> ${t("feed.reply")}</button>
+                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
               </div>
             </div>
         `;
@@ -146,7 +146,7 @@ async function openPostModal() {
                     <small>${safeHtml(formatRelativeTime(childComment.created_at))}</small>
                   </div>
                   <p>${safeHtml(childComment.text)}</p>
-                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><span class="btn-icon reply-icon">↩️</span> ${t("feed.reply")}</button>
+                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
                 </div>
               </div>
             `;
@@ -200,8 +200,8 @@ async function openPostModal() {
             ${post.image ? `<img src="${safeHtml(post.image)}" class="post-image" onerror="this.style.display='none'">` : ''}
           </div>
           <div class="post-actions">
-            <button class="like-btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike('${safeHtml(post._id)}', event)"><span class="btn-icon like-icon">${post.is_liked ? "♥" : "♡"}</span> Like</button>
-            <button class="comment-btn" onclick="focusReplyInput()"><span class="btn-icon comment-icon">💬</span> ${t("feed.commentPlaceholder")}</button>
+            <button class="like-btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike('${safeHtml(post._id)}', event)"><img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> Like</button>
+            <button class="comment-btn" onclick="focusReplyInput()"><img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> ${t("feed.commentPlaceholder")}</button>
           </div>
         </div>
 
@@ -376,15 +376,15 @@ async function submitReplyToComment(postId, parentCommentId, event) {
 function getNotificationIcon(type) {
   switch (type) {
     case 'like':
-      return "♥";
+      return '<img src="icons/heart.svg" alt="like" class="btn-icon">';
     case 'comment':
-      return "💬";
+      return '<img src="icons/comment.svg" alt="comment" class="btn-icon">';
     case 'reply':
-      return "↩️";
+      return '<img src="icons/reply.svg" alt="reply" class="btn-icon">';
     case 'friend-request':
-      return '👥';
+      return '<img src="icons/friend.svg" alt="friend" class="btn-icon">';
     default:
-      return '🔔';
+      return '<img src="icons/notification.svg" alt="notification" class="btn-icon">';
   }
 }
 
