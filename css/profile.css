@@ -827,25 +827,27 @@ input[type="file"]#editPostImage {
   /* ทำให้ปุ่ม action ในโพสต์เล็กลงและพอดีกับจอมือถือ */
   .post-actions {
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 0.25rem;
     overflow-x: hidden;
     max-width: 100%;
     box-sizing: border-box;
   }
 
   .like-btn, .comment-btn {
-    padding: 6px 8px;
-    font-size: 0.8rem;
-    flex: 0 0 auto;
-    max-width: calc(50% - 0.5rem);
-    white-space: nowrap;
+    padding: 4px 6px;
+    font-size: 0.75rem;
+    flex: 0 1 auto;
+    max-width: fit-content;
   }
 
   .edit-btn, .delete-btn {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-    flex: 0 0 auto;
-    max-width: calc(50% - 0.5rem);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    flex: 0 1 auto;
+    max-width: fit-content;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .edit-btn .edit-icon,
