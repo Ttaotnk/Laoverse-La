@@ -787,39 +787,80 @@ input[type="file"]#editPostImage {
   .haha {
     padding: 20px 15px;
   }
-  
+
   .logo img {
     width: 140px;
   }
-  
+
   .main-nav ul {
     gap: 0.5rem;
   }
-  
+
   .main-nav a {
     padding: 6px 8px;
     font-size: 0.6rem;
   }
-  
+
   .profile-container img {
     width: 120px;
     height: 120px;
   }
-  
+
   .profile-info h2 {
     font-size: 1.5rem;
   }
-  
+
   .post {
     padding: 1rem;
+    overflow-x: hidden;
   }
-  
+
   .post-profile-pic {
     width: 40px;
     height: 40px;
   }
-  
+
   .modal-content {
     padding: 1.5rem;
+  }
+
+  /* ทำให้ปุ่ม action ในโพสต์เล็กลงและพอดีกับจอมือถือ */
+  .post-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    overflow-x: hidden;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .like-btn, .comment-btn {
+    padding: 6px 8px;
+    font-size: 0.8rem;
+    flex: 0 0 auto;
+    max-width: calc(50% - 0.5rem);
+    white-space: nowrap;
+  }
+
+  .edit-btn, .delete-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    flex: 0 0 auto;
+    max-width: calc(50% - 0.5rem);
+  }
+
+  .edit-btn .edit-icon,
+  .delete-btn .delete-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .btn-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.2rem;
+  }
+
+  .like-count, .comment-count {
+    font-size: 0.8rem;
   }
 }
