@@ -34,7 +34,7 @@ if (registerForm) {
       return;
     }
 
-    fetch('https://laoverse.vercel.app/api/register', {
+    fetch('https://wit-lee-however-coleman.trycloudflare.com/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, confirmPassword })
@@ -68,7 +68,7 @@ if (loginForm) {
       return;
     }
 
-    fetch('https://laoverse.vercel.app/api/login', {
+    fetch('https://wit-lee-however-coleman.trycloudflare.com/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function loadCurrentProfile() {
-    const res = await fetch("https://laoverse.vercel.app/api/loadProfile?user_id=current", { credentials: "include" });
+    const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/loadProfile?user_id=current", { credentials: "include" });
     const data = await res.json();
     if (data.success && data.profile) {
       usernameInput.value = data.profile.username || "";
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         username: usernameInput.value.trim(),
         email: emailInput.value.trim()
       };
-      const res = await fetch("https://laoverse.vercel.app/api/update_profile_info", {
+      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/update_profile_info", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showMessage(t("settings.pwMismatch"));
         return;
       }
-      const res = await fetch("https://laoverse.vercel.app/api/change_password", {
+      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/change_password", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await showConfirm(t("settings.deleteConfirm"));
       if (!confirmed) return;
       
-      const res = await fetch("https://laoverse.vercel.app/api/delete_account", { method: "POST" });
+      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/delete_account", { method: "POST" });
       const data = await res.json();
       if (data.success) {
         localStorage.removeItem('laoverse_jwt');

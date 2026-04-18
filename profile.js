@@ -269,7 +269,7 @@ function renderProfilePosts(posts) {
 async function loadProfile(profileId) {
   showLoading(true);
   try {
-    const response = await fetch(`https://laoverse.vercel.app/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`https://wit-lee-however-coleman.trycloudflare.com/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -289,7 +289,7 @@ async function loadProfile(profileId) {
 
 async function loadProfilePosts(profileId) {
   try {
-    const response = await fetch(`https://laoverse.vercel.app/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`https://wit-lee-however-coleman.trycloudflare.com/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -306,7 +306,7 @@ async function loadProfilePosts(profileId) {
 
 async function likePost(postId) {
   try {
-    const response = await fetch("https://laoverse.vercel.app/api/like", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/like", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -329,7 +329,7 @@ async function addComment(postId, comment, parentCommentId) {
     payload.set("comment", comment);
     if (parentCommentId) payload.set("parent_comment_id", parentCommentId);
 
-    const response = await fetch("https://laoverse.vercel.app/api/comment", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/comment", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -352,7 +352,7 @@ async function addComment(postId, comment, parentCommentId) {
 
 async function sendFriendRequest(userId) {
   try {
-    const response = await fetch("https://laoverse.vercel.app/api/send_request", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/send_request", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -426,7 +426,7 @@ async function deletePost(postId) {
   showLoading(true);
   try {
     console.log('Sending delete request to API...');
-    const response = await fetch("https://laoverse.vercel.app/api/delete_post", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/delete_post", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -466,7 +466,7 @@ async function handleEditPost(event) {
 
   showLoading(true);
   try {
-    const response = await fetch("https://laoverse.vercel.app/api/edit_post", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/edit_post", {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -498,7 +498,7 @@ async function handleProfileUpdate(event) {
   const formData = new FormData(form);
 
   try {
-    const response = await fetch("https://laoverse.vercel.app/api/updateProfile", {
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/updateProfile", {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -627,7 +627,7 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("https://laoverse.vercel.app/api/check_auth", { 
+    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/check_auth", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();

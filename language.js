@@ -5,7 +5,7 @@
     const url = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
     const token = localStorage.getItem('laoverse_jwt');
 
-    if (url.includes('laoverse.vercel.app') || url.startsWith('/api')) {
+    if (url.includes('wit-lee-however-coleman.trycloudflare.com') || url.startsWith('/api')) {
       config = config || {};
       if (!config.headers) {
         config.headers = {};
@@ -48,7 +48,7 @@
       "common.image": "ຮູບພາບ",
       "common.downloadFile": "ດາວໂຫຼດໄຟລ໌",
       "common.fileNone": "ບໍ່ມີໄຟລ໌ຖືກເລືອກ",
-      "time.justNow": "ຫາກໍ່ຜ່ານມາ",
+      "time.justNow": "ບໍ່ດົນນີ້",
       "time.minuteAgo": "{count} ນາທີກ່ອນ",
       "time.hourAgo": "{count} ຊົ່ວໂມງກ່ອນ",
       "time.dayAgo": "{count} ມື້ກ່ອນ",
@@ -109,7 +109,7 @@
       "note.likeFailed": "ບໍ່ສາມາດກົດຖືກໃຈໂພສໄດ້",
       "note.addCommentFailed": "ບໍ່ສາມາດເພີ່ມຄຳເຫັນໄດ້",
       "note.sentFriendRequest": "ສົ່ງຄຳຂໍເປັນໝູ່ໃຫ້ທ່ານ",
-      "note.likedYourPost": "ໂຫວກຕົກໃຈໂພສຂອງທ່ານ",
+      "note.likedYourPost": "ຖືກໃຈໂພສຂອງທ່ານ",
       "note.commentedOnYourPost": "ໃຫ້ຄຳເຫັນໃນໂພສຂອງທ່ານ",
       "note.repliedToYourComment": "ຕອບກະຕຸບຄຳເຫັນຂອງທ່ານ",
       "profile.title": "ໂປຣໄຟລ໌",
@@ -140,7 +140,7 @@
       "settings.theme": "ປ່ຽນຮູບແບບສີ (Theme)",
       "settings.theme.default": "Theme ເດີມ",
       "settings.theme.green": "Theme ສີຂຽວ",
-      "settings.theme.pink": "Theme ສີຊົມພູ",
+      "settings.theme.pink": "Theme ສີບົວ",
       "settings.theme.light": "Theme ສະຫວ່າງ",
       "settings.personal": "ຂໍ້ມູນສ່ວນຕົວ",
       "settings.saveProfile": "ບັນທຶກຂໍ້ມູນ",
@@ -196,9 +196,11 @@
       "auth.registerSuccess": "ສະໝັກສຳເລັດ!",
       "auth.registerFail": "ຊື່ຜູ້ໃຊ້ຫຼືອີເມວນີ້ມີຢູ່ແລ້ວ!",
       "auth.loginFail": "ຊື່ຫຼືລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ (ກະລຸນາກວດສອບຕົວພິມໃຫຍ່-ນ້ອຍ)",
-      "app.redirecting": "ກຳລັງນຳໄປ..."
-    },
-    th: {
+      "app.redirecting": "ກຳລັງນຳໄປ...",
+      "app.maintenance": "ເວັບໄຊປິດປັບປຸງຊົ່ວຄາວ",
+      "app.retry": "ລອງໃໝ່"
+      },
+      th: {
       "nav.home": "หน้าหลัก",
       "nav.profile": "โปรไฟล์",
       "nav.friends": "เพื่อน",
@@ -367,9 +369,11 @@
       "auth.registerSuccess": "สมัครสำเร็จ!",
       "auth.registerFail": "ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้ว!",
       "auth.loginFail": "ชื่อหรือรหัสผ่านไม่ถูกต้อง (กรุณาตรวจสอบตัวพิมพ์ใหญ่-เล็ก)",
-      "app.redirecting": "กำลังนำไป..."
-    },
-    en: {
+      "app.redirecting": "กำลังนำไป...",
+      "app.maintenance": "เว็บไซต์ปิดปรับปรุงชั่วคราว",
+      "app.retry": "ลองใหม่"
+      },
+      en: {
       "nav.home": "Home",
       "nav.profile": "Profile",
       "nav.friends": "Friends",
@@ -538,10 +542,11 @@
       "auth.registerSuccess": "Registration successful!",
       "auth.registerFail": "This username or email already exists!",
       "auth.loginFail": "Incorrect username or password (check case sensitivity)",
-      "app.redirecting": "Redirecting..."
-    }
-  };
-
+      "app.redirecting": "Redirecting...",
+      "app.maintenance": "Website temporarily closed",
+      "app.retry": "Retry"
+      }
+      };
   function normalizeLanguage(lang) {
     return SUPPORTED_LANGS.includes(lang) ? lang : DEFAULT_LANG;
   }
@@ -637,6 +642,58 @@
     }, true);
   }
 
+  async function checkBackendHealth() {
+    // API URL - should match NEXT_PUBLIC_API_URL or your hardcoded backend
+    const apiUrl = "https://wit-lee-however-coleman.trycloudflare.com"; 
+    try {
+      // Use originalFetch to avoid infinite loop or token headers if not needed for health check
+      const response = await originalFetch(`${apiUrl}/api/health`, { method: "GET", cache: "no-store" }).catch(e => { throw e });
+      hideMaintenanceOverlay();
+    } catch (error) {
+      showMaintenanceOverlay();
+    }
+  }
+
+  function showMaintenanceOverlay() {
+    if (document.getElementById("laoverse-maintenance-overlay")) {
+      const text = document.getElementById("laoverse-maintenance-text");
+      if (text) text.textContent = translate("app.maintenance");
+      return;
+    }
+
+    const overlay = document.createElement("div");
+    overlay.id = "laoverse-maintenance-overlay";
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);color:white;z-index:999999;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;padding:20px;";
+
+    const content = document.createElement("div");
+    content.style.cssText = "background:white;color:#333;padding:40px;border-radius:12px;max-width:500px;box-shadow:0 10px 25px rgba(0,0,0,0.5);";
+
+    const title = document.createElement("h1");
+    title.textContent = "⚠️";
+    title.style.cssText = "margin:0 0 20px 0;color:#d32f2f;font-size:3rem;";
+
+    const text = document.createElement("p");
+    text.id = "laoverse-maintenance-text";
+    text.style.cssText = "font-size:1.2rem;font-weight:bold;margin-bottom:20px;line-height:1.5;";
+    text.textContent = translate("app.maintenance");
+
+    const btn = document.createElement("button");
+    btn.textContent = translate("app.retry");
+    btn.style.cssText = "padding:10px 20px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;";
+    btn.onclick = () => window.location.reload();
+
+    content.appendChild(title);
+    content.appendChild(text);
+    content.appendChild(btn);
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+  }
+
+  function hideMaintenanceOverlay() {
+    const overlay = document.getElementById("laoverse-maintenance-overlay");
+    if (overlay) overlay.remove();
+  }
+
   window.LanguageManager = {
     getLanguage: getLang,
     getDictionary,
@@ -652,8 +709,19 @@
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       applyLanguage(getLang());
+      checkBackendHealth();
     });
   } else {
     applyLanguage(getLang());
+    checkBackendHealth();
   }
+
+  // Periodic health check every 30 seconds
+  setInterval(checkBackendHealth, 30000);
+
+  // Update overlay text when language changes
+  document.addEventListener("laoverse:languagechange", () => {
+    const text = document.getElementById("laoverse-maintenance-text");
+    if (text) text.textContent = translate("app.maintenance");
+  });
 })();
