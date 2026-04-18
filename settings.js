@@ -19,6 +19,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (window.LanguageManager) window.LanguageManager.applyLanguage(lang);
   }
 
+  function getAuthHeaders() {
+    const token = localStorage.getItem('laoverse_jwt');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
   function showMessage(text) {
     message.textContent = text;
     message.style.display = "block";
@@ -53,7 +58,10 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function loadCurrentProfile() {
-    const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/loadProfile?user_id=current", { credentials: "include" });
+    const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/loadProfile?user_id=current", { 
+      headers: getAuthHeaders(),
+      credentials: "include" 
+    });
     const data = await res.json();
     if (data.success && data.profile) {
       usernameInput.value = data.profile.username || "";
@@ -70,7 +78,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/update_profile_info", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
         body: JSON.stringify(payload)
       });
       const data = await res.json();
@@ -94,7 +105,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/change_password", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders()
+        },
         body: JSON.stringify({ newPassword: pw, confirmPassword: cpw })
       });
       const data = await res.json();
@@ -124,7 +138,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await showConfirm(t("settings.deleteConfirm"));
       if (!confirmed) return;
       
-      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/delete_account", { method: "POST" });
+      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/delete_account", { 
+        method: "POST",
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         localStorage.removeItem('laoverse_jwt');

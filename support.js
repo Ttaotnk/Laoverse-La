@@ -51,8 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       body: JSON.stringify({
         title: title.value.trim(),
-        message: content.value.trim(),
-        email: emailField.value.trim()
+        message: content.value.trim()
       })
     });
     const data = await res.json();
