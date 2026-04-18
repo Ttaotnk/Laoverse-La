@@ -1,107 +1,75 @@
 ﻿<!DOCTYPE html>
 <html lang="lo">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="settings.title">⚙️ ຕັ້ງຄ່າ</title>
-
+    <title data-i18n="settings.title">ຕັ້ງຄ່າ</title>
     <link rel="stylesheet" href="css/settings.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
-
     <script src="api.js"></script>
-    <script src="theme.js"></script>
+  <script src="theme.js"></script>
     <script src="language.js"></script>
     <script src="confirm.js"></script>
 </head>
-
 <body>
-
     <header class="main-header">
         <div class="logo">
             <img src="logo.png" alt="Logo"><br>
         </div>
-
         <nav class="main-nav">
             <ul>
-                <li><a href="index.html">🏠 <span data-i18n="nav.home">ໜ້າຫຼັກ</span></a></li>
-                <li><a href="profile.html">👤 <span data-i18n="nav.profile">ໂປຣໄຟລ໌</span></a></li>
-                <li><a href="friends.html">👥 <span data-i18n="nav.friends">ໝູ່ເພື່ອນ</span></a></li>
-                <li><a href="note.html">🔔 <span data-i18n="nav.note">ແຈ້ງເຕືອນ</span></a></li>
-                <li><a href="message.html">💬 <span data-i18n="nav.message">ຂໍ້ຄວາມ</span></a></li>
-                <li><a href="settings.html" class="active">⚙️ <span data-i18n="nav.settings">ຕັ້ງຄ່າ</span></a></li>
+                <li><a href="index.html" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
+                <li><a href="profile.html" data-i18n="nav.profile">ໂປຣໄຟລ໌</a></li>
+                <li><a href="friends.html" data-i18n="nav.friends">ໝູ່ເພື່ອນ</a></li>
+                <li><a href="note.html" data-i18n="nav.note">ແຈ້ງເຕືອນ</a></li>
+                <li><a href="message.html" data-i18n="nav.message">ຂໍ້ຄວາມ</a></li>
+                <li><a href="settings.html" class="active" data-i18n="nav.settings">ຕັ້ງຄ່າ</a></li>
             </ul>
         </nav>
     </header>
-
     <main class="settings-container">
-
-        <h1 id="titleText">⚙️ <span data-i18n="settings.title">ຕັ້ງຄ່າ</span></h1>
-
-        <!-- Language -->
+        <h1 id="titleText" data-i18n="settings.title">ຕັ້ງຄ່າ</h1>
         <section class="card">
-            <h2>🌐 <span data-i18n="settings.language">ພາສາ</span></h2>
+            <h2 id="langTitle" data-i18n="settings.language">ພາສາ</h2>
             <select id="languageSelect">
-                <option value="lo">🇱🇦 ລາວ</option>
-                <option value="th">🇹🇭 ไทย</option>
-                <option value="en">🇺🇸 English</option>
+                <option value="lo">ລາວ</option>
+                <option value="th">ไทย</option>
+                <option value="en">English</option>
             </select>
         </section>
-
-        <!-- Theme -->
         <section class="card">
-            <h2>🎨 <span data-i18n="settings.theme">ປ່ຽນຮູບແບບສີ</span></h2>
+            <h2 data-i18n="settings.theme">ປ່ຽນຮູບແບບສີ (Theme)</h2>
             <select id="themeSelect">
-                <option value="default">⚪ Theme ເດີມ</option>
-                <option value="green">🟢 Theme ສີຂຽວ</option>
-                <option value="pink">🩷 Theme ສີຊົມພູ</option>
-                <option value="light">☀️ Theme ສະຫວ່າງ</option>
+                <option value="default" data-i18n="settings.theme.default">Theme ເດີມ</option>
+                <option value="green" data-i18n="settings.theme.green">Theme ສີຂຽວ</option>
+                <option value="pink" data-i18n="settings.theme.pink">Theme ສີຊົມພູ</option>
+                <option value="light" data-i18n="settings.theme.light">Theme ສະຫວ່າງ</option>
             </select>
         </section>
-
-        <!-- Profile -->
         <section class="card">
-            <h2>👤 <span data-i18n="settings.personal">ຂໍ້ມູນສ່ວນຕົວ</span></h2>
-
-            <input id="usernameInput" type="text" placeholder="👤 Username">
-            <input id="emailInput" type="email" placeholder="📧 Email">
-
-            <button id="saveProfileBtn">💾 <span data-i18n="settings.saveProfile">ບັນທຶກ</span></button>
+            <h2 data-i18n="settings.personal">ຂໍ້ມູນສ່ວນຕົວ</h2>
+            <input id="usernameInput" type="text" placeholder="Username">
+            <input id="emailInput" type="email" placeholder="Email">
+            <button id="saveProfileBtn" data-i18n="settings.saveProfile">ບັນທຶກຂໍ້ມູນ</button>
         </section>
-
-        <!-- Password -->
         <section class="card">
-            <h2>🔐 <span data-i18n="settings.password">ປ່ຽນລະຫັດຜ່ານ</span></h2>
-
-            <input id="newPassword" type="password" placeholder="🔑 New password">
-            <input id="confirmPassword" type="password" placeholder="🔑 Confirm password">
-
-            <p class="hint">⚠️ ລະຫັດຕ້ອງ >= 8 ຕົວ, A-Z, a-z, 0-9</p>
-
-            <button id="changePasswordBtn">🔐 <span data-i18n="settings.changePassword">ປ່ຽນລະຫັດ</span></button>
+            <h2 data-i18n="settings.password">ປ່ຽນລະຫັດຜ່ານ</h2>
+            <input id="newPassword" type="password" data-i18n-placeholder="settings.newPassword" placeholder="New password">
+            <input id="confirmPassword" type="password" data-i18n-placeholder="settings.confirmPassword" placeholder="Confirm new password">
+            <p class="hint" data-i18n="settings.passwordHint">ລະຫັດຕ້ອງ >= 8 ຕົວ, ມີ A-Z, a-z, 0-9, ແລະສັນຍາລັກ</p>
+            <button id="changePasswordBtn" data-i18n="settings.changePassword">ປ່ຽນລະຫັດຜ່ານ</button>
         </section>
-
-        <!-- Support -->
         <section class="card">
-            <h2>🛠️ <span data-i18n="settings.support">ຊ່ວຍເຫຼືອ</span></h2>
-
-            <button id="supportBtn">📩 <span data-i18n="settings.goSupport">ຕິດຕໍ່ຜູ້ດູແລ</span></button>
+            <h2 data-i18n="settings.support">ຊ່ອງທາງຕິດຕໍ່ຊ່ວຍເຫຼືອ</h2>
+            <button id="supportBtn" data-i18n="settings.goSupport">ໄປໜ້າຕິດຕໍ່ຜູ້ດູແລເວັບ</button>
         </section>
-
-        <!-- Danger -->
         <section class="card danger">
-            <h2>⚠️ <span data-i18n="settings.account">ບັນຊີ</span></h2>
-
-            <button id="logoutBtn">🚪 Logout</button>
-            <button id="deleteAccountBtn" class="danger-btn">🗑️ Delete Account</button>
+            <h2 data-i18n="settings.account">ບັນຊີ</h2>
+            <button id="logoutBtn" data-i18n="settings.logout">Logout</button>
+            <button id="deleteAccountBtn" class="danger-btn" data-i18n="settings.deleteAccount">Delete User Account</button>
         </section>
-
-        <!-- message -->
         <div id="message" class="message"></div>
-
     </main>
-
     <script src="settings.js"></script>
 </body>
-
 </html>
