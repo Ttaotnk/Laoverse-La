@@ -316,7 +316,7 @@ async function handlePostSubmit(event) {
 
   try {
     const xhr = new XMLHttpRequest();
-    const uploadUrl = "https://wit-lee-however-coleman.trycloudflare.com/api/post";
+    const uploadUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com/api/post";
     
     xhr.open("POST", uploadUrl, true);
     
@@ -368,7 +368,7 @@ async function handlePostSubmit(event) {
 async function loadFeed() {
   try {
     showLoading(true);
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/loadFeed", { 
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/loadFeed", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();
@@ -388,7 +388,7 @@ async function loadFeed() {
 
 async function toggleLike(postId, button) {
   try {
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/like", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/like", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -412,7 +412,7 @@ async function submitComment(postId, comment, parentCommentId) {
   if (parentCommentId) payload.set("parent_comment_id", parentCommentId);
 
   try {
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/comment", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/comment", {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -522,7 +522,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupEventDelegation();
 
   try {
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/check_auth", { 
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/check_auth", { 
       headers: getAuthHeaders()
     });
     const data = await response.json();

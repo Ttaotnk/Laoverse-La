@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
       show(t("support.fillAll"));
       return;
     }
-    const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/support_request", {
+    const res = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/support_request", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },

@@ -50,7 +50,7 @@ function resolveMediaUrl(filePath) {
   const raw = String(filePath || "").trim();
   if (/^https?:\/\//i.test(raw)) return raw;
   
-  const backendUrl = "https://wit-lee-however-coleman.trycloudflare.com";
+  const backendUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com";
   const normalized = raw.replace(/\\/g, "/");
   const uploadsIndex = normalized.toLowerCase().indexOf("uploads/");
   if (uploadsIndex >= 0) {
@@ -202,7 +202,7 @@ function renderMessages(messageList, replaceAll) {
 }
 
 async function loadFriends() {
-  const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/get_friends", { credentials: "include" });
+  const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/get_friends", { credentials: "include" });
   if (!response.ok) throw new Error("friends");
   const data = await response.json();
   if (!data.success) throw new Error(data.message || "friends");
@@ -219,7 +219,7 @@ async function loadFriends() {
 
 async function loadMessages(friendId, forceFullReload) {
   const query = forceFullReload ? 0 : (lastFetched[friendId] || 0);
-  const response = await fetch(`https://wit-lee-however-coleman.trycloudflare.com/api/get_messages?friend_id=${encodeURIComponent(friendId)}&last_update=${encodeURIComponent(query)}`, {
+  const response = await fetch(`https://acquisitions-showed-privacy-next.trycloudflare.com/api/get_messages?friend_id=${encodeURIComponent(friendId)}&last_update=${encodeURIComponent(query)}`, {
     credentials: "include"
   });
   if (!response.ok) throw new Error("messages");
@@ -275,7 +275,7 @@ async function sendMessage() {
   if (content) formData.append("message", content);
   if (file) formData.append("file", file);
 
-  const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/send_message", {
+  const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/send_message", {
     method: "POST",
     body: formData,
     credentials: "include"
@@ -360,7 +360,7 @@ async function init() {
   setComposerEnabled(false);
   setupEvents();
 
-  const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/check_auth", { credentials: "include" });
+  const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/check_auth", { credentials: "include" });
   const data = await response.json();
   if (!data.success || !data.user || !data.user.id) {
     window.location.href = "index2.html";

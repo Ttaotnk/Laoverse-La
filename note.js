@@ -79,7 +79,7 @@ async function openPostModal() {
 
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
-    const response = await fetch(`https://wit-lee-however-coleman.trycloudflare.com/api/get_post/${postId}`, {
+    const response = await fetch(`https://acquisitions-showed-privacy-next.trycloudflare.com/api/get_post/${postId}`, {
       headers: { "Authorization": `Bearer ${token}` },
       credentials: "include"
     });
@@ -239,7 +239,7 @@ async function toggleLike(postId, event) {
   event.stopPropagation();
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/toggle_like", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/toggle_like", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -273,7 +273,7 @@ async function submitReply(postId, event) {
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     showLoading(true);
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/comment", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/comment", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -340,7 +340,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     showLoading(true);
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/comment", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/comment", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -463,7 +463,7 @@ async function loadNotifications() {
   showLoading(true);
   try {
     const token = localStorage.getItem('laoverse_jwt') || '';
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/get-notifications", { 
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/get-notifications", { 
       credentials: "include",
       headers: {
         "Authorization": `Bearer ${token}`
@@ -488,7 +488,7 @@ async function handleFriendRequest(action, userId, requestId) {
     const status = action === 'accept' ? 'accepted' : 'rejected';
     const token = localStorage.getItem('laoverse_jwt') || '';
     
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/respond_request", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/respond_request", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -530,7 +530,7 @@ function setupInteractions() {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem('laoverse_jwt') || '';
-    const authResponse = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/check_auth", { 
+    const authResponse = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/check_auth", { 
       headers: {
         "Authorization": `Bearer ${token}`
       }

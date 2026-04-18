@@ -5,7 +5,7 @@
     const url = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
     const token = localStorage.getItem('laoverse_jwt');
 
-    if (url.includes('wit-lee-however-coleman.trycloudflare.com') || url.startsWith('/api')) {
+    if (url.includes('https://acquisitions-showed-privacy-next.trycloudflare.com') || url.startsWith('/api')) {
       config = config || {};
       if (!config.headers) {
         config.headers = {};
@@ -633,7 +633,7 @@
     // If it already starts with https://, assume it's correct
     if (url.startsWith("https://")) return url;
     
-    const backendUrl = "https://wit-lee-however-coleman.trycloudflare.com";
+    const backendUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com";
     
     // Replace localhost:3000 if present
     if (url.includes("localhost:3000")) {
@@ -698,7 +698,7 @@
 
   async function checkBackendHealth() {
     // API URL - should match NEXT_PUBLIC_API_URL or your hardcoded backend
-    const apiUrl = "https://wit-lee-however-coleman.trycloudflare.com"; 
+    const apiUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com"; 
     try {
       // Use originalFetch to avoid infinite loop or token headers if not needed for health check
       const response = await originalFetch(`${apiUrl}/api/health`, { method: "GET", cache: "no-store" }).catch(e => { throw e });
