@@ -1,6 +1,6 @@
 (function () {
   const originalFetch = window.fetch;
-  window.fetch = function(...args) {
+  window.fetch = function (...args) {
     let [resource, config] = args;
     const url = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
     const token = localStorage.getItem('laoverse_jwt');
@@ -112,7 +112,7 @@
       "note.sentFriendRequest": "ສົ່ງຄຳຂໍເປັນໝູ່ໃຫ້ທ່ານ",
       "note.likedYourPost": "ຖືກໃຈໂພສຂອງທ່ານ",
       "note.commentedOnYourPost": "ໃຫ້ຄຳເຫັນໃນໂພສຂອງທ່ານ",
-      "note.repliedToYourComment": "ຕອບກະຕຸບຄຳເຫັນຂອງທ່ານ",
+      "note.repliedToYourComment": "ຕອບກັບຄຳເຫັນຂອງທ່ານ",
       "profile.title": "ໂປຣໄຟລ໌",
       "profile.userTitle": "ໂປຣໄຟລ໌ຜູ້ໃຊ້",
       "profile.posts": "ໂພສ",
@@ -200,8 +200,8 @@
       "app.redirecting": "ກຳລັງນຳໄປ...",
       "app.maintenance": "ເວັບໄຊປິດປັບປຸງຊົ່ວຄາວ",
       "app.retry": "ລອງໃໝ່"
-      },
-      th: {
+    },
+    th: {
       "nav.home": "หน้าหลัก",
       "nav.profile": "โปรไฟล์",
       "nav.friends": "เพื่อน",
@@ -374,8 +374,8 @@
       "app.redirecting": "กำลังนำไป...",
       "app.maintenance": "เว็บไซต์ปิดปรับปรุงชั่วคราว",
       "app.retry": "ลองใหม่"
-      },
-      en: {
+    },
+    en: {
       "nav.home": "Home",
       "nav.profile": "Profile",
       "nav.friends": "Friends",
@@ -547,8 +547,8 @@
       "app.redirecting": "Redirecting...",
       "app.maintenance": "Website temporarily closed",
       "app.retry": "Retry"
-      }
-      };
+    }
+  };
   function normalizeLanguage(lang) {
     return SUPPORTED_LANGS.includes(lang) ? lang : DEFAULT_LANG;
   }
@@ -609,7 +609,7 @@
     const nextLang = normalizeLanguage(lang);
     try {
       localStorage.setItem(STORAGE_KEY, nextLang);
-    } catch (error) {}
+    } catch (error) { }
     applyLanguage(nextLang);
     document.dispatchEvent(new CustomEvent("laoverse:languagechange", { detail: { lang: nextLang } }));
   }
@@ -632,20 +632,20 @@
     if (!url) return "";
     // If it already starts with https://, assume it's correct
     if (url.startsWith("https://")) return url;
-    
+
     const backendUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com";
-    
+
     // Replace localhost:3000 if present
     if (url.includes("localhost:3000")) {
-        return url.replace(/http:\/\/localhost:3000/g, backendUrl);
+      return url.replace(/http:\/\/localhost:3000/g, backendUrl);
     }
-    
+
     // If it's a relative path starting with uploads/ or /uploads/
     if (url.startsWith("uploads/") || url.startsWith("/uploads/")) {
-        const path = url.startsWith("/") ? url : `/${url}`;
-        return `${backendUrl}${path}`;
+      const path = url.startsWith("/") ? url : `/${url}`;
+      return `${backendUrl}${path}`;
     }
-    
+
     return url;
   }
 
@@ -658,23 +658,23 @@
           el.setAttribute("src", resolved);
         }
       }
-      
+
       // Also check onerror for profile pics
       if (el.tagName === "IMG" && !el.getAttribute("data-error-handled")) {
-         const originalOnError = el.onerror;
-         el.onerror = function() {
-            this.src = "default-profile.png";
-            if (originalOnError) originalOnError.call(this);
-         };
-         el.setAttribute("data-error-handled", "true");
+        const originalOnError = el.onerror;
+        el.onerror = function () {
+          this.src = "default-profile.png";
+          if (originalOnError) originalOnError.call(this);
+        };
+        el.setAttribute("data-error-handled", "true");
       }
     });
-    
+
     document.querySelectorAll("a[href]").forEach((el) => {
-       const href = el.getAttribute("href");
-       if (href && (href.includes("uploads/") || href.includes("localhost:3000"))) {
-          el.setAttribute("href", resolveMediaUrl(href));
-       }
+      const href = el.getAttribute("href");
+      if (href && (href.includes("uploads/") || href.includes("localhost:3000"))) {
+        el.setAttribute("href", resolveMediaUrl(href));
+      }
     });
   }
 
@@ -690,7 +690,7 @@
         if (media !== current) {
           try {
             media.pause();
-          } catch (error) {}
+          } catch (error) { }
         }
       });
     }, true);
@@ -698,7 +698,7 @@
 
   async function checkBackendHealth() {
     // API URL - should match NEXT_PUBLIC_API_URL or your hardcoded backend
-    const apiUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com"; 
+    const apiUrl = "https://acquisitions-showed-privacy-next.trycloudflare.com";
     try {
       // Use originalFetch to avoid infinite loop or token headers if not needed for health check
       const response = await originalFetch(`${apiUrl}/api/health`, { method: "GET", cache: "no-store" }).catch(e => { throw e });

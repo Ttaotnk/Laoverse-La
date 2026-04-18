@@ -276,7 +276,7 @@ async function toggleLike(postId, event) {
   event.stopPropagation();
   const token = localStorage.getItem('laoverse_jwt') || '';
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/toggle_like", {
+    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/like", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
