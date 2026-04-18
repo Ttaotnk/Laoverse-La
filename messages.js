@@ -34,24 +34,29 @@ function formatTimestamp(value) {
 }
 
 function profileImage(path) {
-  return path && String(path).trim() ? path : "default-profile.png";
+  if (!path) return "default-profile.png";
+  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+    return window.LanguageManager.resolveMediaUrl(path);
+  }
+  return path;
 }
 
 function resolveMediaUrl(filePath) {
+  if (!filePath) return "";
+  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+    return window.LanguageManager.resolveMediaUrl(filePath);
+  }
+  
   const raw = String(filePath || "").trim();
-  if (!raw) return "";
   if (/^https?:\/\//i.test(raw)) return raw;
-  if (raw.startsWith("/uploads/")) return raw;
-
+  
+  const backendUrl = "https://wit-lee-however-coleman.trycloudflare.com";
   const normalized = raw.replace(/\\/g, "/");
   const uploadsIndex = normalized.toLowerCase().indexOf("uploads/");
   if (uploadsIndex >= 0) {
-    return `/${normalized.slice(uploadsIndex)}`;
+    return `${backendUrl}/${normalized.slice(uploadsIndex)}`;
   }
-  if (normalized.startsWith("uploads/")) {
-    return `/${normalized}`;
-  }
-  return normalized.startsWith("/") ? normalized : `/${normalized}`;
+  return `${backendUrl}${normalized.startsWith("/") ? "" : "/"}${normalized}`;
 }
 
 function detectFileKind(fileType, filePath) {
