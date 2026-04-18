@@ -292,24 +292,75 @@ async function handlePostSubmit(event) {
   formData.append("content", content);
   if (image) formData.append("image", image);
 
-  try {
-    const response = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/post", {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: formData
-    });
-    const data = await response.json();
-
-    if (data.success) {
-      showMessage(t("feed.postSuccess"), "success");
-      postForm.reset();
-      imagePreview.innerHTML = "";
-      await loadFeed();
-      return;
+  // Setup Progress Bar UI
+  let progressContainer = document.querySelector(".upload-progress-container");
+  if (!progressContainer) {
+    progressContainer = document.createElement("div");
+    progressContainer.className = "upload-progress-container";
+    progressContainer.innerHTML = `
+      <div class="upload-progress-bar"></div>
+      <div class="upload-progress-text">0%</div>
+    `;
+    if (postForm) {
+      const actions = postForm.querySelector(".post-actions");
+      postForm.insertBefore(progressContainer, actions);
     }
+  }
 
-    showMessage(data.message || t("feed.postFailed"), "error");
+  const progressBar = progressContainer.querySelector(".upload-progress-bar");
+  const progressText = progressContainer.querySelector(".upload-progress-text");
+  
+  progressContainer.style.display = "block";
+  progressBar.style.width = "0%";
+  progressText.textContent = "0%";
+
+  try {
+    const xhr = new XMLHttpRequest();
+    const uploadUrl = "https://wit-lee-however-coleman.trycloudflare.com/api/post";
+    
+    xhr.open("POST", uploadUrl, true);
+    
+    // Auth Headers
+    const headers = getAuthHeaders();
+    Object.keys(headers).forEach(key => {
+      xhr.setRequestHeader(key, headers[key]);
+    });
+
+    // Progress Listener
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const percent = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = percent + "%";
+        progressText.textContent = percent + "%";
+      }
+    };
+
+    xhr.onload = async () => {
+      progressContainer.style.display = "none";
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const data = JSON.parse(xhr.responseText);
+        if (data.success) {
+          showMessage(t("feed.postSuccess"), "success");
+          postForm.reset();
+          imagePreview.innerHTML = "";
+          await loadFeed();
+          return;
+        }
+        showMessage(data.message || t("feed.postFailed"), "error");
+      } else {
+        showMessage(t("feed.postFailed"), "error");
+      }
+    };
+
+    xhr.onerror = () => {
+      progressContainer.style.display = "none";
+      showMessage(t("feed.postFailed"), "error");
+    };
+
+    xhr.send(formData);
+
   } catch (error) {
+    progressContainer.style.display = "none";
     showMessage(t("feed.postFailed"), "error");
   }
 }
