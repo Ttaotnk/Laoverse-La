@@ -1,5 +1,6 @@
 ﻿<!DOCTYPE html>
 <html lang="lo">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,15 +8,14 @@
     <link rel="stylesheet" href="css/settings.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="api.js"></script>
-  <script src="theme.js"></script>
+    <script src="theme.js"></script>
     <script src="language.js"></script>
     <script src="confirm.js"></script>
 </head>
+
 <body>
     <header class="main-header">
-        <div class="logo">
-            <img src="logo.png" alt="Logo"><br>
-        </div>
+        <div class="logo"> <img src="logo.png" alt="Logo"><br> </div>
         <nav class="main-nav">
             <ul>
                 <li><a href="index.html" data-i18n="nav.home">ໜ້າຫຼັກ</a></li>
@@ -30,16 +30,14 @@
     <main class="settings-container">
         <h1 id="titleText" data-i18n="settings.title">ຕັ້ງຄ່າ</h1>
         <section class="card">
-            <h2 id="langTitle" data-i18n="settings.language">ພາສາ</h2>
-            <select id="languageSelect">
+            <h2 id="langTitle" data-i18n="settings.language">ພາສາ</h2> <select id="languageSelect">
                 <option value="lo">ລາວ</option>
                 <option value="th">ไทย</option>
                 <option value="en">English</option>
             </select>
         </section>
         <section class="card">
-            <h2 data-i18n="settings.theme">ປ່ຽນຮູບແບບສີ (Theme)</h2>
-            <select id="themeSelect">
+            <h2 data-i18n="settings.theme">ປ່ຽນຮູບແບບສີ (Theme)</h2> <select id="themeSelect">
                 <option value="default" data-i18n="settings.theme.default">Theme ເດີມ</option>
                 <option value="green" data-i18n="settings.theme.green">Theme ສີຂຽວ</option>
                 <option value="pink" data-i18n="settings.theme.pink">Theme ສີຊົມພູ</option>
@@ -47,29 +45,29 @@
             </select>
         </section>
         <section class="card">
-            <h2 data-i18n="settings.personal">ຂໍ້ມູນສ່ວນຕົວ</h2>
-            <input id="usernameInput" type="text" placeholder="Username">
-            <input id="emailInput" type="email" placeholder="Email">
-            <button id="saveProfileBtn" data-i18n="settings.saveProfile">ບັນທຶກຂໍ້ມູນ</button>
+            <h2 data-i18n="settings.personal">ຂໍ້ມູນສ່ວນຕົວ</h2> <input id="usernameInput" type="text"
+                placeholder="Username"> <input id="emailInput" type="email" placeholder="Email"> <button
+                id="saveProfileBtn" data-i18n="settings.saveProfile">ບັນທຶກຂໍ້ມູນ</button>
         </section>
         <section class="card">
-            <h2 data-i18n="settings.password">ປ່ຽນລະຫັດຜ່ານ</h2>
-            <input id="newPassword" type="password" data-i18n-placeholder="settings.newPassword" placeholder="New password">
-            <input id="confirmPassword" type="password" data-i18n-placeholder="settings.confirmPassword" placeholder="Confirm new password">
+            <h2 data-i18n="settings.password">ປ່ຽນລະຫັດຜ່ານ</h2> <input id="newPassword" type="password"
+                data-i18n-placeholder="settings.newPassword" placeholder="New password"> <input id="confirmPassword"
+                type="password" data-i18n-placeholder="settings.confirmPassword" placeholder="Confirm new password">
             <p class="hint" data-i18n="settings.passwordHint">ລະຫັດຕ້ອງ >= 8 ຕົວ, ມີ A-Z, a-z, 0-9, ແລະສັນຍາລັກ</p>
             <button id="changePasswordBtn" data-i18n="settings.changePassword">ປ່ຽນລະຫັດຜ່ານ</button>
         </section>
         <section class="card">
-            <h2 data-i18n="settings.support">ຊ່ອງທາງຕິດຕໍ່ຊ່ວຍເຫຼືອ</h2>
-            <button id="supportBtn" data-i18n="settings.goSupport">ໄປໜ້າຕິດຕໍ່ຜູ້ດູແລເວັບ</button>
+            <h2 data-i18n="settings.support">ຊ່ອງທາງຕິດຕໍ່ຊ່ວຍເຫຼືອ</h2> <button id="supportBtn"
+                data-i18n="settings.goSupport">ໄປໜ້າຕິດຕໍ່ຜູ້ດູແລເວັບ</button>
         </section>
         <section class="card danger">
-            <h2 data-i18n="settings.account">ບັນຊີ</h2>
-            <button id="logoutBtn" data-i18n="settings.logout">Logout</button>
-            <button id="deleteAccountBtn" class="danger-btn" data-i18n="settings.deleteAccount">Delete User Account</button>
+            <h2 data-i18n="settings.account">ບັນຊີ</h2> <button id="logoutBtn"
+                data-i18n="settings.logout">Logout</button> <button id="deleteAccountBtn" class="danger-btn"
+                data-i18n="settings.deleteAccount">Delete User Account</button>
         </section>
         <div id="message" class="message"></div>
     </main>
     <script src="settings.js"></script>
 </body>
+
 </html>
