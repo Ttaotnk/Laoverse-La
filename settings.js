@@ -4,8 +4,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const message = $("message");
 
-  function showMessage(text, type = "info") {
-    message.innerText = text;
+  // ================= LANGUAGE =================
+  function getLang() {
+    return localStorage.getItem("laoverse_lang") || "lo";
+  }
+
+  function t(key) {
+    const lang = getLang();
+    return (window.DICT?.[lang]?.[key]) || key;
+  }
+
+  function showMessage(key, type = "info") {
+    message.innerText = t(key);
     message.className = type;
     message.style.display = "block";
 
@@ -14,40 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000);
   }
 
-  // ================= API HELPER =================
-  async function apiFetch(url, options = {}) {
-    try {
-      const res = await fetch(url, {
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(window.getAuthHeaders ? window.getAuthHeaders() : {}),
-          ...(options.headers || {})
-        },
-        ...options
-      });
-
-      if (res.status === 401) {
-        localStorage.removeItem("laoverse_jwt");
-        window.location.href = "index2.html";
-        return null;
-      }
-
-      return await res.json();
-
-    } catch (err) {
-      console.error(err);
-      showMessage("Server error");
-    }
-  }
-
   // ================= LOAD PROFILE =================
   async function loadProfile() {
-    const data = await apiFetch(`${window.API_BASE_URL}/loadProfile`);
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/loadProfile`);
+      const data = await res.json();
 
-    if (data && data.success) {
-      $("usernameInput").value = data.profile.username || "";
-      $("emailInput").value = data.profile.email || "";
+      if (data.success) {
+        $("usernameInput").value = data.profile.username || "";
+        $("emailInput").value = data.profile.email || "";
+      }
+    } catch (err) {
+      showMessage("profile.connectionError");
     }
   }
 
@@ -59,12 +47,24 @@ document.addEventListener("DOMContentLoaded", () => {
       email: $("emailInput").value.trim()
     };
 
-    const data = await apiFetch(`${window.API_BASE_URL}/update_profile_info`, {
-      method: "POST",
-      body: JSON.stringify(payload)
-    });
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/update_profile_info`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    showMessage(data?.success ? "Saved!" : (data?.message || "Error"));
+      const data = await res.json();
+
+      if (data.success) {
+        showMessage("settings.saved");
+      } else {
+        showMessage("settings.saveFail");
+      }
+
+    } catch {
+      showMessage("profile.connectionError");
+    }
   });
 
   // ================= CHANGE PASSWORD =================
@@ -74,44 +74,60 @@ document.addEventListener("DOMContentLoaded", () => {
     const cpw = $("confirmPassword").value;
 
     if (pw !== cpw) {
-      return showMessage("Password not match");
+      return showMessage("settings.pwMismatch");
     }
 
-    if (pw.length < 6) {
-      return showMessage("Password too short");
+    if (pw.length < 8) {
+      return showMessage("settings.badPassword");
     }
 
-    const data = await apiFetch(`${window.API_BASE_URL}/change_password`, {
-      method: "POST",
-      body: JSON.stringify({
-        newPassword: pw,
-        confirmPassword: cpw
-      })
-    });
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/change_password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          newPassword: pw,
+          confirmPassword: cpw
+        })
+      });
 
-    if (data?.success) {
-      showMessage("Password changed");
-      $("newPassword").value = "";
-      $("confirmPassword").value = "";
-    } else {
-      showMessage(data?.message || "Error");
+      const data = await res.json();
+
+      if (data.success) {
+        showMessage("settings.passwordChanged");
+        $("newPassword").value = "";
+        $("confirmPassword").value = "";
+      } else {
+        showMessage("settings.passwordChangeFail");
+      }
+
+    } catch {
+      showMessage("profile.connectionError");
     }
   });
 
   // ================= DELETE ACCOUNT =================
   $("deleteAccountBtn").addEventListener("click", async () => {
 
-    if (!confirm("Are you sure?")) return;
+    if (!confirm(t("settings.deleteConfirm"))) return;
 
-    const data = await apiFetch(`${window.API_BASE_URL}/delete_account`, {
-      method: "POST"
-    });
+    try {
+      const res = await fetch(`${window.BACKEND_URL}/delete_account`, {
+        method: "POST"
+      });
 
-    if (data?.success) {
-      localStorage.removeItem("laoverse_jwt");
-      window.location.href = "index2.html";
-    } else {
-      showMessage(data?.message || "Delete failed");
+      const data = await res.json();
+
+      if (data.success) {
+        showMessage("settings.deleteSuccess");
+        localStorage.removeItem("laoverse_jwt");
+        window.location.href = "index2.html";
+      } else {
+        showMessage("settings.deleteFail");
+      }
+
+    } catch {
+      showMessage("profile.connectionError");
     }
   });
 
@@ -125,13 +141,17 @@ document.addEventListener("DOMContentLoaded", () => {
   $("themeSelect").addEventListener("change", e => {
     localStorage.setItem("theme", e.target.value);
     document.body.setAttribute("data-theme", e.target.value);
+    showMessage("settings.themeOk");
   });
 
   // ================= LANGUAGE =================
+  $("languageSelect").value = getLang();
+
   $("languageSelect").addEventListener("change", e => {
-    localStorage.setItem("lang", e.target.value);
-    showMessage("Language changed (reload page)");
+    localStorage.setItem("laoverse_lang", e.target.value);
+    location.reload();
   });
 
+  // INIT
   loadProfile();
 });
