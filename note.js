@@ -108,6 +108,7 @@ async function openPostModal() {
 
     const post = data.post;
     const comments = post.comments || [];
+    const canModifyPost = currentUserId && String(post.user_id) === String(currentUserId);
     
     // Group comments by parent (for threading)
     const parentComments = comments.filter(c => !c.parent_comment_id);
@@ -256,11 +257,30 @@ async function openPostModal() {
             ${post.content ? `<p class="post-text">${safeHtml(post.content)}</p>` : ""}
             ${mediaHtml}
           </div>
-          <div class="post-actions">
-            <button class="like-btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike('${safeHtml(post._id)}', event)"><img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> Like</button>
-            <button class="comment-btn" onclick="focusReplyInput()"><img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> ${t("feed.commentPlaceholder")}</button>
-          </div>
-        </div>
+           <div class="post-actions">
+             <button class="like-btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike('${safeHtml(post._id)}', event)"><img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> Like</button>
+             <button class="comment-btn" onclick="focusReplyInput()"><img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> ${t("feed.commentPlaceholder")}</button>
+             ${canModifyPost ? `
+               <button class="edit-post-btn" onclick="togglePostEdit()"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+               <button class="delete-post-btn" onclick="deletePostFromModal('${safeHtml(post._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
+             ` : ``}
+           </div>
+           ${canModifyPost ? `
+             <div class="post-edit-box" id="postEditBox" style="display:none;">
+               <h4>${t("common.editPost")}</h4>
+               <textarea id="postEditContent" rows="4" maxlength="1000">${safeHtml(post.content || "")}</textarea>
+               <label class="file-input-label" for="postEditImage">
+                 <span>${t("common.image")}</span>
+                 <span id="postEditImageName" class="file-input-name"></span>
+               </label>
+               <input type="file" id="postEditImage" accept="image/*,video/*,audio/*">
+               <div class="post-edit-actions">
+                 <button onclick="savePostEdit('${safeHtml(post._id)}', event)">${t("common.save")}</button>
+                 <button class="cancel-button" onclick="cancelPostEdit(event)">${t("common.cancel")}</button>
+               </div>
+             </div>
+           ` : ``}
+         </div>
 
         ${commentsHtml}
 
@@ -286,10 +306,19 @@ async function openPostModal() {
   }
 }
 
-function closePostModal() {
+function closePostModal(preservePostId) {
   const modal = document.getElementById('postModal');
   if (modal) modal.remove();
-  sessionStorage.removeItem('viewPostId');
+  if (!preservePostId) {
+    sessionStorage.removeItem('viewPostId');
+  }
+}
+
+async function refreshPostModal() {
+  const postId = sessionStorage.getItem('viewPostId');
+  if (!postId) return;
+  closePostModal(true);
+  await openPostModal();
 }
 
 async function toggleLike(postId, event) {
@@ -348,8 +377,7 @@ async function submitReply(postId, event) {
       setTimeout(() => {
         const postId = sessionStorage.getItem('viewPostId');
         if (postId) {
-          closePostModal();
-          openPostModal();
+          refreshPostModal();
         }
       }, 500);
     } else {
@@ -416,8 +444,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
       setTimeout(() => {
         const postId = sessionStorage.getItem('viewPostId');
         if (postId) {
-          closePostModal();
-          openPostModal();
+          refreshPostModal();
         }
       }, 500);
     } else {
@@ -425,6 +452,113 @@ async function submitReplyToComment(postId, parentCommentId, event) {
     }
   } catch (error) {
     showMessage(t("feed.replyFailed") || "Unable to add reply", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+function togglePostEdit() {
+  const box = document.getElementById("postEditBox");
+  if (!box) return;
+  box.style.display = box.style.display === "none" ? "block" : "none";
+
+  const input = document.getElementById("postEditContent");
+  if (input) {
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+
+  const fileInput = document.getElementById("postEditImage");
+  const fileName = document.getElementById("postEditImageName");
+  if (fileInput && fileName && !fileInput.dataset.bound) {
+    fileInput.dataset.bound = "1";
+    fileInput.addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      fileName.textContent = file ? file.name : "";
+    });
+  }
+}
+
+function cancelPostEdit(event) {
+  if (event) event.preventDefault();
+  const box = document.getElementById("postEditBox");
+  if (box) box.style.display = "none";
+  const fileInput = document.getElementById("postEditImage");
+  const fileName = document.getElementById("postEditImageName");
+  if (fileInput) fileInput.value = "";
+  if (fileName) fileName.textContent = "";
+}
+
+async function savePostEdit(postId, event) {
+  if (event) event.preventDefault();
+  const contentEl = document.getElementById("postEditContent");
+  const fileInput = document.getElementById("postEditImage");
+  const nextContent = contentEl ? contentEl.value.trim() : "";
+  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+
+  if (!nextContent && !file) {
+    showMessage(t("feed.emptyPostError") || "Please add content or media", "error");
+    return;
+  }
+
+  try {
+    showLoading(true);
+    const formData = new FormData();
+    formData.set("post_id", postId);
+    if (nextContent) formData.set("content", nextContent);
+    if (file) formData.set("image", file);
+
+    const response = await fetch(`${window.API_BASE_URL}/edit_post`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: formData,
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postUpdated"), "success");
+      cancelPostEdit();
+      await refreshPostModal();
+      return;
+    }
+    showMessage(data.message || t("profile.updateFailed"), "error");
+  } catch (error) {
+    showMessage(t("profile.updateFailed") || "Unable to update post", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function deletePostFromModal(postId) {
+  try {
+    const ok = window.showConfirm
+      ? await window.showConfirm(t("common.confirmDelete"), t("common.confirm"))
+      : window.confirm(t("common.confirmDelete"));
+    if (!ok) return;
+
+    showLoading(true);
+    const payload = new URLSearchParams();
+    payload.set("post_id", postId);
+
+    const response = await fetch(`${window.API_BASE_URL}/delete_post`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: payload.toString(),
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postDeleted"), "success");
+      closePostModal();
+      loadNotifications();
+      return;
+    }
+    showMessage(data.message || t("profile.deleteFailed"), "error");
+  } catch (error) {
+    showMessage(t("profile.deleteFailed") || "Unable to delete post", "error");
   } finally {
     showLoading(false);
   }
@@ -473,7 +607,7 @@ async function saveCommentEdit(commentId) {
     if (data.success) {
       showMessage(t("feed.commentEdited"), "success");
       cancelCommentEdit(commentId);
-      await openPostModal();
+      await refreshPostModal();
       return;
     }
     showMessage(data.message || t("feed.commentEditFailed"), "error");
@@ -507,7 +641,7 @@ async function deleteCommentAndRefresh(commentId) {
     const data = await response.json();
     if (data.success) {
       showMessage(t("feed.commentDeleted"), "success");
-      await openPostModal();
+      await refreshPostModal();
       return;
     }
     showMessage(data.message || t("feed.commentDeleteFailed"), "error");

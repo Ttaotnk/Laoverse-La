@@ -577,6 +577,54 @@ border-top: 1px solid rgba(102, 240, 255, 0.2);
 
 }
 
+.post-edit-box {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(102, 240, 255, 0.25);
+}
+
+.post-edit-box h4 {
+  margin: 0 0 0.6rem;
+  color: var(--neon-blue);
+}
+
+.post-edit-box textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--light-gray);
+  color: var(--white);
+  resize: vertical;
+}
+
+.post-edit-box textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--neon-blue);
+}
+
+.post-edit-actions {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  margin-top: 0.8rem;
+}
+
+.post-edit-actions button {
+  background-color: transparent;
+  color: var(--neon-blue);
+  border: 1px solid rgba(102, 240, 255, 0.35);
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.post-edit-actions button:hover {
+  background: rgba(102, 240, 255, 0.12);
+  box-shadow: 0 0 10px rgba(102, 240, 255, 0.25);
+}
+
 
 /* Icon styling for buttons with theme support */
 .btn-icon {
@@ -589,7 +637,7 @@ border-top: 1px solid rgba(102, 240, 255, 0.2);
   vertical-align: middle;
 }
 
-.like-btn, .comment-btn {
+.like-btn, .comment-btn, .edit-post-btn, .delete-post-btn {
   background: none;
   border: none;
   color: var(--white);
@@ -606,7 +654,11 @@ border-top: 1px solid rgba(102, 240, 255, 0.2);
   flex-shrink: 1;
 }
 
-.like-btn:hover, .comment-btn:hover {
+.delete-post-btn {
+  color: #ff6666;
+}
+
+.like-btn:hover, .comment-btn:hover, .edit-post-btn:hover, .delete-post-btn:hover {
   background-color: var(--light-blue);
   border-radius: 5px;
 }

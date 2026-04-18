@@ -337,6 +337,34 @@ body {
   border-radius: 5px;
 }
 
+.edit-post-btn,
+.delete-post-btn {
+  background: none;
+  border: none;
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  padding: 10px 10px;
+  line-height: 1;
+  width: fit-content;
+  flex-shrink: 1;
+}
+
+.delete-post-btn {
+  color: #ff6666;
+}
+
+.edit-post-btn:hover,
+.delete-post-btn:hover {
+  background-color: rgba(102, 240, 255, 0.12);
+  border-radius: 5px;
+}
+
 .reply-toggle .reply-icon {
   color: var(--soft-blue);
   filter: drop-shadow(0 0 1px var(--soft-blue));
@@ -856,3 +884,99 @@ body {
   text-shadow: 0 0 5px var(--black);
   z-index: 1;
   }
+
+/* Feed Edit Post Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  padding: 30px 12px;
+}
+
+.modal-content {
+  background-color: var(--gray, #222);
+  margin: 0 auto;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--neon-blue, #66f0ff);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.6);
+}
+
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: var(--white, #fff);
+}
+
+.modal-content h2 {
+  margin: 0 0 14px;
+  color: var(--neon-blue, #66f0ff);
+}
+
+.modal-content label {
+  display: block;
+  margin: 10px 0 6px;
+  color: var(--white, #fff);
+  font-weight: 600;
+}
+
+.modal-content textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--light-gray, #333);
+  color: var(--white, #fff);
+  resize: vertical;
+}
+
+.modal-content textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--neon-blue, #66f0ff);
+}
+
+.file-input-name {
+  margin-left: 8px;
+  color: #aaa;
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+
+.modal-content button {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modal-content button[type="submit"] {
+  background-color: var(--neon-blue, #66f0ff);
+  color: #000;
+}
+
+.modal-content .cancel-button {
+  background-color: transparent;
+  color: var(--white, #fff);
+  border: 1px solid rgba(102, 240, 255, 0.35);
+  margin-left: 10px;
+}
+
+.modal-content .cancel-button:hover {
+  background-color: rgba(102, 240, 255, 0.12);
+}

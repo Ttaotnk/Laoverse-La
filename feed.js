@@ -7,6 +7,7 @@ const imagePreview = document.getElementById("image-preview") || document.create
 let feedPosts = [];
 let feedRefreshTimer = null;
 let currentUserId = null;
+let editingPostId = null;
 
 const UI_EMOJI = {
   liked: "??",
@@ -247,6 +248,14 @@ function renderPosts(posts) {
         <button class="comment-btn" data-id="${safeHtml(post.id)}">
           <img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
         </button>
+        ${currentUserId && String(post.user_id) === String(currentUserId) ? `
+          <button class="edit-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.editPost"))}">
+            <img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}
+          </button>
+          <button class="delete-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}">
+            <img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}
+          </button>
+        ` : ``}
       </div>
       <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
         ${renderComments(post.comments || [], post.id)}
@@ -262,6 +271,146 @@ function renderPosts(posts) {
 function viewProfile(userId) {
   if (!userId) return;
   window.location.href = `user-profile.html?id=${encodeURIComponent(userId)}`;
+}
+
+function ensureEditPostModal() {
+  if (document.getElementById("feedEditPostModal")) return;
+
+  const modal = document.createElement("div");
+  modal.id = "feedEditPostModal";
+  modal.className = "modal";
+  modal.style.display = "none";
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close-button" id="feedEditPostModalClose">&times;</span>
+      <h2 data-i18n="common.editPost">${safeHtml(t("common.editPost"))}</h2>
+      <form id="feedEditPostForm">
+        <div>
+          <label for="feedEditPostContent" data-i18n="common.content">${safeHtml(t("common.content"))}</label>
+          <textarea id="feedEditPostContent" name="content" rows="4" maxlength="1000"></textarea>
+        </div>
+        <div>
+          <label for="feedEditPostImage" class="file-input-label">
+            <span data-i18n="common.image">${safeHtml(t("common.image"))}</span>
+            <span id="feedEditPostImageName" class="file-input-name"></span>
+          </label>
+          <input type="file" id="feedEditPostImage" name="image" accept="image/*,video/*,audio/*">
+        </div>
+        <button type="submit" data-i18n="common.save">${safeHtml(t("common.save"))}</button>
+        <button type="button" class="cancel-button" id="feedEditPostCancel" data-i18n="common.cancel">${safeHtml(t("common.cancel"))}</button>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const close = () => closeEditPostModal();
+  const closeBtn = document.getElementById("feedEditPostModalClose");
+  const cancelBtn = document.getElementById("feedEditPostCancel");
+  const form = document.getElementById("feedEditPostForm");
+  const fileInput = document.getElementById("feedEditPostImage");
+  const fileName = document.getElementById("feedEditPostImageName");
+
+  if (closeBtn) closeBtn.addEventListener("click", close);
+  if (cancelBtn) cancelBtn.addEventListener("click", close);
+  if (form) form.addEventListener("submit", handleEditPostSubmit);
+  if (fileInput && fileName) {
+    fileInput.addEventListener("change", (event) => {
+      const file = event.target.files && event.target.files[0];
+      fileName.textContent = file ? file.name : "";
+    });
+  }
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) close();
+  });
+}
+
+function openEditPostModal(postId) {
+  ensureEditPostModal();
+  const post = feedPosts.find((p) => String(p.id) === String(postId));
+  if (!post) return;
+
+  editingPostId = postId;
+  const modal = document.getElementById("feedEditPostModal");
+  const content = document.getElementById("feedEditPostContent");
+  const fileName = document.getElementById("feedEditPostImageName");
+  const fileInput = document.getElementById("feedEditPostImage");
+  if (content) content.value = post.content || "";
+  if (fileName) fileName.textContent = "";
+  if (fileInput) fileInput.value = "";
+
+  if (modal) modal.style.display = "block";
+}
+
+function closeEditPostModal() {
+  const modal = document.getElementById("feedEditPostModal");
+  if (modal) modal.style.display = "none";
+  editingPostId = null;
+  const form = document.getElementById("feedEditPostForm");
+  if (form) form.reset();
+}
+
+async function handleEditPostSubmit(event) {
+  event.preventDefault();
+  if (!editingPostId) return;
+
+  const form = event.target || document.getElementById("feedEditPostForm");
+  const formData = new FormData(form);
+  formData.set("post_id", editingPostId);
+
+  showLoading(true);
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/edit_post`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: formData,
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postUpdated"), "success");
+      closeEditPostModal();
+      await loadFeed();
+      return;
+    }
+    showMessage(data.message || t("profile.updateFailed"), "error");
+  } catch (error) {
+    showMessage(t("profile.updateFailed"), "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function deletePost(postId) {
+  const ok = window.showConfirm
+    ? await window.showConfirm(t("common.confirmDelete"), t("common.confirm"))
+    : window.confirm(t("common.confirmDelete"));
+  if (!ok) return;
+
+  showLoading(true);
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/delete_post`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: `post_id=${encodeURIComponent(postId)}`,
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("profile.postDeleted"), "success");
+      await loadFeed();
+      return;
+    }
+    showMessage(data.message || t("profile.deleteFailed"), "error");
+  } catch (error) {
+    showMessage(t("profile.deleteFailed"), "error");
+  } finally {
+    showLoading(false);
+  }
 }
 
 function handleImagePreview(event) {
@@ -492,6 +641,18 @@ function setupEventDelegation() {
       if (section) {
         section.style.display = section.style.display === "none" ? "block" : "none";
       }
+      return;
+    }
+
+    const editPostBtn = event.target.closest(".edit-post-btn");
+    if (editPostBtn) {
+      openEditPostModal(editPostBtn.dataset.id);
+      return;
+    }
+
+    const deletePostBtn = event.target.closest(".delete-post-btn");
+    if (deletePostBtn) {
+      await deletePost(deletePostBtn.dataset.id);
       return;
     }
 

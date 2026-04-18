@@ -194,8 +194,8 @@ function renderMessages(messageList, replaceAll) {
         ${renderFile(message)}
         ${canModify ? `
           <div class="message-actions">
-            <button class="msg-edit-toggle" data-message-id="${safeHtml(message.id)}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}</button>
-            <button class="msg-delete-btn" data-message-id="${safeHtml(message.id)}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}</button>
+            <button class="msg-edit-toggle" data-message-id="${safeHtml(message.id)}" title="${safeHtml(t("common.edit"))}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"></button>
+            <button class="msg-delete-btn" data-message-id="${safeHtml(message.id)}" title="${safeHtml(t("common.delete"))}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"></button>
           </div>
           <div class="message-edit-box" id="edit-msg-${safeHtml(message.id)}" style="display:none;">
             <textarea class="message-edit-input" rows="2">${safeHtml(message.message || "")}</textarea>
