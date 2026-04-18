@@ -30,6 +30,22 @@ function safeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
+function detectFileKind(fileType, filePath) {
+  const type = String(fileType || "").toLowerCase();
+  const path = String(filePath || "").toLowerCase();
+
+  if (type.startsWith("image/") || ["image", "jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(type) || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(path)) {
+    return "image";
+  }
+  if (type.startsWith("video/") || ["video", "mp4", "webm", "mov", "mkv", "avi", "m4v", "ogv"].includes(type) || /\.(mp4|webm|mov|mkv|avi|m4v|ogv)$/i.test(path)) {
+    return "video";
+  }
+  if (type.startsWith("audio/") || ["audio", "mp3", "wav", "ogg", "aac", "m4a", "flac", "oga"].includes(type) || /\.(mp3|wav|ogg|aac|m4a|flac|oga)$/i.test(path)) {
+    return "audio";
+  }
+  return "file";
+}
+
 function showLoading(show) {
   const loader = document.getElementById("loading") || createLoadingDiv();
   loader.style.display = show ? "flex" : "none";
@@ -176,6 +192,27 @@ async function openPostModal() {
       commentsHtml = '<div class="comments-section"><p class="no-comments">' + t("feed.noComments") + '</p></div>';
     }
     
+    let mediaHtml = "";
+    if (post.image) {
+      const resolve = (url) => {
+        if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+          return window.LanguageManager.resolveMediaUrl(url);
+        }
+        return url;
+      };
+      const resolvedImage = resolve(post.image);
+      const kind = detectFileKind(post.file_type, post.image);
+      if (kind === "video") {
+        mediaHtml = `<video controls playsinline preload="metadata" class="post-image" src="${safeHtml(resolvedImage)}"></video>`;
+      } else if (kind === "audio") {
+        mediaHtml = `<audio controls preload="metadata" class="post-audio" src="${safeHtml(resolvedImage)}"></audio>`;
+      } else if (kind === "file") {
+        mediaHtml = `<a href="${safeHtml(resolvedImage)}" class="post-file" target="_blank" rel="noopener">${safeHtml(t("common.downloadFile"))}</a>`;
+      } else {
+        mediaHtml = `<img src="${safeHtml(resolvedImage)}" class="post-image" alt="post-image" onerror="this.style.display='none'">`;
+      }
+    }
+    
     const modal = document.createElement('div');
     modal.id = 'postModal';
     modal.className = 'post-modal';
@@ -196,8 +233,8 @@ async function openPostModal() {
             </div>
           </div>
           <div class="post-content">
-            <p class="post-text">${safeHtml(post.content)}</p>
-            ${post.image ? `<img src="${safeHtml(post.image)}" class="post-image" onerror="this.style.display='none'">` : ''}
+            ${post.content ? `<p class="post-text">${safeHtml(post.content)}</p>` : ""}
+            ${mediaHtml}
           </div>
           <div class="post-actions">
             <button class="like-btn ${post.is_liked ? 'liked' : ''}" onclick="toggleLike('${safeHtml(post._id)}', event)"><img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> Like</button>
