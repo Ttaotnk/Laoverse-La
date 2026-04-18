@@ -152,9 +152,16 @@ function renderProfile(profile) {
   const editBtn = document.getElementById("editProfileBtn");
   const editUsername = document.getElementById("editUsername");
 
+  const resolve = (url) => {
+    if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+      return window.LanguageManager.resolveMediaUrl(url);
+    }
+    return url;
+  };
+
   if (username) username.textContent = profile.username || "";
   if (pic) {
-    pic.src = profile.profile_pic || "default-profile.png";
+    pic.src = resolve(profile.profile_pic) || "default-profile.png";
     pic.onerror = function onError() {
       this.src = "default-profile.png";
     };
@@ -205,18 +212,31 @@ function renderProfilePosts(posts) {
     return;
   }
 
+  const resolve = (url) => {
+    if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+      return window.LanguageManager.resolveMediaUrl(url);
+    }
+    return url;
+  };
+  
+  const resolveProfilePic = (pic) => {
+    if (!pic) return "default-profile.png";
+    return resolve(pic);
+  };
+
   container.innerHTML = `<h2>${safeHtml(t("profile.posts"))}</h2>${currentProfilePosts.map((post) => {
     let mediaHtml = "";
     if (post.image) {
+      const resolvedImage = resolve(post.image);
       const kind = detectFileKind(post.file_type, post.image);
       if (kind === "video") {
-        mediaHtml = `<video controls playsinline preload="metadata" class="post-image" src="${safeHtml(post.image)}"></video>`;
+        mediaHtml = `<video controls playsinline preload="metadata" class="post-image" src="${safeHtml(resolvedImage)}"></video>`;
       } else if (kind === "audio") {
-        mediaHtml = `<audio controls preload="metadata" class="post-audio" src="${safeHtml(post.image)}"></audio>`;
+        mediaHtml = `<audio controls preload="metadata" class="post-audio" src="${safeHtml(resolvedImage)}"></audio>`;
       } else if (kind === "file") {
-        mediaHtml = `<a href="${safeHtml(post.image)}" class="post-file" target="_blank" rel="noopener">${safeHtml(t("common.downloadFile"))}</a>`;
+        mediaHtml = `<a href="${safeHtml(resolvedImage)}" class="post-file" target="_blank" rel="noopener">${safeHtml(t("common.downloadFile"))}</a>`;
       } else {
-        mediaHtml = `<img src="${safeHtml(post.image)}" class="post-image" alt="post-image">`;
+        mediaHtml = `<img src="${safeHtml(resolvedImage)}" class="post-image" alt="post-image">`;
       }
     }
 
@@ -237,7 +257,7 @@ function renderProfilePosts(posts) {
     return `
       <div class="post" data-id="${safeHtml(post.id)}">
         <div class="post-header">
-          <img src="${safeHtml(post.profile_pic || "default-profile.png")}"
+          <img src="${safeHtml(resolveProfilePic(post.profile_pic))}"
                class="post-profile-pic"
                onclick="goToUserProfile('${safeHtml(post.user_id || "")}')"
                style="cursor:pointer;"

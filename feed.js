@@ -93,9 +93,25 @@ function createLoadingDiv() {
   return div;
 }
 
+function getProfileImage(pic) {
+  if (!pic) return "default-profile.png";
+  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+    return window.LanguageManager.resolveMediaUrl(pic);
+  }
+  return pic;
+}
+
 function renderPostMedia(post) {
   if (!post || !post.image) return "";
-  const fileUrl = safeHtml(post.image);
+  
+  const resolve = (url) => {
+    if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+      return window.LanguageManager.resolveMediaUrl(url);
+    }
+    return url;
+  };
+
+  const fileUrl = resolve(post.image);
   const type = detectFileKind(post.file_type, post.image);
 
   if (type === "video") {

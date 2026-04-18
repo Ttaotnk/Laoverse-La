@@ -599,6 +599,8 @@
     document.querySelectorAll("[data-i18n-value]").forEach((node) => {
       node.value = translate(node.getAttribute("data-i18n-value"), null, nextLang);
     });
+
+    applyMediaResolution();
   }
 
   function setLanguage(lang) {
@@ -622,6 +624,56 @@
     if (diffInSeconds < 2592000) return translate("time.weekAgo", { count: Math.floor(diffInSeconds / 604800) });
     if (diffInSeconds < 31536000) return translate("time.monthAgo", { count: Math.floor(diffInSeconds / 2592000) });
     return translate("time.yearAgo", { count: Math.floor(diffInSeconds / 31536000) });
+  }
+
+  function resolveMediaUrl(url) {
+    if (!url) return "";
+    // If it already starts with https://, assume it's correct
+    if (url.startsWith("https://")) return url;
+    
+    const backendUrl = "https://wit-lee-however-coleman.trycloudflare.com";
+    
+    // Replace localhost:3000 if present
+    if (url.includes("localhost:3000")) {
+        return url.replace(/http:\/\/localhost:3000/g, backendUrl);
+    }
+    
+    // If it's a relative path starting with uploads/ or /uploads/
+    if (url.startsWith("uploads/") || url.startsWith("/uploads/")) {
+        const path = url.startsWith("/") ? url : `/${url}`;
+        return `${backendUrl}${path}`;
+    }
+    
+    return url;
+  }
+
+  function applyMediaResolution() {
+    document.querySelectorAll("img, video, audio, source").forEach((el) => {
+      const src = el.getAttribute("src");
+      if (src) {
+        const resolved = resolveMediaUrl(src);
+        if (resolved !== src) {
+          el.setAttribute("src", resolved);
+        }
+      }
+      
+      // Also check onerror for profile pics
+      if (el.tagName === "IMG" && !el.getAttribute("data-error-handled")) {
+         const originalOnError = el.onerror;
+         el.onerror = function() {
+            this.src = "default-profile.png";
+            if (originalOnError) originalOnError.call(this);
+         };
+         el.setAttribute("data-error-handled", "true");
+      }
+    });
+    
+    document.querySelectorAll("a[href]").forEach((el) => {
+       const href = el.getAttribute("href");
+       if (href && (href.includes("uploads/") || href.includes("localhost:3000"))) {
+          el.setAttribute("href", resolveMediaUrl(href));
+       }
+    });
   }
 
   function setupExclusiveMediaPlayback() {
@@ -701,7 +753,9 @@
     t: translate,
     setLanguage,
     applyLanguage,
-    formatRelativeTime
+    formatRelativeTime,
+    resolveMediaUrl,
+    applyMediaResolution
   };
 
   setupExclusiveMediaPlayback();
