@@ -214,6 +214,75 @@ body {
   color: var(--neon-blue);
 }
 
+.message-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.message-header .timestamp {
+  display: inline;
+  margin-top: 0;
+}
+
+.message-text {
+  margin-top: 0.25rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.message-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.6rem;
+  background: transparent;
+  color: var(--white);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.message-actions button:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.message-edit-box {
+  margin-top: 0.6rem;
+}
+
+.message-edit-input {
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.15);
+  color: var(--white);
+  resize: vertical;
+}
+
+.message-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+}
+
+.message-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
 .timestamp {
   display: block;
   font-size: 0.7rem;

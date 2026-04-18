@@ -1,4 +1,5 @@
 let notifications = [];
+let currentUserId = null;
 
 const UI_EMOJI = {
   liked: "??",
@@ -93,10 +94,9 @@ async function openPostModal() {
   const postId = sessionStorage.getItem('viewPostId');
   if (!postId) return;
 
-  const token = localStorage.getItem('laoverse_jwt') || '';
   try {
     const response = await fetch(`${window.API_BASE_URL}/get_post/${postId}`, {
-      headers: { "Authorization": `Bearer ${token}` },
+      headers: { ...getAuthHeaders() },
       credentials: "include"
     });
     const data = await response.json();
@@ -126,6 +126,7 @@ async function openPostModal() {
     if (comments.length > 0) {
       commentsHtml += `<div class="comments-section"><h4><img src="icons/comment.svg" alt="comments" class="btn-icon comment-icon"> Comments</h4>`;
       parentComments.forEach(pComment => {
+        const canModifyParent = currentUserId && String(pComment.user_id) === String(currentUserId) && !pComment.is_deleted;
         commentsHtml += `
           <div class="comment-thread">
             <div class="comment">
@@ -138,17 +139,27 @@ async function openPostModal() {
                 <div class="comment-header">
                   <strong onclick="goToUserProfile('${safeHtml(pComment.user_id)}')" style="cursor:pointer;">${safeHtml(pComment.username)}</strong>
                   <small>${safeHtml(formatRelativeTime(pComment.created_at))}</small>
-                </div>
-                <p>${safeHtml(pComment.text)}</p>
-                <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
-              </div>
-            </div>
+                 </div>
+                 <p>${safeHtml(pComment.is_deleted ? t("feed.deletedComment") : pComment.text)}</p>
+                 <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                 ${canModifyParent ? `
+                   <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(pComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                   <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(pComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
+                   <div class="comment-edit-box" id="commentEdit_${safeHtml(pComment._id)}" style="display:none;">
+                     <input type="text" class="comment-edit-input" id="commentEditInput_${safeHtml(pComment._id)}" value="${safeHtml(pComment.text)}">
+                     <button onclick="saveCommentEdit('${safeHtml(pComment._id)}')">${t("common.save")}</button>
+                     <button onclick="cancelCommentEdit('${safeHtml(pComment._id)}')">${t("common.cancel")}</button>
+                   </div>
+                 ` : ``}
+               </div>
+             </div>
         `;
         
         // Add child comments (replies)
         if (childComments[pComment._id]) {
           commentsHtml += '<div class="child-comments">';
           childComments[pComment._id].forEach(childComment => {
+            const canModifyChild = currentUserId && String(childComment.user_id) === String(currentUserId) && !childComment.is_deleted;
             commentsHtml += `
               <div class="comment child-comment">
                 <img src="${safeHtml(childComment.user_pic || 'default-profile.png')}" 
@@ -160,12 +171,21 @@ async function openPostModal() {
                   <div class="comment-header">
                     <strong onclick="goToUserProfile('${safeHtml(childComment.user_id)}')" style="cursor:pointer;">${safeHtml(childComment.username)}</strong>
                     <small>${safeHtml(formatRelativeTime(childComment.created_at))}</small>
-                  </div>
-                  <p>${safeHtml(childComment.text)}</p>
-                  <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
-                </div>
-              </div>
-            `;
+                   </div>
+                   <p>${safeHtml(childComment.is_deleted ? t("feed.deletedComment") : childComment.text)}</p>
+                   <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                   ${canModifyChild ? `
+                     <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(childComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                     <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(childComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
+                     <div class="comment-edit-box" id="commentEdit_${safeHtml(childComment._id)}" style="display:none;">
+                       <input type="text" class="comment-edit-input" id="commentEditInput_${safeHtml(childComment._id)}" value="${safeHtml(childComment.text)}">
+                       <button onclick="saveCommentEdit('${safeHtml(childComment._id)}')">${t("common.save")}</button>
+                       <button onclick="cancelCommentEdit('${safeHtml(childComment._id)}')">${t("common.cancel")}</button>
+                     </div>
+                   ` : ``}
+                 </div>
+               </div>
+             `;
           });
           commentsHtml += '</div>';
         }
@@ -410,6 +430,94 @@ async function submitReplyToComment(postId, parentCommentId, event) {
   }
 }
 
+function toggleCommentEdit(commentId) {
+  const box = document.getElementById(`commentEdit_${commentId}`);
+  if (!box) return;
+  box.style.display = box.style.display === "none" ? "block" : "none";
+  const input = document.getElementById(`commentEditInput_${commentId}`);
+  if (input) {
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  }
+}
+
+function cancelCommentEdit(commentId) {
+  const box = document.getElementById(`commentEdit_${commentId}`);
+  if (box) box.style.display = "none";
+}
+
+async function saveCommentEdit(commentId) {
+  const input = document.getElementById(`commentEditInput_${commentId}`);
+  const nextText = input ? input.value.trim() : "";
+  if (!nextText) {
+    showMessage(t("feed.commentRequired") || "Please enter a comment", "error");
+    return;
+  }
+
+  try {
+    showLoading(true);
+    const payload = new URLSearchParams();
+    payload.set("comment_id", commentId);
+    payload.set("comment", nextText);
+
+    const response = await fetch(`${window.API_BASE_URL}/edit_comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: payload.toString(),
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("feed.commentEdited"), "success");
+      cancelCommentEdit(commentId);
+      await openPostModal();
+      return;
+    }
+    showMessage(data.message || t("feed.commentEditFailed"), "error");
+  } catch (error) {
+    showMessage(t("feed.commentEditFailed") || "Unable to edit comment", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+async function deleteCommentAndRefresh(commentId) {
+  try {
+    const ok = window.showConfirm
+      ? await window.showConfirm(t("feed.confirmDeleteComment"), t("common.confirm"))
+      : window.confirm(t("feed.confirmDeleteComment"));
+    if (!ok) return;
+
+    showLoading(true);
+    const payload = new URLSearchParams();
+    payload.set("comment_id", commentId);
+
+    const response = await fetch(`${window.API_BASE_URL}/delete_comment`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        ...getAuthHeaders()
+      },
+      body: payload.toString(),
+      credentials: "include"
+    });
+    const data = await response.json();
+    if (data.success) {
+      showMessage(t("feed.commentDeleted"), "success");
+      await openPostModal();
+      return;
+    }
+    showMessage(data.message || t("feed.commentDeleteFailed"), "error");
+  } catch (error) {
+    showMessage(t("feed.commentDeleteFailed") || "Unable to delete comment", "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
 function getNotificationIcon(type) {
   switch (type) {
     case 'like':
@@ -566,17 +674,15 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const token = localStorage.getItem('laoverse_jwt') || '';
     const authResponse = await fetch(`${window.API_BASE_URL}/check_auth`, { 
-      headers: {
-        "Authorization": `Bearer ${token}`
-      }
+      headers: { ...getAuthHeaders() }
     });
     const authData = await authResponse.json();
     if (!authData.success) {
       window.location.href = "index2.html";
       return;
     }
+    currentUserId = authData.user && authData.user.id ? authData.user.id : null;
   } catch (error) {
     window.location.href = "index2.html";
     return;

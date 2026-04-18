@@ -177,6 +177,7 @@ function renderMessages(messageList, replaceAll) {
   const shouldScroll = !isScrolledUp;
 
   messageList.forEach((message) => {
+    const canModify = currentUser && (String(message.sender_id || "") === String(currentUser) || String(message.direction || "") === "right");
     const id = `msg-${message.id}`;
     if (!replaceAll && document.getElementById(id)) return;
 
@@ -185,10 +186,25 @@ function renderMessages(messageList, replaceAll) {
     node.id = id;
     node.innerHTML = `
       <div class="message-content">
-        <strong>${safeHtml(message.username || message.sender_name || t("messages.unknownSender"))}</strong><br>
-        ${message.message ? safeHtml(message.message) : ""}
+        <div class="message-header">
+          <strong>${safeHtml(message.username || message.sender_name || t("messages.unknownSender"))}</strong>
+          <small class="timestamp">${safeHtml(formatTimestamp(message.created_at))}</small>
+        </div>
+        ${message.message ? `<div class="message-text">${safeHtml(message.message)}</div>` : ""}
         ${renderFile(message)}
-        <small class="timestamp">${safeHtml(formatTimestamp(message.created_at))}</small>
+        ${canModify ? `
+          <div class="message-actions">
+            <button class="msg-edit-toggle" data-message-id="${safeHtml(message.id)}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}</button>
+            <button class="msg-delete-btn" data-message-id="${safeHtml(message.id)}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}</button>
+          </div>
+          <div class="message-edit-box" id="edit-msg-${safeHtml(message.id)}" style="display:none;">
+            <textarea class="message-edit-input" rows="2">${safeHtml(message.message || "")}</textarea>
+            <div class="message-edit-actions">
+              <button class="msg-edit-save" data-message-id="${safeHtml(message.id)}">${safeHtml(t("common.save"))}</button>
+              <button class="msg-edit-cancel" data-message-id="${safeHtml(message.id)}">${safeHtml(t("common.cancel"))}</button>
+            </div>
+          </div>
+        ` : ``}
       </div>
     `;
     container.appendChild(node);
@@ -201,8 +217,41 @@ function renderMessages(messageList, replaceAll) {
   }
 }
 
+async function deleteMessage(messageId) {
+  const payload = new URLSearchParams();
+  payload.set("message_id", messageId);
+
+  const response = await fetch(`${window.API_BASE_URL}/delete_message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...getAuthHeaders()
+    },
+    body: payload.toString(),
+    credentials: "include"
+  });
+  return response.json();
+}
+
+async function editMessage(messageId, nextText) {
+  const payload = new URLSearchParams();
+  payload.set("message_id", messageId);
+  payload.set("message", nextText);
+
+  const response = await fetch(`${window.API_BASE_URL}/edit_message`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...getAuthHeaders()
+    },
+    body: payload.toString(),
+    credentials: "include"
+  });
+  return response.json();
+}
+
 async function loadFriends() {
-  const response = await fetch(`${window.API_BASE_URL}/get_friends`, { credentials: "include" });
+  const response = await fetch(`${window.API_BASE_URL}/get_friends`, { headers: getAuthHeaders(), credentials: "include" });
   if (!response.ok) throw new Error("friends");
   const data = await response.json();
   if (!data.success) throw new Error(data.message || "friends");
@@ -220,6 +269,7 @@ async function loadFriends() {
 async function loadMessages(friendId, forceFullReload) {
   const query = forceFullReload ? 0 : (lastFetched[friendId] || 0);
   const response = await fetch(`${window.API_BASE_URL}/get_messages?friend_id=${encodeURIComponent(friendId)}&last_update=${encodeURIComponent(query)}`, {
+    headers: getAuthHeaders(),
     credentials: "include"
   });
   if (!response.ok) throw new Error("messages");
@@ -277,6 +327,7 @@ async function sendMessage() {
 
   const response = await fetch(`${window.API_BASE_URL}/send_message`, {
     method: "POST",
+    headers: { ...getAuthHeaders() },
     body: formData,
     credentials: "include"
   });
@@ -350,6 +401,61 @@ function setupEvents() {
     chat.addEventListener("scroll", () => {
       isScrolledUp = (chat.scrollHeight - chat.scrollTop - chat.clientHeight) > 100;
     });
+
+    chat.addEventListener("click", async (event) => {
+      const editToggle = event.target.closest(".msg-edit-toggle");
+      if (editToggle) {
+        const box = document.getElementById(`edit-msg-${editToggle.dataset.messageId}`);
+        if (box) {
+          box.style.display = box.style.display === "none" ? "block" : "none";
+          const input = box.querySelector(".message-edit-input");
+          if (input) {
+            input.focus();
+            input.setSelectionRange(input.value.length, input.value.length);
+          }
+        }
+        return;
+      }
+
+      const cancel = event.target.closest(".msg-edit-cancel");
+      if (cancel) {
+        const box = document.getElementById(`edit-msg-${cancel.dataset.messageId}`);
+        if (box) box.style.display = "none";
+        return;
+      }
+
+      const save = event.target.closest(".msg-edit-save");
+      if (save) {
+        const box = document.getElementById(`edit-msg-${save.dataset.messageId}`);
+        const input = box ? box.querySelector(".message-edit-input") : null;
+        const nextText = input ? input.value.trim() : "";
+        if (!nextText) return;
+
+        try {
+          const data = await editMessage(save.dataset.messageId, nextText);
+          if (data.success) {
+            if (box) box.style.display = "none";
+            await loadMessages(currentFriend.id, true);
+          }
+        } catch (error) {}
+        return;
+      }
+
+      const del = event.target.closest(".msg-delete-btn");
+      if (del) {
+        try {
+          const ok = window.showConfirm
+            ? await window.showConfirm(t("messages.confirmDeleteMessage"), t("common.confirm"))
+            : window.confirm(t("messages.confirmDeleteMessage"));
+          if (!ok) return;
+
+          const data = await deleteMessage(del.dataset.messageId);
+          if (data.success) {
+            await loadMessages(currentFriend.id, true);
+          }
+        } catch (error) {}
+      }
+    });
   }
 
   window.addEventListener("beforeunload", stopPolling);
@@ -360,7 +466,7 @@ async function init() {
   setComposerEnabled(false);
   setupEvents();
 
-  const response = await fetch(`${window.API_BASE_URL}/check_auth`, { credentials: "include" });
+  const response = await fetch(`${window.API_BASE_URL}/check_auth`, { headers: getAuthHeaders(), credentials: "include" });
   const data = await response.json();
   if (!data.success || !data.user || !data.user.id) {
     window.location.href = "index2.html";

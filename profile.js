@@ -107,6 +107,7 @@ function renderComments(comments, postId) {
 
   const renderThread = (parentId, level) => {
     const list = groups[parentId] || [];
+    const currentId = currentUserId ? String(currentUserId) : "";
     return list.map((comment) => `
       <div class="comment ${level > 0 ? "comment-reply" : ""}" style="${level > 0 ? `margin-left:${Math.min(level, 3) * 20}px;` : ""}">
         <img src="${safeHtml(comment.profile_pic || "default-profile.png")}"
@@ -120,10 +121,21 @@ function renderComments(comments, postId) {
             <strong class="comment-username" onclick="goToUserProfile('${safeHtml(comment.user_id || "")}')" style="cursor:pointer;">${safeHtml(comment.username || t("profile.unknownUser"))}</strong>
             <small class="comment-time">${safeHtml(formatRelativeTime(comment.created_at))}</small>
           </div>
-          <p class="comment-text">${safeHtml(comment.comment)}</p>
+          <p class="comment-text">${safeHtml(comment.is_deleted ? t("feed.deletedComment") : comment.comment)}</p>
           <div class="comment-actions">
             <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${safeHtml(t("feed.reply"))}</button>
+            ${currentId && String(comment.user_id) === currentId && !comment.is_deleted ? `
+              <button class="comment-edit-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}</button>
+              <button class="comment-delete-btn" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}</button>
+            ` : ``}
           </div>
+          ${currentId && String(comment.user_id) === currentId && !comment.is_deleted ? `
+            <div class="comment-edit-box" id="edit-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
+              <input type="text" class="comment-edit-input" value="${safeHtml(comment.comment)}" placeholder="${safeHtml(t("feed.commentPlaceholder"))}">
+              <button class="submit-comment-edit" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("common.save"))}</button>
+              <button class="cancel-comment-edit" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("common.cancel"))}</button>
+            </div>
+          ` : ``}
           <div class="reply-box" id="reply-box-${safeHtml(postId)}-${safeHtml(comment.id)}" style="display:none;">
             <input type="text" class="reply-input" placeholder="${safeHtml(t("feed.replyPlaceholder"))}">
             <button class="submit-reply" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}">${safeHtml(t("common.submit"))}</button>
@@ -365,6 +377,41 @@ async function addComment(postId, comment, parentCommentId) {
     showMessage(t("feed.commentFailed"), "error");
   }
   return false;
+}
+
+async function editComment(commentId, nextText) {
+  const payload = new URLSearchParams();
+  payload.set("comment_id", commentId);
+  payload.set("comment", nextText);
+
+  const response = await fetch(`${window.API_BASE_URL}/edit_comment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...getAuthHeaders()
+    },
+    body: payload.toString(),
+    credentials: "include"
+  });
+
+  return response.json();
+}
+
+async function deleteComment(commentId) {
+  const payload = new URLSearchParams();
+  payload.set("comment_id", commentId);
+
+  const response = await fetch(`${window.API_BASE_URL}/delete_comment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...getAuthHeaders()
+    },
+    body: payload.toString(),
+    credentials: "include"
+  });
+
+  return response.json();
 }
 
 async function sendFriendRequest(userId) {
@@ -626,6 +673,73 @@ function setupInteractions() {
       return;
     }
 
+    const editToggle = event.target.closest(".comment-edit-toggle");
+    if (editToggle) {
+      const box = document.getElementById(`edit-box-${editToggle.dataset.postId}-${editToggle.dataset.commentId}`);
+      if (box) {
+        box.style.display = box.style.display === "none" ? "block" : "none";
+        const input = box.querySelector(".comment-edit-input");
+        if (input) {
+          input.focus();
+          input.setSelectionRange(input.value.length, input.value.length);
+        }
+      }
+      return;
+    }
+
+    const cancelEdit = event.target.closest(".cancel-comment-edit");
+    if (cancelEdit) {
+      const box = document.getElementById(`edit-box-${cancelEdit.dataset.postId}-${cancelEdit.dataset.commentId}`);
+      if (box) box.style.display = "none";
+      return;
+    }
+
+    const submitEdit = event.target.closest(".submit-comment-edit");
+    if (submitEdit) {
+      const box = document.getElementById(`edit-box-${submitEdit.dataset.postId}-${submitEdit.dataset.commentId}`);
+      const input = box ? box.querySelector(".comment-edit-input") : null;
+      const nextText = input ? input.value.trim() : "";
+      if (!nextText) {
+        showMessage(t("feed.commentRequired"), "error");
+        return;
+      }
+
+      try {
+        const data = await editComment(submitEdit.dataset.commentId, nextText);
+        if (data.success) {
+          if (box) box.style.display = "none";
+          showMessage(t("feed.commentEdited"), "success");
+          await loadProfile(currentProfileId);
+          return;
+        }
+        showMessage(data.message || t("feed.commentEditFailed"), "error");
+      } catch (error) {
+        showMessage(t("feed.commentEditFailed"), "error");
+      }
+      return;
+    }
+
+    const deleteBtn = event.target.closest(".comment-delete-btn");
+    if (deleteBtn) {
+      try {
+        const ok = window.showConfirm
+          ? await window.showConfirm(t("feed.confirmDeleteComment"), t("common.confirm"))
+          : window.confirm(t("feed.confirmDeleteComment"));
+        if (!ok) return;
+
+        const data = await deleteComment(deleteBtn.dataset.commentId);
+        if (data.success) {
+          showMessage(t("feed.commentDeleted"), "success");
+          await loadProfile(currentProfileId);
+          return;
+        }
+        showMessage(data.message || t("feed.commentDeleteFailed"), "error");
+      } catch (error) {
+        showMessage(t("feed.commentDeleteFailed"), "error");
+      }
+      return;
+    }
+
     const submitReplyBtn = event.target.closest(".submit-reply");
     if (submitReplyBtn) {
       const box = document.getElementById(`reply-box-${submitReplyBtn.dataset.postId}-${submitReplyBtn.dataset.commentId}`);
@@ -638,6 +752,34 @@ function setupInteractions() {
       if (await addComment(submitReplyBtn.dataset.postId, comment, submitReplyBtn.dataset.commentId) && input) {
         input.value = "";
       }
+    }
+  });
+
+  document.addEventListener("keypress", (event) => {
+    if (event.key !== "Enter") return;
+
+    if (event.target.classList.contains("comment-input")) {
+      event.preventDefault();
+      const postId = event.target.getAttribute("data-postid");
+      if (!postId) return;
+      const button = document.querySelector(`.submit-comment[data-id="${postId}"]`);
+      if (button) button.click();
+      return;
+    }
+
+    if (event.target.classList.contains("reply-input")) {
+      event.preventDefault();
+      const box = event.target.closest(".reply-box");
+      const button = box ? box.querySelector(".submit-reply") : null;
+      if (button) button.click();
+      return;
+    }
+
+    if (event.target.classList.contains("comment-edit-input")) {
+      event.preventDefault();
+      const box = event.target.closest(".comment-edit-box");
+      const button = box ? box.querySelector(".submit-comment-edit") : null;
+      if (button) button.click();
     }
   });
 }

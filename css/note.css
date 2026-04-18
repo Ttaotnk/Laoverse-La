@@ -1129,6 +1129,70 @@ text-shadow: 0 0 8px var(--neon-blue);
 
 }
 
+.edit-comment-btn,
+.delete-comment-btn {
+  background: none;
+  border: none;
+  color: var(--neon-blue);
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  margin-top: 0.3rem;
+  transition: all 0.3s ease;
+}
+
+.delete-comment-btn {
+  color: #ff6666;
+}
+
+.edit-comment-btn:hover {
+  color: var(--white);
+  text-shadow: 0 0 8px var(--neon-blue);
+}
+
+.delete-comment-btn:hover {
+  color: #ffd1d1;
+  text-shadow: 0 0 8px rgba(255, 102, 102, 0.7);
+}
+
+.comment-edit-box {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.comment-edit-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 0.8rem;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--light-gray);
+  color: var(--white);
+}
+
+.comment-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--neon-blue);
+}
+
+.comment-edit-box button {
+  background-color: transparent;
+  color: var(--neon-blue);
+  border: 1px solid rgba(102, 240, 255, 0.35);
+  border-radius: 8px;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.comment-edit-box button:hover {
+  background: rgba(102, 240, 255, 0.12);
+  box-shadow: 0 0 10px rgba(102, 240, 255, 0.25);
+}
+
 .child-comments {
 
 margin-top: 0.8rem;

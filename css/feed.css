@@ -396,6 +396,57 @@ body {
   line-height: 1.4;
 }
 
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+  align-items: center;
+}
+
+.comment-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  background: transparent;
+  color: var(--neon-blue);
+  border: 1px solid rgba(102, 240, 255, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.comment-actions button:hover {
+  background: rgba(102, 240, 255, 0.12);
+  box-shadow: 0 0 10px rgba(102, 240, 255, 0.25);
+}
+
+.comment-edit-box {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.comment-edit-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--light-gray);
+  color: var(--white);
+}
+
+.comment-edit-input:focus {
+  outline: none;
+  background-color: var(--gray);
+  box-shadow: 0 0 0 2px var(--neon-blue);
+}
+
 .add-comment {
   display: flex;
   gap: 0.5rem;
