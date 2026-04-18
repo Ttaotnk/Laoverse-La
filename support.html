@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="lo">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
   <script src="theme.js"></script>
   <script src="language.js"></script>
 </head>
+
 <body>
   <header class="main-header">
     <div class="logo"><img src="logo.png" alt="Logo" /></div>
@@ -21,33 +23,40 @@
     <section class="card">
       <h2 data-i18n="support.contactTitle">ຂໍ້ມູນຕິດຕໍ່</h2>
       <div class="contact-list">
-        <a class="contact-item" href="https://facebook.com/yourpage" target="_blank" rel="noopener">
+        <a class="contact-item" href="https://www.facebook.com/tnk.taonakha" target="_blank" rel="noopener">
           <span class="contact-label" data-i18n="support.facebook">Facebook</span>
-          <span class="contact-value">facebook.com/yourpage</span>
+          <span class="contact-value">facebook.com/tnk.taonakha</span>
         </a>
-        <a class="contact-item" href="mailto:example@yourdomain.com">
+        <a class="contact-item" href="mailto:taonakha2018@gmail.com">
           <span class="contact-label" data-i18n="support.gmail">Gmail</span>
-          <span class="contact-value">example@yourdomain.com</span>
+          <span class="contact-value">taonakha2018@gmail.com</span>
         </a>
-        <a class="contact-item" href="tel:+8562000000000">
+        <a class="contact-item" href="tel:+8562091455329">
           <span class="contact-label" data-i18n="support.tel">Tel</span>
-          <span class="contact-value">+856 20 0000 0000</span>
+          <span class="contact-value">+8562091455329</span>
         </a>
-        <a class="contact-item" href="https://wa.me/8562000000000" target="_blank" rel="noopener">
+        <a class="contact-item" href="https://wa.me/+8562091497915" target="_blank" rel="noopener">
           <span class="contact-label" data-i18n="support.whatsapp">WhatsApp</span>
-          <span class="contact-value">+856 20 0000 0000</span>
+          <span class="contact-value">+8562091497915</span>
         </a>
       </div>
     </section>
     <section class="card">
       <h1 data-i18n="support.title">ຕິດຕໍ່ຝ່າຍຊ່ວຍເຫຼືອ</h1>
-      <input id="supportEmail" type="email" readonly placeholder="Loading email..." style="opacity: 0.7; cursor: not-allowed; margin-bottom: 8px;" />
+      <div style="margin-bottom: 15px; text-align: left;">
+        <label for="supportEmail" style="display: block; margin-bottom: 5px; font-weight: 500;"
+          data-i18n="support.emailLabel">ອີເມວທີ່ໃຊ້ຕິດຕໍ່ກັບ</label>
+        <input id="supportEmail" type="email" readonly placeholder="Loading email..."
+          style="opacity: 0.7; cursor: not-allowed; margin-bottom: 0;" />
+      </div>
       <input id="supportTitle" type="text" data-i18n-placeholder="support.subject" placeholder="ຫົວຂໍ້ບັນຫາ" />
-      <textarea id="supportMessage" rows="6" data-i18n-placeholder="support.message" placeholder="ລາຍລະອຽດບັນຫາ"></textarea>
+      <textarea id="supportMessage" rows="6" data-i18n-placeholder="support.message"
+        placeholder="ລາຍລະອຽດບັນຫາ"></textarea>
       <button id="sendSupportBtn" data-i18n="support.send">ສົ່ງຄຳຮ້ອງຂໍ</button>
       <div id="message" class="message"></div>
     </section>
   </main>
   <script src="support.js"></script>
 </body>
+
 </html>
