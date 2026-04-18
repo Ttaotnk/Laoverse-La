@@ -1,160 +1,137 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const themeSelect = document.getElementById("themeSelect");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const deleteAccountBtn = document.getElementById("deleteAccountBtn");
-  const usernameInput = document.getElementById("usernameInput");
-  const emailInput = document.getElementById("emailInput");
-  const saveProfileBtn = document.getElementById("saveProfileBtn");
-  const newPassword = document.getElementById("newPassword");
-  const confirmPassword = document.getElementById("confirmPassword");
-  const changePasswordBtn = document.getElementById("changePasswordBtn");
-  const supportBtn = document.getElementById("supportBtn");
-  const languageSelect = document.getElementById("languageSelect");
-  const message = document.getElementById("message");
-  let lang = localStorage.getItem("laoverse_lang") || "lo";
-  const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
+document.addEventListener("DOMContentLoaded", () => {
 
-  function applyLanguage() {
-    if (languageSelect) languageSelect.value = lang;
-    if (window.LanguageManager) window.LanguageManager.applyLanguage(lang);
-  }
+  const $ = id => document.getElementById(id);
 
-  
+  const message = $("message");
 
-  function showMessage(text) {
-    message.textContent = text;
+  function showMessage(text, type = "info") {
+    message.innerText = text;
+    message.className = type;
     message.style.display = "block";
+
     setTimeout(() => {
       message.style.display = "none";
-    }, 2500);
+    }, 3000);
   }
 
-  const currentTheme = window.ThemeManager ? window.ThemeManager.getTheme() : "default";
-  if (themeSelect) themeSelect.value = currentTheme;
+  // ================= API HELPER =================
+  async function apiFetch(url, options = {}) {
+    try {
+      const res = await fetch(url, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(window.getAuthHeaders ? window.getAuthHeaders() : {}),
+          ...(options.headers || {})
+        },
+        ...options
+      });
 
-  if (themeSelect) {
-    themeSelect.addEventListener("change", function () {
-      if (window.ThemeManager) {
-        window.ThemeManager.setTheme(themeSelect.value);
-        showMessage(t("settings.themeOk"));
+      if (res.status === 401) {
+        localStorage.removeItem("laoverse_jwt");
+        window.location.href = "index2.html";
+        return null;
       }
-    });
-  }
 
-  if (languageSelect) {
-    languageSelect.value = lang;
-    languageSelect.addEventListener("change", function () {
-      lang = languageSelect.value;
-      localStorage.setItem("laoverse_lang", lang);
-      if (window.LanguageManager) {
-        window.LanguageManager.setLanguage(lang);
-      } else {
-        applyLanguage();
-      }
-    });
-  }
+      return await res.json();
 
-  async function loadCurrentProfile() {
-    const res = await fetch(`${window.API_BASE_URL}/loadProfile?user_id=current`, { 
-      headers: getAuthHeaders(),
-      credentials: "include" 
-    });
-    const data = await res.json();
-    if (data.success && data.profile) {
-      usernameInput.value = data.profile.username || "";
-      if (data.profile.email) emailInput.value = data.profile.email;
+    } catch (err) {
+      console.error(err);
+      showMessage("Server error");
     }
   }
 
-  if (saveProfileBtn) {
-    saveProfileBtn.addEventListener("click", async function () {
-      const payload = {
-        username: usernameInput.value.trim(),
-        email: emailInput.value.trim()
-      };
-      const res = await fetch(`${window.API_BASE_URL}/update_profile_info`, {
-        method: "POST",
-        credentials: "include",
-        headers: { 
-          "Content-Type": "application/json",
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      showMessage(data.success ? t("settings.saved") : (data.message || t("settings.saveFail")));
-    });
+  // ================= LOAD PROFILE =================
+  async function loadProfile() {
+    const data = await apiFetch(`${window.API_BASE_URL}/loadProfile`);
+
+    if (data && data.success) {
+      $("usernameInput").value = data.profile.username || "";
+      $("emailInput").value = data.profile.email || "";
+    }
   }
 
-  if (changePasswordBtn) {
-    changePasswordBtn.addEventListener("click", async function () {
-      const pw = newPassword.value;
-      const cpw = confirmPassword.value;
-      const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
-      if (!strong.test(pw)) {
-        showMessage(t("settings.badPassword"));
-        return;
-      }
-      if (pw !== cpw) {
-        showMessage(t("settings.pwMismatch"));
-        return;
-      }
-      const res = await fetch(`${window.API_BASE_URL}/change_password`, {
-        method: "POST",
-        credentials: "include",
-        headers: { 
-          "Content-Type": "application/json",
-          ...getAuthHeaders()
-        },
-        body: JSON.stringify({ newPassword: pw, confirmPassword: cpw })
-      });
-      const data = await res.json();
-      showMessage(data.success ? t("settings.passwordChanged") : (data.message || t("settings.passwordChangeFail")));
-      if (data.success) {
-        newPassword.value = "";
-        confirmPassword.value = "";
-      }
-    });
-  }
+  // ================= SAVE PROFILE =================
+  $("saveProfileBtn").addEventListener("click", async () => {
 
-  if (supportBtn) {
-    supportBtn.addEventListener("click", function () {
-      window.location.href = "support.html";
-    });
-  }
+    const payload = {
+      username: $("usernameInput").value.trim(),
+      email: $("emailInput").value.trim()
+    };
 
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", async function () {
-      localStorage.removeItem('laoverse_jwt');
-      window.location.href = "index2.html";
+    const data = await apiFetch(`${window.API_BASE_URL}/update_profile_info`, {
+      method: "POST",
+      body: JSON.stringify(payload)
     });
-  }
 
-  if (deleteAccountBtn) {
-    deleteAccountBtn.addEventListener("click", async function () {
-      const confirmed = await showConfirm(t("settings.deleteConfirm"));
-      if (!confirmed) return;
-      
-      const res = await fetch(`${window.API_BASE_URL}/delete_account`, { 
-        method: "POST",
-        headers: getAuthHeaders()
-      });
-      const data = await res.json();
-      if (data.success) {
-        localStorage.removeItem('laoverse_jwt');
-        showMessage(t("settings.deleteSuccess"), "success");
-        window.location.href = "index2.html";
-      } else {
-        showMessage(data.message || t("settings.deleteFail"));
-      }
-    });
-  }
-
-  document.addEventListener("laoverse:languagechange", function (event) {
-    lang = event.detail.lang;
-    applyLanguage();
+    showMessage(data?.success ? "Saved!" : (data?.message || "Error"));
   });
 
-  loadCurrentProfile();
-  applyLanguage();
+  // ================= CHANGE PASSWORD =================
+  $("changePasswordBtn").addEventListener("click", async () => {
+
+    const pw = $("newPassword").value;
+    const cpw = $("confirmPassword").value;
+
+    if (pw !== cpw) {
+      return showMessage("Password not match");
+    }
+
+    if (pw.length < 6) {
+      return showMessage("Password too short");
+    }
+
+    const data = await apiFetch(`${window.API_BASE_URL}/change_password`, {
+      method: "POST",
+      body: JSON.stringify({
+        newPassword: pw,
+        confirmPassword: cpw
+      })
+    });
+
+    if (data?.success) {
+      showMessage("Password changed");
+      $("newPassword").value = "";
+      $("confirmPassword").value = "";
+    } else {
+      showMessage(data?.message || "Error");
+    }
+  });
+
+  // ================= DELETE ACCOUNT =================
+  $("deleteAccountBtn").addEventListener("click", async () => {
+
+    if (!confirm("Are you sure?")) return;
+
+    const data = await apiFetch(`${window.API_BASE_URL}/delete_account`, {
+      method: "POST"
+    });
+
+    if (data?.success) {
+      localStorage.removeItem("laoverse_jwt");
+      window.location.href = "index2.html";
+    } else {
+      showMessage(data?.message || "Delete failed");
+    }
+  });
+
+  // ================= LOGOUT =================
+  $("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("laoverse_jwt");
+    window.location.href = "index2.html";
+  });
+
+  // ================= THEME =================
+  $("themeSelect").addEventListener("change", e => {
+    localStorage.setItem("theme", e.target.value);
+    document.body.setAttribute("data-theme", e.target.value);
+  });
+
+  // ================= LANGUAGE =================
+  $("languageSelect").addEventListener("change", e => {
+    localStorage.setItem("lang", e.target.value);
+    showMessage("Language changed (reload page)");
+  });
+
+  loadProfile();
 });
