@@ -3,7 +3,33 @@ document.addEventListener("DOMContentLoaded", function () {
   const content = document.getElementById("supportMessage");
   const btn = document.getElementById("sendSupportBtn");
   const msg = document.getElementById("message");
+  const emailField = document.getElementById("supportEmail");
   const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
+
+  function getAuthHeaders() {
+    const token = localStorage.getItem('laoverse_jwt');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  }
+
+  async function loadUserEmail() {
+    try {
+      const res = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/loadProfile?user_id=current", { 
+        headers: getAuthHeaders(), 
+        credentials: "include" 
+      });
+      const data = await res.json();
+      if (data.success && data.profile) {
+        emailField.value = data.profile.email || t("support.noEmail", "No email provided");
+      } else {
+        emailField.placeholder = "Failed to load email";
+      }
+    } catch (e) {
+      console.error(e);
+      emailField.placeholder = "Error connecting to server";
+    }
+  }
+
+  loadUserEmail();
 
   function show(text) {
     msg.textContent = text;
@@ -19,7 +45,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const res = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/support_request", {
       method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
       body: JSON.stringify({
         title: title.value.trim(),
         message: content.value.trim()
