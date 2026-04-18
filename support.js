@@ -6,14 +6,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const emailField = document.getElementById("supportEmail");
   const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
 
-  function getAuthHeaders() {
-    const token = localStorage.getItem('laoverse_jwt');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
-  }
+  
 
   async function loadUserEmail() {
     try {
-      const res = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/loadProfile?user_id=current", { 
+      const res = await fetch(`${window.API_BASE_URL}/loadProfile?user_id=current`, { 
         headers: getAuthHeaders(), 
         credentials: "include" 
       });
@@ -42,7 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
       show(t("support.fillAll"));
       return;
     }
-    const res = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/support_request", {
+    const res = await fetch(`${window.API_BASE_URL}/support_request`, {
       method: "POST",
       credentials: "include",
       headers: { 

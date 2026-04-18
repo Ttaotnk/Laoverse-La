@@ -113,7 +113,7 @@ function renderSearchResults(users) {
 
 async function loadFriends() {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/get_friends", { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/get_friends`, { credentials: "include" });
     const data = await response.json();
     if (data.success) {
       renderFriends(data.friends || []);
@@ -123,7 +123,7 @@ async function loadFriends() {
 
 async function loadFriendRequests() {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/get_friend_requests", { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/get_friend_requests`, { credentials: "include" });
     const data = await response.json();
     if (data.success) {
       renderFriendRequests(data.requests || []);
@@ -139,7 +139,7 @@ async function handleSearch(event) {
   }
 
   try {
-    const response = await fetch(`https://acquisitions-showed-privacy-next.trycloudflare.com/api/search_users?query=${encodeURIComponent(query)}`, { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/search_users?query=${encodeURIComponent(query)}`, { credentials: "include" });
     const data = await response.json();
     if (data.success) {
       renderSearchResults(data.users || []);
@@ -156,7 +156,7 @@ function setupSearch() {
 
 async function acceptRequest(senderId) {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/respond_request", {
+    const response = await fetch(`${window.API_BASE_URL}/respond_request`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `sender_id=${encodeURIComponent(senderId)}&status=accepted`,
@@ -173,7 +173,7 @@ async function acceptRequest(senderId) {
 
 async function rejectRequest(senderId) {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/respond_request", {
+    const response = await fetch(`${window.API_BASE_URL}/respond_request`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `sender_id=${encodeURIComponent(senderId)}&status=rejected`,
@@ -189,7 +189,7 @@ async function rejectRequest(senderId) {
 
 async function sendFriendRequest(userId) {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/send_request", {
+    const response = await fetch(`${window.API_BASE_URL}/send_request`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `receiver_id=${encodeURIComponent(userId)}`,
@@ -211,7 +211,7 @@ async function removeFriend(friendId) {
   if (!confirmed) return;
 
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/remove_friend", {
+    const response = await fetch(`${window.API_BASE_URL}/remove_friend`, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: `friend_id=${encodeURIComponent(friendId)}`,

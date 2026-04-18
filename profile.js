@@ -12,10 +12,7 @@ const UI_EMOJI = {
   reply: "??"
 };
 
-function getAuthHeaders() {
-  const token = localStorage.getItem('laoverse_jwt');
-  return token ? { 'Authorization': `Bearer ${token}` } : {};
-}
+
 
 function t(key, vars) {
   if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
@@ -289,7 +286,7 @@ function renderProfilePosts(posts) {
 async function loadProfile(profileId) {
   showLoading(true);
   try {
-    const response = await fetch(`https://acquisitions-showed-privacy-next.trycloudflare.com/api/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`${window.API_BASE_URL}/loadProfile?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -309,7 +306,7 @@ async function loadProfile(profileId) {
 
 async function loadProfilePosts(profileId) {
   try {
-    const response = await fetch(`https://acquisitions-showed-privacy-next.trycloudflare.com/api/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
+    const response = await fetch(`${window.API_BASE_URL}/loadProfilePosts?user_id=${encodeURIComponent(profileId)}`, {
       headers: getAuthHeaders(),
       credentials: "include"
     });
@@ -326,7 +323,7 @@ async function loadProfilePosts(profileId) {
 
 async function likePost(postId) {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/like", {
+    const response = await fetch(`${window.API_BASE_URL}/like`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -349,7 +346,7 @@ async function addComment(postId, comment, parentCommentId) {
     payload.set("comment", comment);
     if (parentCommentId) payload.set("parent_comment_id", parentCommentId);
 
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/comment", {
+    const response = await fetch(`${window.API_BASE_URL}/comment`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -372,7 +369,7 @@ async function addComment(postId, comment, parentCommentId) {
 
 async function sendFriendRequest(userId) {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/send_request", {
+    const response = await fetch(`${window.API_BASE_URL}/send_request`, {
       method: "POST",
       headers: { 
         "Content-Type": "application/x-www-form-urlencoded",
@@ -446,7 +443,7 @@ async function deletePost(postId) {
   showLoading(true);
   try {
     console.log('Sending delete request to API...');
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/delete_post", {
+    const response = await fetch(`${window.API_BASE_URL}/delete_post`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
@@ -486,7 +483,7 @@ async function handleEditPost(event) {
 
   showLoading(true);
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/edit_post", {
+    const response = await fetch(`${window.API_BASE_URL}/edit_post`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -518,7 +515,7 @@ async function handleProfileUpdate(event) {
   const formData = new FormData(form);
 
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/updateProfile", {
+    const response = await fetch(`${window.API_BASE_URL}/updateProfile`, {
       method: "POST",
       headers: getAuthHeaders(),
       body: formData,
@@ -647,7 +644,7 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch("https://acquisitions-showed-privacy-next.trycloudflare.com/api/check_auth", { 
+    const response = await fetch(`${window.API_BASE_URL}/check_auth`, { 
       headers: getAuthHeaders()
     });
     const data = await response.json();

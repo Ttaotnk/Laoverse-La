@@ -19,10 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (window.LanguageManager) window.LanguageManager.applyLanguage(lang);
   }
 
-  function getAuthHeaders() {
-    const token = localStorage.getItem('laoverse_jwt');
-    return token ? { 'Authorization': `Bearer ${token}` } : {};
-  }
+  
 
   function showMessage(text) {
     message.textContent = text;
@@ -58,7 +55,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   async function loadCurrentProfile() {
-    const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/loadProfile?user_id=current", { 
+    const res = await fetch(`${window.API_BASE_URL}/loadProfile?user_id=current`, { 
       headers: getAuthHeaders(),
       credentials: "include" 
     });
@@ -75,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function () {
         username: usernameInput.value.trim(),
         email: emailInput.value.trim()
       };
-      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/update_profile_info", {
+      const res = await fetch(`${window.API_BASE_URL}/update_profile_info`, {
         method: "POST",
         credentials: "include",
         headers: { 
@@ -102,7 +99,7 @@ document.addEventListener("DOMContentLoaded", function () {
         showMessage(t("settings.pwMismatch"));
         return;
       }
-      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/change_password", {
+      const res = await fetch(`${window.API_BASE_URL}/change_password`, {
         method: "POST",
         credentials: "include",
         headers: { 
@@ -138,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const confirmed = await showConfirm(t("settings.deleteConfirm"));
       if (!confirmed) return;
       
-      const res = await fetch("https://wit-lee-however-coleman.trycloudflare.com/api/delete_account", { 
+      const res = await fetch(`${window.API_BASE_URL}/delete_account`, { 
         method: "POST",
         headers: getAuthHeaders()
       });

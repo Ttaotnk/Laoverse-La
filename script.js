@@ -34,7 +34,7 @@ if (registerForm) {
       return;
     }
 
-    fetch('https://acquisitions-showed-privacy-next.trycloudflare.com/api/register', {
+    fetch(`${window.API_BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password, confirmPassword })
@@ -68,7 +68,7 @@ if (loginForm) {
       return;
     }
 
-    fetch('https://acquisitions-showed-privacy-next.trycloudflare.com/api/login', {
+    fetch(`${window.API_BASE_URL}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
