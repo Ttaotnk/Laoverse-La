@@ -284,7 +284,7 @@ async function openPostModal() {
                  <span>${t("common.image")}</span>
                  <span id="postEditImageName" class="file-input-name"></span>
                </label>
-               <input type="file" id="postEditImage" accept="image/*,video/*,audio/*">
+               <input type="file" id="postEditImage" accept="image/*,video/*,audio/*" style="display:none;">
                <div class="post-edit-actions">
                  <button onclick="savePostEdit('${safeHtml(post._id)}', event)">${t("common.save")}</button>
                  <button class="cancel-button" onclick="cancelPostEdit(event)">${t("common.cancel")}</button>

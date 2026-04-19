@@ -600,6 +600,34 @@ border: 1px solid var(--neon-blue);
   box-shadow: 0 0 0 2px var(--neon-blue);
 }
 
+.file-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 1.2rem;
+  border: 1px solid rgba(102, 240, 255, 0.4);
+  border-radius: 8px;
+  margin-top: 1rem;
+  cursor: pointer;
+  background: rgba(102, 240, 255, 0.05);
+  transition: all 0.3s ease;
+  color: var(--neon-blue);
+  font-weight: 500;
+}
+
+.file-input-label:hover {
+  background: rgba(102, 240, 255, 0.12);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 10px rgba(102, 240, 255, 0.2);
+}
+
+.file-input-name {
+  font-size: 0.8rem;
+  color: #aaa;
+  font-weight: normal;
+}
+
 .post-edit-actions {
   display: flex;
   gap: 0.6rem;

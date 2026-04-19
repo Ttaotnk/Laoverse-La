@@ -380,7 +380,7 @@ function ensureEditPostModal() {
             <span data-i18n="common.image">${safeHtml(t("common.image"))}</span>
             <span id="feedEditPostImageName" class="file-input-name"></span>
           </label>
-          <input type="file" id="feedEditPostImage" name="image" accept="image/*,video/*,audio/*">
+          <input type="file" id="feedEditPostImage" name="image" accept="image/*,video/*,audio/*" style="display:none;">
         </div>
         <button type="submit" data-i18n="common.save">${safeHtml(t("common.save"))}</button>
         <button type="button" class="cancel-button" id="feedEditPostCancel" data-i18n="common.cancel">${safeHtml(t("common.cancel"))}</button>

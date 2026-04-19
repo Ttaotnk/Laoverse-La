@@ -46,7 +46,7 @@
       "common.confirmDelete": "ທ່ານຕ້ອງການລຶບໂພສນີ້ຈິງບໍ?",
       "common.editPost": "ແກ້ໄຂໂພສ",
       "common.content": "ເນື້ອຫາ",
-      "common.image": "ຮູບພາບ",
+      "common.image": "ອັບໂຫລດ",
       "common.downloadFile": "ດາວໂຫຼດໄຟລ໌",
       "common.fileNone": "ບໍ່ມີໄຟລ໌ຖືກເລືອກ",
       "time.justNow": "ບໍ່ດົນນີ້",
@@ -240,7 +240,7 @@
       "common.confirmDelete": "คุณต้องการลบโพสต์นี้จริงหรือไม่?",
       "common.editPost": "แก้ไขโพสต์",
       "common.content": "เนื้อหา",
-      "common.image": "รูปภาพ",
+      "common.image": "อัปโหลด",
       "common.downloadFile": "ดาวน์โหลดไฟล์",
       "common.fileNone": "ยังไม่ได้เลือกไฟล์",
       "time.justNow": "เมื่อสักครู่",
@@ -433,7 +433,7 @@
       "common.confirmDelete": "Are you sure you want to delete this post?",
       "common.editPost": "Edit Post",
       "common.content": "Content",
-      "common.image": "Image",
+      "common.image": "Upload",
       "common.downloadFile": "Download file",
       "common.fileNone": "No file selected",
       "time.justNow": "Just now",
@@ -694,7 +694,7 @@
     if (url.startsWith("https://")) return url;
 
     const backendUrl = window.BACKEND_URL;
-    
+
     // แบบที่ 1: ผ่าน URL ปกติ
     let resolved = url;
     if (url.includes("localhost:3000")) {
@@ -711,40 +711,40 @@
   async function fetchMediaAsBlob(url) {
     const resolvedUrl = resolveMediaUrl(url);
     try {
-        const response = await fetch(resolvedUrl, { headers: getAuthHeaders() });
-        if (!response.ok) throw new Error("Fetch failed");
-        const blob = await response.blob();
-        return URL.createObjectURL(blob);
+      const response = await fetch(resolvedUrl, { headers: getAuthHeaders() });
+      if (!response.ok) throw new Error("Fetch failed");
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
     } catch (e) {
-        return resolvedUrl; // fallback to normal url
+      return resolvedUrl; // fallback to normal url
     }
   }
 
   // ฟังก์ชันโหลดสื่ออัจฉริยะ (ใช้ได้ทุกหน้า)
   async function smartLoad(element, path, isBackground = false) {
     if (!element || !path) return;
-    
+
     const normalUrl = resolveMediaUrl(path);
-    
+
     // ตั้งค่า URL ปกติก่อนเพื่อให้เห็นรูปทันที (ถ้าโหลดได้)
     if (element.tagName === 'A') {
-        element.href = normalUrl;
+      element.href = normalUrl;
     } else {
-        element.src = normalUrl;
+      element.src = normalUrl;
     }
 
     // ลองโหลดแบบ Blob ใน Background เพื่อความชัวร์ (แก้ปัญหา Permission/CORS บางกรณี)
     try {
-        const blobUrl = await fetchMediaAsBlob(path);
-        if (blobUrl && blobUrl !== normalUrl) {
-            if (element.tagName === 'A') {
-                element.href = blobUrl;
-            } else {
-                element.src = blobUrl;
-            }
+      const blobUrl = await fetchMediaAsBlob(path);
+      if (blobUrl && blobUrl !== normalUrl) {
+        if (element.tagName === 'A') {
+          element.href = blobUrl;
+        } else {
+          element.src = blobUrl;
         }
+      }
     } catch (e) {
-        // ถ้า Blob พลาด ก็ใช้ URL ปกติที่ตั้งไว้แต่แรก
+      // ถ้า Blob พลาด ก็ใช้ URL ปกติที่ตั้งไว้แต่แรก
     }
   }
 
@@ -756,10 +756,10 @@
 
     // ตรวจสอบ img ทั่วไปที่ยังไม่มีการประมวลผล
     document.querySelectorAll("img:not([data-src]), video:not([data-src])").forEach((el) => {
-        const src = el.getAttribute("src");
-        if (src && (src.includes("uploads/") || src.includes("localhost:3000"))) {
-            smartLoad(el, src);
-        }
+      const src = el.getAttribute("src");
+      if (src && (src.includes("uploads/") || src.includes("localhost:3000"))) {
+        smartLoad(el, src);
+      }
     });
   }
 
