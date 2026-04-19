@@ -323,18 +323,23 @@ body.whatsapp-mode {
 
 @media (max-width: 768px) {
   body.whatsapp-mode { padding-top: 140px; }
-  .main-header { flex-direction: column; padding: 0.8rem; }
+  .main-header { 
+    flex-direction: column; 
+    padding: 0.8rem 0.8rem 1.2rem 0.8rem !important; /* เพิ่ม padding ล่างให้ header */
+  }
   .logo img { width: 140px; }
   .main-nav ul { gap: 0.6rem; flex-wrap: wrap; justify-content: center; }
   .main-nav a { padding: 6px 10px; font-size: 0.75rem; }
 
   .app-container {
     width: 100%; margin: 0 0 10px 0; border: none; border-radius: 0;
-    height: calc(100vh - 150px);
+    height: calc(100vh - 160px); /* ปรับความสูงให้เล็กลงอีกนิดเพื่อหลบ nav */
   }
 
   .input-area-wa {
-    padding: 12px 1rem 30px 1rem; /* เพิ่มพื้นที่ด้านล่างสำหรับมือถือ */
+    padding: 12px 1rem 45px 1rem; /* เพิ่มพื้นที่ด้านล่างให้มากขึ้นเพื่อหลบขอบจอหรือ nav มือถือ */
+    position: relative;
+    z-index: 100;
   }
 
   #friends-view {
