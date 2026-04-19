@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="lo">
 <head>
     <meta charset="UTF-8">
@@ -20,8 +20,13 @@
     <div class="login-container">
         <h2 data-i18n="auth.loginHeading">ເຂົ້າສູ່ລະບົບ</h2>
         <form id="loginForm" novalidate>
-            <input type="text" id="login-username" data-i18n-placeholder="auth.username" placeholder="ຊື່" required>
-            <input type="password" id="login-password" data-i18n-placeholder="auth.password" placeholder="ລະຫັດຜ່ານ" required>
+            <input type="text" id="login-username" data-i18n-placeholder="auth.username" placeholder="ຊື່ຫລືອີເມວ" required>
+            <div class="password-box">
+                <input type="password" id="login-password" data-i18n-placeholder="auth.password" placeholder="ລະຫັດຜ່ານ"
+                    required>
+                <button type="button" id="toggle-login-password">👁</button>
+            </div>
+        
             <button type="submit" data-i18n="auth.login">ເຂົ້າສູ່ລະບົບ</button>
         </form>
         <p><span data-i18n="auth.noAccount">ຍັງບໍ່ມີບັນຊີ?</span> <a href="indexla.html" data-i18n="auth.register">ສະໝັກ</a></p>

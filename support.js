@@ -2,11 +2,28 @@ document.addEventListener("DOMContentLoaded", function () {
   const title = document.getElementById("supportTitle");
   const content = document.getElementById("supportMessage");
   const btn = document.getElementById("sendSupportBtn");
-  const msg = document.getElementById("message");
+  const msgBox = document.getElementById("message");
   const emailField = document.getElementById("supportEmail");
-  const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
 
-  
+  const t = (key, vars) => (window.LanguageManager ? window.LanguageManager.translate(key, vars) : key);
+
+  function showMessage(text, type = "info") {
+    const box = msgBox || createMessageDiv();
+    box.textContent = text;
+    box.className = `message ${type}`;
+    box.style.display = "block";
+    window.clearTimeout(showMessage.timer);
+    showMessage.timer = window.setTimeout(() => {
+      box.style.display = "none";
+    }, 3000);
+  }
+
+  function createMessageDiv() {
+    const div = document.createElement("div");
+    div.id = "message";
+    document.body.prepend(div);
+    return div;
+  }
 
   async function loadUserEmail() {
     try {
@@ -16,48 +33,50 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       const data = await res.json();
       if (data.success && data.profile) {
-        emailField.value = data.profile.email || t("support.noEmail", "No email provided");
+        emailField.value = data.profile.email || t("support.noEmail");
       } else {
-        emailField.placeholder = "Failed to load email";
+        emailField.placeholder = t("profile.loadFailed");
       }
     } catch (e) {
       console.error(e);
-      emailField.placeholder = "Error connecting to server";
+      emailField.placeholder = t("profile.connectionError");
     }
   }
 
   loadUserEmail();
 
-  function show(text) {
-    msg.textContent = text;
-    msg.style.display = "block";
-    setTimeout(() => (msg.style.display = "none"), 2500);
-  }
-
   btn.addEventListener("click", async function () {
-    if (!title.value.trim() || !content.value.trim()) {
-      show(t("support.fillAll"));
+    const tVal = title.value.trim();
+    const mVal = content.value.trim();
+
+    if (!tVal || !mVal) {
+      showMessage(t("support.fillAll"), "error");
       return;
     }
-    const res = await fetch(`${window.API_BASE_URL}/support_request`, {
-      method: "POST",
-      credentials: "include",
-      headers: { 
-        "Content-Type": "application/json",
-        ...getAuthHeaders()
-      },
-      body: JSON.stringify({
-        title: title.value.trim(),
-        message: content.value.trim()
-      })
-    });
-    const data = await res.json();
-    if (data.success) {
-      title.value = "";
-      content.value = "";
-      show(t("support.success"));
-    } else {
-      show(data.message || t("support.fail"));
+
+    try {
+        const res = await fetch(`${window.API_BASE_URL}/support_request`, {
+          method: "POST",
+          credentials: "include",
+          headers: { 
+            "Content-Type": "application/json",
+            ...getAuthHeaders()
+          },
+          body: JSON.stringify({
+            title: tVal,
+            message: mVal
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          title.value = "";
+          content.value = "";
+          showMessage(t("support.success"), "success");
+        } else {
+          showMessage(data.message || t("support.fail"), "error");
+        }
+    } catch(e) {
+        showMessage(t("profile.connectionError"), "error");
     }
   });
 });

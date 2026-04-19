@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://acquisitions-showed-privacy-next.trycloudflare.com/api";
+const API_BASE_URL = "https://lafayette-soc-aging-debug.trycloudflare.com/api";
 const BACKEND_URL = API_BASE_URL.replace(/\/api$/, "");
 
 function getAuthHeaders() {

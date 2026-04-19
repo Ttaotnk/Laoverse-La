@@ -125,9 +125,68 @@ function renderPostMedia(post) {
   return `<a href="${fileUrl}" class="post-file" target="_blank" rel="noopener">${safeHtml(t("common.downloadFile"))}</a>`;
 }
 
+let isSearching = false;
+
+async function handlePostSearch() {
+  const searchInput = document.getElementById("postSearch");
+  const query = searchInput ? searchInput.value.trim() : "";
+  
+  if (!query) {
+    isSearching = false;
+    loadFeed();
+    return;
+  }
+
+  isSearching = true;
+  showLoading(true);
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/search_posts?query=${encodeURIComponent(query)}`, {
+      headers: getAuthHeaders()
+    });
+    const data = await response.json();
+    if (data.success) {
+      renderPosts(data.posts || []);
+    } else {
+      showMessage(data.message || t("feed.loadFailed"), "error");
+    }
+  } catch (error) {
+    showMessage(t("feed.loadFailed"), "error");
+  } finally {
+    showLoading(false);
+  }
+}
+
+function setupSearch() {
+  const searchInput = document.getElementById("postSearch");
+  const searchButton = document.getElementById("searchButton");
+
+  if (searchInput) {
+    searchInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        handlePostSearch();
+      }
+    });
+    // Optional: search as user types with debounce
+    let timeout = null;
+    searchInput.addEventListener("input", () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        if (!searchInput.value.trim()) {
+          isSearching = false;
+          loadFeed();
+        }
+      }, 500);
+    });
+  }
+
+  if (searchButton) {
+    searchButton.addEventListener("click", handlePostSearch);
+  }
+}
+
 function shouldPauseFeedRefresh() {
-  if (document.hidden) return true;
-  if (document.querySelector("#postContent:focus, .comment-input:focus, .reply-input:focus")) return true;
+  if (document.hidden || isSearching) return true;
+  if (document.querySelector("#postContent:focus, .comment-input:focus, .reply-input:focus, #postSearch:focus")) return true;
 
   return Array.from(document.querySelectorAll("video, audio")).some((media) => {
     try {
@@ -223,49 +282,74 @@ function renderPosts(posts) {
     return;
   }
 
-  feedContainer.innerHTML = feedPosts.map((post) => `
-    <div class="post" data-id="${safeHtml(post.id)}">
-      <div class="post-header">
-        <img src="${safeHtml(getProfileImage(post.profile_pic))}"
-             alt="profile-avatar"
-             class="profile-pic"
-             onclick="viewProfile('${safeHtml(post.user_id)}')"
-             style="cursor:pointer;"
-             onerror="this.onerror=null; this.src='default-profile.png'">
-        <div class="post-user-info">
-          <h3 class="username" onclick="viewProfile('${safeHtml(post.user_id)}')" style="cursor:pointer;">${safeHtml(post.username)}</h3>
-          <small class="post-time">${safeHtml(formatRelativeTime(post.created_at))}</small>
+  feedContainer.innerHTML = "";
+  feedPosts.forEach(post => {
+      const postEl = document.createElement("div");
+      postEl.className = "post";
+      postEl.dataset.id = post.id;
+      
+      const userPicId = `userPic_${post.id}`;
+      const mediaContId = `media_${post.id}`;
+
+      postEl.innerHTML = `
+        <div class="post-header">
+            <img id="${userPicId}" class="post-profile-pic" alt="profile" style="cursor:pointer;" onclick="viewProfile('${post.user_id}')">
+            <div class="post-user-info">
+                <h3 class="username" onclick="viewProfile('${post.user_id}')" style="cursor:pointer;">${safeHtml(post.username)}</h3>
+                <small class="post-time">${safeHtml(formatRelativeTime(post.created_at))}</small>
+            </div>
         </div>
-      </div>
-      <div class="post-content">
-        ${renderContentWithEmbeds(post.content)}
-        ${renderPostMedia(post)}
-      </div>
-      <div class="post-actions">
-        <button class="like-btn ${post.is_liked ? 'liked' : ''}" data-id="${safeHtml(post.id)}">
-          <img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> <span class="like-count">${Number(post.likes || 0)}</span>
-        </button>
-        <button class="comment-btn" data-id="${safeHtml(post.id)}">
-          <img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
-        </button>
-        ${currentUserId && String(post.user_id) === String(currentUserId) ? `
-          <button class="edit-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.editPost"))}">
-            <img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}
-          </button>
-          <button class="delete-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}">
-            <img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}
-          </button>
-        ` : ``}
-      </div>
-      <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
-        ${renderComments(post.comments || [], post.id)}
-        <div class="add-comment">
-          <input type="text" placeholder="${safeHtml(t("feed.commentPlaceholder"))}" class="comment-input">
-          <button class="submit-comment" data-id="${safeHtml(post.id)}">${safeHtml(t("common.submit"))}</button>
+        <div class="post-content">
+            ${renderContentWithEmbeds(post.content)}
+            <div id="${mediaContId}"></div>
         </div>
-      </div>
-    </div>
-  `).join("");
+        <div class="post-actions">
+            <button class="like-btn ${post.is_liked ? 'liked' : ''}" data-id="${safeHtml(post.id)}">
+                <img src="icons/heart.svg" alt="like" class="btn-icon like-icon"> <span class="like-count">${Number(post.likes || 0)}</span>
+            </button>
+            <button class="comment-btn" data-id="${safeHtml(post.id)}">
+                <img src="icons/comment.svg" alt="comment" class="btn-icon comment-icon"> <span class="comment-count">${Array.isArray(post.comments) ? post.comments.length : 0}</span>
+            </button>
+            ${currentUserId && String(post.user_id) === String(currentUserId) ? `
+                <button class="edit-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.editPost"))}">✎</button>
+                <button class="delete-post-btn" data-id="${safeHtml(post.id)}" title="${safeHtml(t("common.delete"))}">🗑</button>
+            ` : ``}
+        </div>
+        <div class="comments-section" id="comments-${safeHtml(post.id)}" style="display:none;">
+            ${renderComments(post.comments || [], post.id)}
+            <div class="add-comment">
+                <input type="text" placeholder="${safeHtml(t("feed.commentPlaceholder"))}" class="comment-input">
+                <button class="submit-comment" data-id="${safeHtml(post.id)}">${safeHtml(t("common.submit"))}</button>
+            </div>
+        </div>`;
+      
+      feedContainer.appendChild(postEl);
+
+      // Smart load profile pic
+      const upic = document.getElementById(userPicId);
+      if (upic) window.LanguageManager.smartLoad(upic, post.profile_pic || 'default-profile.png');
+
+      // Smart load post media
+      if (post.image) {
+          const container = document.getElementById(mediaContId);
+          const kind = detectFileKind(post.file_type, post.image);
+          let el;
+          if (kind === 'video') {
+              el = document.createElement('video');
+              el.className = 'post-image';
+              el.controls = true;
+          } else if (kind === 'audio') {
+              el = document.createElement('audio');
+              el.className = 'post-audio';
+              el.controls = true;
+          } else {
+              el = document.createElement('img');
+              el.className = 'post-image';
+          }
+          container.appendChild(el);
+          window.LanguageManager.smartLoad(el, post.image);
+      }
+  });
 }
 
 function viewProfile(userId) {
@@ -280,6 +364,8 @@ function ensureEditPostModal() {
   modal.id = "feedEditPostModal";
   modal.className = "modal";
   modal.style.display = "none";
+  modal.style.alignItems = "center";
+  modal.style.justifyContent = "center";
   modal.innerHTML = `
     <div class="modal-content">
       <span class="close-button" id="feedEditPostModalClose">&times;</span>
@@ -340,7 +426,7 @@ function openEditPostModal(postId) {
   if (fileName) fileName.textContent = "";
   if (fileInput) fileInput.value = "";
 
-  if (modal) modal.style.display = "block";
+  if (modal) modal.style.display = "flex";
 }
 
 function closeEditPostModal() {
@@ -816,6 +902,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   loadFeed();
+  setupSearch();
   feedRefreshTimer = window.setInterval(() => {
     if (!shouldPauseFeedRefresh()) {
       loadFeed();

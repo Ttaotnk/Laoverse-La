@@ -43,7 +43,30 @@ header {
   width: 200px;
  
 }
+.password-box {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
 
+#toggle-register-password,#toggle-confirm-password {
+  position: absolute;
+  right: 10px;
+  top: 35%;
+  transform: translateY(-50%);
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: var(--neon-blue);
+  font-size: 18px;
+}
 /* Message Notification */
 .message {
   position: fixed;

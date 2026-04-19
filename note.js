@@ -100,7 +100,7 @@ async function openPostModal() {
       credentials: "include"
     });
     const data = await response.json();
-    
+
     if (!data.success || !data.post) {
       showMessage("Post not found", "error");
       return;
@@ -109,7 +109,7 @@ async function openPostModal() {
     const post = data.post;
     const comments = post.comments || [];
     const canModifyPost = currentUserId && String(post.user_id) === String(currentUserId);
-    
+
     // Group comments by parent (for threading)
     const parentComments = comments.filter(c => !c.parent_comment_id);
     const childComments = {};
@@ -128,10 +128,11 @@ async function openPostModal() {
       commentsHtml += `<div class="comments-section"><h4><img src="icons/comment.svg" alt="comments" class="btn-icon comment-icon"> Comments</h4>`;
       parentComments.forEach(pComment => {
         const canModifyParent = currentUserId && String(pComment.user_id) === String(currentUserId) && !pComment.is_deleted;
+        const pCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(pComment.user_pic || pComment.profile_pic) : (pComment.user_pic || pComment.profile_pic || 'default-profile.png');
         commentsHtml += `
           <div class="comment-thread">
             <div class="comment">
-              <img src="${safeHtml(pComment.user_pic || 'default-profile.png')}" 
+              <img src="${safeHtml(pCommentPic)}" 
                    class="comment-profile-pic"
                    onclick="goToUserProfile('${safeHtml(pComment.user_id)}')"
                    style="cursor:pointer;"
@@ -142,10 +143,14 @@ async function openPostModal() {
                   <small>${safeHtml(formatRelativeTime(pComment.created_at))}</small>
                  </div>
                  <p>${safeHtml(pComment.is_deleted ? t("feed.deletedComment") : pComment.text)}</p>
-                 <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                 <div class="comment-actions">
+                   <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                   ${canModifyParent ? `
+                     <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(pComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                     <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(pComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
+                   ` : ``}
+                 </div>
                  ${canModifyParent ? `
-                   <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(pComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
-                   <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(pComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
                    <div class="comment-edit-box" id="commentEdit_${safeHtml(pComment._id)}" style="display:none;">
                      <input type="text" class="comment-edit-input" id="commentEditInput_${safeHtml(pComment._id)}" value="${safeHtml(pComment.text)}">
                      <button onclick="saveCommentEdit('${safeHtml(pComment._id)}')">${t("common.save")}</button>
@@ -155,15 +160,16 @@ async function openPostModal() {
                </div>
              </div>
         `;
-        
+
         // Add child comments (replies)
         if (childComments[pComment._id]) {
           commentsHtml += '<div class="child-comments">';
           childComments[pComment._id].forEach(childComment => {
             const canModifyChild = currentUserId && String(childComment.user_id) === String(currentUserId) && !childComment.is_deleted;
+            const childCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(childComment.user_pic || childComment.profile_pic) : (childComment.user_pic || childComment.profile_pic || 'default-profile.png');
             commentsHtml += `
               <div class="comment child-comment">
-                <img src="${safeHtml(childComment.user_pic || 'default-profile.png')}" 
+                <img src="${safeHtml(childCommentPic)}" 
                      class="comment-profile-pic"
                      onclick="goToUserProfile('${safeHtml(childComment.user_id)}')"
                      style="cursor:pointer;"
@@ -174,10 +180,14 @@ async function openPostModal() {
                     <small>${safeHtml(formatRelativeTime(childComment.created_at))}</small>
                    </div>
                    <p>${safeHtml(childComment.is_deleted ? t("feed.deletedComment") : childComment.text)}</p>
-                   <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                   <div class="comment-actions">
+                     <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
+                     ${canModifyChild ? `
+                       <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(childComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                       <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(childComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
+                     ` : ``}
+                   </div>
                    ${canModifyChild ? `
-                     <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(childComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
-                     <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(childComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
                      <div class="comment-edit-box" id="commentEdit_${safeHtml(childComment._id)}" style="display:none;">
                        <input type="text" class="comment-edit-input" id="commentEditInput_${safeHtml(childComment._id)}" value="${safeHtml(childComment.text)}">
                        <button onclick="saveCommentEdit('${safeHtml(childComment._id)}')">${t("common.save")}</button>
@@ -190,7 +200,7 @@ async function openPostModal() {
           });
           commentsHtml += '</div>';
         }
-        
+
         // Reply input for this comment
         commentsHtml += `
           <div class="reply-input-section" id="replySection_${safeHtml(pComment._id)}" style="display:none;">
@@ -205,14 +215,14 @@ async function openPostModal() {
             </div>
           </div>
         `;
-        
+
         commentsHtml += '</div>';
       });
       commentsHtml += '</div>';
     } else {
       commentsHtml = '<div class="comments-section"><p class="no-comments">' + t("feed.noComments") + '</p></div>';
     }
-    
+
     let mediaHtml = "";
     if (post.image) {
       const resolve = (url) => {
@@ -233,17 +243,18 @@ async function openPostModal() {
         mediaHtml = `<img src="${safeHtml(resolvedImage)}" class="post-image" alt="post-image" onerror="this.style.display='none'">`;
       }
     }
-    
+
     const modal = document.createElement('div');
     modal.id = 'postModal';
     modal.className = 'post-modal';
-    
+
+    const postUserPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(post.user_pic || post.profile_pic) : (post.user_pic || post.profile_pic || 'default-profile.png');
     const postContent = `
       <div class="post-modal-content">
         <button class="close-modal" onclick="closePostModal()">&times;</button>
         <div class="modal-post">
           <div class="post-header">
-            <img src="${safeHtml(post.user_pic || 'default-profile.png')}" 
+            <img src="${safeHtml(postUserPic)}" 
                  class="post-profile-pic"
                  onclick="goToUserProfile('${safeHtml(post.user_id)}')"
                  style="cursor:pointer;"
@@ -297,7 +308,7 @@ async function openPostModal() {
         </div>
       </div>
     `;
-    
+
     modal.innerHTML = postContent;
     document.body.appendChild(modal);
     modal.style.display = 'block';
@@ -369,7 +380,7 @@ async function submitReply(postId, event) {
       credentials: "include"
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showMessage("Comment added successfully", "success");
       input.value = '';
@@ -415,7 +426,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
   event.preventDefault();
   const replySection = document.getElementById(`replySection_${parentCommentId}`);
   if (!replySection) return;
-  
+
   const input = replySection.querySelector('.reply-input-field');
   if (!input || !input.value.trim()) {
     showMessage(t("feed.replyRequired") || "Please enter a reply", "error");
@@ -435,7 +446,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
       credentials: "include"
     });
     const data = await response.json();
-    
+
     if (data.success) {
       showMessage("Reply added successfully", "success");
       input.value = '';
@@ -679,7 +690,7 @@ function renderNotifications(notifs) {
 
   container.innerHTML = notifications.map((notif) => {
     const icon = getNotificationIcon(notif.type);
-    
+
     if (notif.type === 'friend-request') {
       return `
         <div class="notification friend-request-notif" data-id="${safeHtml(notif.id)}">
@@ -742,7 +753,7 @@ async function loadNotifications() {
   showLoading(true);
   try {
     const token = localStorage.getItem('laoverse_jwt') || '';
-    const response = await fetch(`${window.API_BASE_URL}/get-notifications`, { 
+    const response = await fetch(`${window.API_BASE_URL}/get-notifications`, {
       credentials: "include",
       headers: {
         "Authorization": `Bearer ${token}`
@@ -751,6 +762,11 @@ async function loadNotifications() {
     const data = await response.json();
     if (data.success) {
       renderNotifications(data.notifications || []);
+      // Mark all as read
+      fetch(`${window.API_BASE_URL}/mark-notifications-read`, {
+        method: 'POST',
+        headers: getAuthHeaders()
+      }).catch(e => console.error(e));
       return;
     }
     showMessage(data.message || t("note.loadFailed") || "Failed to load notifications", "error");
@@ -766,7 +782,7 @@ async function handleFriendRequest(action, userId, requestId) {
   try {
     const status = action === 'accept' ? 'accepted' : 'rejected';
     const token = localStorage.getItem('laoverse_jwt') || '';
-    
+
     const response = await fetch(`${window.API_BASE_URL}/respond_request`, {
       method: "POST",
       headers: {
@@ -808,7 +824,7 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const authResponse = await fetch(`${window.API_BASE_URL}/check_auth`, { 
+    const authResponse = await fetch(`${window.API_BASE_URL}/check_auth`, {
       headers: { ...getAuthHeaders() }
     });
     const authData = await authResponse.json();

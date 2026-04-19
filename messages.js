@@ -1,498 +1,375 @@
 let currentUser = null;
 let currentFriend = null;
 let friends = [];
-let messagesByFriend = {};
-let pollTimers = { friends: null, messages: null };
-let lastFetched = {};
-let trackedAudio = [];
-let isScrolledUp = false;
+let pollTimers = { friends: null, messages: null, presence: null };
+let selectedFile = null;
+let editingMessageId = null;
 
 function t(key, vars) {
-  if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
-    return window.LanguageManager.translate(key, vars);
-  }
-  return key;
+  return (window.LanguageManager && typeof window.LanguageManager.translate === "function") 
+    ? window.LanguageManager.translate(key, vars) : key;
 }
 
-function safeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function getChatContainer() {
-  return document.getElementById("chat-messages") || document.getElementById("chat-box");
-}
-
-function formatTimestamp(value) {
-  const date = new Date(/z$/i.test(value || "") ? value : `${value}Z`);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString();
+function safeHtml(v) {
+  return String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function profileImage(path) {
-  if (!path) return "default-profile.png";
-  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
-    return window.LanguageManager.resolveMediaUrl(path);
-  }
-  return path;
+  return (window.LanguageManager && window.LanguageManager.resolveMediaUrl) 
+    ? window.LanguageManager.resolveMediaUrl(path || "default-profile.png") : (path || "default-profile.png");
 }
 
-function resolveMediaUrl(filePath) {
-  if (!filePath) return "";
-  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
-    return window.LanguageManager.resolveMediaUrl(filePath);
-  }
-  
-  const raw = String(filePath || "").trim();
-  if (/^https?:\/\//i.test(raw)) return raw;
-  
-  const backendUrl = window.BACKEND_URL;
-  const normalized = raw.replace(/\\/g, "/");
-  const uploadsIndex = normalized.toLowerCase().indexOf("uploads/");
-  if (uploadsIndex >= 0) {
-    return `${backendUrl}/${normalized.slice(uploadsIndex)}`;
-  }
-  return `${backendUrl}${normalized.startsWith("/") ? "" : "/"}${normalized}`;
+async function resolveMedia(path, el) {
+    if (!path) return "";
+    
+    // Method 1: Try resolving URL normally
+    const backendUrl = window.BACKEND_URL || "http://localhost:3000";
+    let fullUrl = path;
+    if (!path.startsWith("http") && !path.startsWith("blob:") && !path.startsWith("data:")) {
+        fullUrl = backendUrl + (path.startsWith("/") ? "" : "/") + path;
+    }
+    
+    // Method 2: Try Direct Fetch as Blob (for security/consistency)
+    if (window.LanguageManager && window.LanguageManager.fetchMediaAsBlob) {
+        try {
+            const blobUrl = await window.LanguageManager.fetchMediaAsBlob(path);
+            if (el) el.src = blobUrl;
+            return blobUrl;
+        } catch(e) {
+            console.error("Blob fetch failed, falling back to URL:", e);
+            if (el) el.src = fullUrl;
+            return fullUrl;
+        }
+    }
+    if (el) el.src = fullUrl;
+    return fullUrl;
 }
 
-function detectFileKind(fileType, filePath) {
-  const type = String(fileType || "").toLowerCase();
-  const path = String(filePath || "").toLowerCase();
-
-  if (type.startsWith("image/") || ["image", "jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(type) || /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(path)) {
-    return "image";
-  }
-  if (type.startsWith("video/") || ["video", "mp4", "webm", "mov", "mkv", "avi", "m4v", "ogv"].includes(type) || /\.(mp4|webm|mov|mkv|avi|m4v|ogv)$/i.test(path)) {
-    return "video";
-  }
-  if (type.startsWith("audio/") || ["audio", "mp3", "wav", "ogg", "aac", "m4a", "flac", "oga"].includes(type) || /\.(mp3|wav|ogg|aac|m4a|flac|oga)$/i.test(path)) {
-    return "audio";
-  }
-  return "file";
-}
-
-function setComposerEnabled(enabled) {
-  ["message-input", "file-button", "send-button", "file-input"].forEach((id) => {
-    const node = document.getElementById(id);
-    if (node) node.disabled = !enabled;
-  });
-}
-
-function pauseAllAudio() {
-  trackedAudio.forEach((audio) => {
-    if (audio && !audio.paused) audio.pause();
-  });
-  document.querySelectorAll("audio").forEach((audio) => {
-    if (!audio.paused) audio.pause();
-  });
-  document.querySelectorAll("video").forEach((video) => {
-    if (!video.paused) video.pause();
-  });
+function formatMsgTime(d) {
+    if (!d) return "";
+    const date = new Date(d);
+    if (isNaN(date.getTime())) return "";
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function renderFriendsList() {
   const container = document.getElementById("friends-list");
   if (!container) return;
-
   if (!friends.length) {
-    container.innerHTML = `<div class="no-friends">${safeHtml(t("friends.noFriends"))}</div>`;
+    container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("friends.noFriends"))}</div>`;
     return;
   }
 
-  container.innerHTML = friends.map((friend) => {
-    const active = currentFriend && String(currentFriend.id) === String(friend.id);
+  container.innerHTML = friends.map((f) => {
+    const active = currentFriend && String(currentFriend.id) === String(f.id);
+    const unread = f.unread_count > 0 ? `<span class="unread-badge">${f.unread_count}</span>` : "";
     return `
-      <div class="friend-item${active ? " active" : ""}" data-friend-id="${safeHtml(friend.id)}">
-        <div class="friend-avatar">
-          <img src="${safeHtml(profileImage(friend.profile_pic))}" alt="${safeHtml(friend.username)}" onerror="this.src='default-profile.png'">
+      <div class="friend-item-wa ${f.is_online ? 'online' : ''} ${active ? "active" : ""}" onclick="selectFriendById('${f.id}')">
+        <div class="avatar-wrapper">
+          <img src="${safeHtml(profileImage(f.profile_pic))}" onerror="this.src='default-profile.png'">
+          <span class="online-dot"></span>
         </div>
-        <div class="friend-info">
-          <div class="friend-name">${safeHtml(friend.username || t("messages.noName"))}</div>
-          <div class="friend-status">${safeHtml(friend.status || "")}</div>
+        <div class="item-content">
+          <div class="item-top">
+            <span class="item-name">${safeHtml(f.username)}</span>
+            <span class="item-time">${safeHtml(formatMsgTime(f.last_message_time))}</span>
+          </div>
+          <div class="item-bottom">
+            <span class="item-msg">${safeHtml(f.last_message || "")}</span>
+            ${unread}
+          </div>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join("");
-
-  container.querySelectorAll(".friend-item").forEach((item) => {
-    item.addEventListener("click", () => {
-      const friend = friends.find((entry) => String(entry.id) === String(item.dataset.friendId));
-      if (friend) selectFriend(friend);
-    });
-  });
 }
 
-function renderEmptyChat() {
-  const container = getChatContainer();
+function selectFriendById(id) {
+    const f = friends.find(item => String(item.id) === String(id));
+    if (f) selectFriend(f);
+}
+
+async function selectFriend(f) {
+  currentFriend = f;
+  document.body.classList.add("chat-open");
+  
+  const local = friends.find(item => String(item.id) === String(f.id));
+  if (local) local.unread_count = 0;
+  renderFriendsList();
+
+  document.getElementById("chat-header-name").textContent = f.username;
+  document.getElementById("chat-avatar").src = profileImage(f.profile_pic);
+  const dot = document.getElementById("chat-online-dot");
+  dot.style.backgroundColor = f.is_online ? "var(--wa-online)" : "#555";
+  dot.style.display = "block";
+
+  cancelFileSelection();
+  cancelEdit();
+  
+  fetch(`${window.API_BASE_URL}/mark_messages_read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ friend_id: f.id })
+  }).catch(e => {});
+
+  loadMessages(f.id, true);
+}
+
+function renderMessages(list, replaceAll) {
+  const container = document.getElementById("chat-messages");
   if (!container) return;
-  container.innerHTML = `<div class="loading" id="chat-empty-state">${safeHtml(t("messages.emptyChat"))}</div>`;
-}
-
-function renderFile(message) {
-  if (!message.file_path) return "";
-
-  const resolvedPath = resolveMediaUrl(message.file_path);
-  const filePath = encodeURI(resolvedPath);
-  const kind = detectFileKind(message.file_type, resolvedPath);
-  const fileName = message.file_name ? ` (${safeHtml(message.file_name)})` : "";
-
-  if (kind === "image") {
-    return `<img src="${filePath}" alt="image" class="message-file">`;
-  }
-  if (kind === "video") {
-    return `<video controls playsinline preload="metadata" class="message-file" src="${filePath}">${safeHtml(t("messages.videoUnsupported"))}</video>`;
-  }
-  if (kind === "audio") {
-    const id = `audio-${message.id}-${Date.now()}`;
-    window.setTimeout(() => {
-      const audio = document.getElementById(id);
-      if (audio) trackedAudio.push(audio);
-    }, 0);
-    return `<audio id="${id}" controls preload="metadata" class="message-file" src="${filePath}">${safeHtml(t("messages.audioUnsupported"))}</audio>`;
-  }
-  if (/\.pdf$/i.test(filePath) || String(message.file_type || "").toLowerCase() === "application/pdf") {
-    return `<a href="${filePath}" target="_blank" class="message-file">${safeHtml(t("messages.downloadPdf"))}${fileName}</a>`;
-  }
-  return `<a href="${filePath}" target="_blank" class="message-file">${safeHtml(t("messages.downloadFile"))}${fileName}</a>`;
-}
-
-function renderMessages(messageList, replaceAll) {
-  const container = getChatContainer();
-  if (!container) return;
-
-  if (replaceAll) {
-    container.innerHTML = "";
-    trackedAudio = [];
-  }
-
-  if (!Array.isArray(messageList) || !messageList.length) {
-    if (replaceAll) renderEmptyChat();
+  if (replaceAll) container.innerHTML = "";
+  if (!list.length && replaceAll) {
+    container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("messages.emptyChat"))}</div>`;
     return;
   }
 
-  const shouldScroll = !isScrolledUp;
-
-  messageList.forEach((message) => {
-    const canModify = currentUser && (String(message.sender_id || "") === String(currentUser) || String(message.direction || "") === "right");
-    const id = `msg-${message.id}`;
-    if (!replaceAll && document.getElementById(id)) return;
-
+  list.forEach(async (m) => {
+    if (document.getElementById(`msg-${m.id}`)) return;
     const node = document.createElement("div");
-    node.className = `message ${message.direction || message.position || "left"}`;
-    node.id = id;
+    node.className = `message-wa ${m.direction}`;
+    node.id = `msg-${m.id}`;
+    
+    let mediaHtml = "";
+    if (m.file_path) {
+        const id = `media-${m.id}`;
+        if (m.file_type === 'image') mediaHtml = `<img id="${id}" class="message-file" style="max-width:100%; border-radius:8px;">`;
+        else if (m.file_type === 'video') mediaHtml = `<video id="${id}" controls class="message-file" style="max-width:100%; border-radius:8px;"></video>`;
+        else if (m.file_type === 'audio') mediaHtml = `<audio id="${id}" controls class="message-file" style="max-width:100%;"></audio>`;
+        else mediaHtml = `<a href="#" id="${id}" target="_blank" class="message-file" style="display:block; padding:10px; background:rgba(255,255,255,0.1); border-radius:5px; text-decoration:none; color:inherit;">📄 ${t("common.downloadFile")}</a>`;
+        
+        setTimeout(() => {
+            const el = document.getElementById(id);
+            if (el) resolveMedia(m.file_path, el).then(url => {
+                if (el.tagName === 'A') el.href = url;
+            });
+        }, 0);
+    }
+
+    const isOwn = m.direction === 'right';
+    const actionsHtml = isOwn ? `
+        <div class="msg-actions">
+            <button class="msg-edit-btn" onclick="startEdit('${m.id}', '${safeHtml(m.message)}')">✎</button>
+            <button class="msg-delete-btn" onclick="deleteMessage('${m.id}')">🗑</button>
+        </div>` : '';
+
     node.innerHTML = `
       <div class="message-content">
-        <div class="message-header">
-          <strong>${safeHtml(message.username || message.sender_name || t("messages.unknownSender"))}</strong>
-          <small class="timestamp">${safeHtml(formatTimestamp(message.created_at))}</small>
+        ${m.message ? `<div class="message-text">${safeHtml(m.message)}</div>` : ""}
+        ${mediaHtml}
+        <div class="message-info-bottom">
+          <span class="message-time">${safeHtml(formatMsgTime(m.created_at))}</span>
+          ${actionsHtml}
         </div>
-        ${message.message ? `<div class="message-text">${safeHtml(message.message)}</div>` : ""}
-        ${renderFile(message)}
-        ${canModify ? `
-          <div class="message-actions">
-            <button class="msg-edit-toggle" data-message-id="${safeHtml(message.id)}" title="${safeHtml(t("common.edit"))}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"></button>
-            <button class="msg-delete-btn" data-message-id="${safeHtml(message.id)}" title="${safeHtml(t("common.delete"))}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"></button>
-          </div>
-          <div class="message-edit-box" id="edit-msg-${safeHtml(message.id)}" style="display:none;">
-            <textarea class="message-edit-input" rows="2">${safeHtml(message.message || "")}</textarea>
-            <div class="message-edit-actions">
-              <button class="msg-edit-save" data-message-id="${safeHtml(message.id)}">${safeHtml(t("common.save"))}</button>
-              <button class="msg-edit-cancel" data-message-id="${safeHtml(message.id)}">${safeHtml(t("common.cancel"))}</button>
-            </div>
-          </div>
-        ` : ``}
-      </div>
-    `;
+      </div>`;
     container.appendChild(node);
   });
-
-  if (shouldScroll) {
-    window.setTimeout(() => {
-      container.scrollTop = container.scrollHeight;
-    }, 20);
-  }
-}
-
-async function deleteMessage(messageId) {
-  const payload = new URLSearchParams();
-  payload.set("message_id", messageId);
-
-  const response = await fetch(`${window.API_BASE_URL}/delete_message`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      ...getAuthHeaders()
-    },
-    body: payload.toString(),
-    credentials: "include"
-  });
-  return response.json();
-}
-
-async function editMessage(messageId, nextText) {
-  const payload = new URLSearchParams();
-  payload.set("message_id", messageId);
-  payload.set("message", nextText);
-
-  const response = await fetch(`${window.API_BASE_URL}/edit_message`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      ...getAuthHeaders()
-    },
-    body: payload.toString(),
-    credentials: "include"
-  });
-  return response.json();
+  container.scrollTop = container.scrollHeight;
 }
 
 async function loadFriends() {
-  const response = await fetch(`${window.API_BASE_URL}/get_friends`, { headers: getAuthHeaders(), credentials: "include" });
-  if (!response.ok) throw new Error("friends");
-  const data = await response.json();
-  if (!data.success) throw new Error(data.message || "friends");
-  friends = Array.isArray(data.friends) ? data.friends : [];
-  renderFriendsList();
-
-  const urlParams = new URLSearchParams(window.location.search || "");
-  const requestedId = urlParams.get("id");
-  if (requestedId && !currentFriend) {
-    const matched = friends.find((friend) => String(friend.id) === String(requestedId));
-    if (matched) selectFriend(matched);
-  }
+  try {
+    const res = await fetch(`${window.API_BASE_URL}/get_friends`, { headers: getAuthHeaders() });
+    const data = await res.json();
+    if (data.success) {
+      friends = data.friends;
+      renderFriendsList();
+    }
+  } catch (e) {}
 }
 
-async function loadMessages(friendId, forceFullReload) {
-  const query = forceFullReload ? 0 : (lastFetched[friendId] || 0);
-  const response = await fetch(`${window.API_BASE_URL}/get_messages?friend_id=${encodeURIComponent(friendId)}&last_update=${encodeURIComponent(query)}`, {
-    headers: getAuthHeaders(),
-    credentials: "include"
-  });
-  if (!response.ok) throw new Error("messages");
-  const data = await response.json();
-  if (!data.success) throw new Error(data.message || "messages");
-
-  if (!Array.isArray(messagesByFriend[friendId]) || forceFullReload) {
-    messagesByFriend[friendId] = [];
-  }
-
-  const incoming = Array.isArray(data.messages) ? data.messages : [];
-  incoming.forEach((message) => {
-    if (!messagesByFriend[friendId].some((entry) => String(entry.id) === String(message.id))) {
-      messagesByFriend[friendId].push(message);
-    }
-  });
-  lastFetched[friendId] = Date.now();
-
-  if (currentFriend && String(currentFriend.id) === String(friendId)) {
-    renderMessages(forceFullReload ? messagesByFriend[friendId] : incoming, !!forceFullReload);
-    if (!messagesByFriend[friendId].length) {
-      renderEmptyChat();
-    }
-  }
-}
-
-async function selectFriend(friend) {
-  currentFriend = friend;
-  pauseAllAudio();
-
-  const header = document.getElementById("chat-header-name");
-  if (header) {
-    header.textContent = friend.username || t("messages.noName");
-  }
-
-  renderFriendsList();
-  setComposerEnabled(true);
-  await loadMessages(friend.id, true);
+async function loadMessages(friendId, full) {
+  try {
+    const res = await fetch(`${window.API_BASE_URL}/get_messages?friend_id=${encodeURIComponent(friendId)}`, { headers: getAuthHeaders() });
+    const data = await res.json();
+    if (data.success) renderMessages(data.messages, full);
+  } catch (e) {}
 }
 
 async function sendMessage() {
-  if (!currentFriend || !currentFriend.id) return false;
-
+  if (!currentFriend) return;
   const input = document.getElementById("message-input");
-  const fileInput = document.getElementById("file-input");
-  const content = input ? input.value.trim() : "";
-  const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+  const msg = input.value.trim();
+  if (!msg && !selectedFile) return;
 
-  if (!content && !file) return false;
-
-  const formData = new FormData();
-  formData.append("receiver_id", currentFriend.id);
-  if (content) formData.append("message", content);
-  if (file) formData.append("file", file);
-
-  const response = await fetch(`${window.API_BASE_URL}/send_message`, {
-    method: "POST",
-    headers: { ...getAuthHeaders() },
-    body: formData,
-    credentials: "include"
-  });
-  if (!response.ok) throw new Error("send");
-  const data = await response.json();
-  if (!data.success) throw new Error(data.message || "send");
-
-  if (input) input.value = "";
-  if (fileInput) fileInput.value = "";
-
-  if (!messagesByFriend[currentFriend.id]) {
-    messagesByFriend[currentFriend.id] = [];
+  if (editingMessageId) {
+      updateMessage(editingMessageId, msg);
+      return;
   }
 
-  if (data.newMessage) {
-    messagesByFriend[currentFriend.id].push(data.newMessage);
-    renderMessages([data.newMessage], false);
-  } else {
-    await loadMessages(currentFriend.id);
-  }
-  return true;
-}
+  const fd = new FormData();
+  fd.append("receiver_id", currentFriend.id);
+  if (msg) fd.append("message", msg);
+  if (selectedFile) fd.append("file", selectedFile);
 
-function startPolling() {
-  stopPolling();
-  pollTimers.friends = window.setInterval(() => {
-    loadFriends().catch(() => {});
-  }, 10000);
-  pollTimers.messages = window.setInterval(() => {
-    if (currentFriend && currentFriend.id) {
-      loadMessages(currentFriend.id).catch(() => {});
+  input.value = "";
+  cancelFileSelection();
+  
+  try {
+    const res = await fetch(`${window.API_BASE_URL}/send_message`, { method: "POST", headers: getAuthHeaders(), body: fd });
+    const data = await res.json();
+    if (data.success) {
+      loadMessages(currentFriend.id, false);
+      loadFriends();
     }
-  }, 3000);
+  } catch (e) {}
 }
 
-function stopPolling() {
-  if (pollTimers.friends) window.clearInterval(pollTimers.friends);
-  if (pollTimers.messages) window.clearInterval(pollTimers.messages);
+function startEdit(id, text) {
+    editingMessageId = id;
+    const input = document.getElementById("message-input");
+    input.value = text;
+    input.focus();
+    
+    let bar = document.getElementById("edit-bar");
+    if (!bar) {
+        bar = document.createElement("div");
+        bar.id = "edit-bar";
+        bar.className = "file-preview-bar";
+        const area = document.querySelector(".input-area-wa");
+        area.parentNode.insertBefore(bar, area);
+    }
+    bar.innerHTML = `<span>✏️ ${t("common.edit")}</span><button onclick="cancelEdit()">✕</button>`;
+    updateSendBtnState();
 }
 
-function setupEvents() {
-  const sendButton = document.getElementById("send-button");
-  const fileButton = document.getElementById("file-button");
-  const fileInput = document.getElementById("file-input");
-  const messageInput = document.getElementById("message-input");
-  const chat = getChatContainer();
+function cancelEdit() {
+    editingMessageId = null;
+    document.getElementById("message-input").value = "";
+    const bar = document.getElementById("edit-bar");
+    if (bar) bar.remove();
+    updateSendBtnState();
+}
 
-  if (sendButton) {
-    sendButton.addEventListener("click", () => {
-      sendMessage().catch(() => {});
-    });
-  }
-
-  if (fileButton && fileInput) {
-    fileButton.addEventListener("click", () => fileInput.click());
-    fileInput.addEventListener("change", () => {
-      sendMessage().catch(() => {});
-    });
-  }
-
-  if (messageInput) {
-    messageInput.addEventListener("keypress", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        sendMessage().catch(() => {});
-      }
-    });
-  }
-
-  if (chat) {
-    chat.addEventListener("scroll", () => {
-      isScrolledUp = (chat.scrollHeight - chat.scrollTop - chat.clientHeight) > 100;
-    });
-
-    chat.addEventListener("click", async (event) => {
-      const editToggle = event.target.closest(".msg-edit-toggle");
-      if (editToggle) {
-        const box = document.getElementById(`edit-msg-${editToggle.dataset.messageId}`);
-        if (box) {
-          box.style.display = box.style.display === "none" ? "block" : "none";
-          const input = box.querySelector(".message-edit-input");
-          if (input) {
-            input.focus();
-            input.setSelectionRange(input.value.length, input.value.length);
-          }
+async function updateMessage(id, newText) {
+    try {
+        const res = await fetch(`${window.API_BASE_URL}/edit_message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify({ message_id: id, message: newText })
+        });
+        const data = await res.json();
+        if (data.success) {
+            cancelEdit();
+            loadMessages(currentFriend.id, true);
         }
-        return;
-      }
-
-      const cancel = event.target.closest(".msg-edit-cancel");
-      if (cancel) {
-        const box = document.getElementById(`edit-msg-${cancel.dataset.messageId}`);
-        if (box) box.style.display = "none";
-        return;
-      }
-
-      const save = event.target.closest(".msg-edit-save");
-      if (save) {
-        const box = document.getElementById(`edit-msg-${save.dataset.messageId}`);
-        const input = box ? box.querySelector(".message-edit-input") : null;
-        const nextText = input ? input.value.trim() : "";
-        if (!nextText) return;
-
-        try {
-          const data = await editMessage(save.dataset.messageId, nextText);
-          if (data.success) {
-            if (box) box.style.display = "none";
-            await loadMessages(currentFriend.id, true);
-          }
-        } catch (error) {}
-        return;
-      }
-
-      const del = event.target.closest(".msg-delete-btn");
-      if (del) {
-        try {
-          const ok = window.showConfirm
-            ? await window.showConfirm(t("messages.confirmDeleteMessage"), t("common.confirm"))
-            : window.confirm(t("messages.confirmDeleteMessage"));
-          if (!ok) return;
-
-          const data = await deleteMessage(del.dataset.messageId);
-          if (data.success) {
-            await loadMessages(currentFriend.id, true);
-          }
-        } catch (error) {}
-      }
-    });
-  }
-
-  window.addEventListener("beforeunload", stopPolling);
+    } catch(e) {}
 }
 
-async function init() {
-  renderEmptyChat();
-  setComposerEnabled(false);
-  setupEvents();
+async function deleteMessage(id) {
+    const confirmed = await window.showConfirm(t("messages.confirmDeleteMessage"));
+    if (!confirmed) return;
+    try {
+        const res = await fetch(`${window.API_BASE_URL}/delete_message`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+            body: JSON.stringify({ message_id: id })
+        });
+        const data = await res.json();
+        if (data.success) loadMessages(currentFriend.id, true);
+    } catch(e) {}
+}
 
-  const response = await fetch(`${window.API_BASE_URL}/check_auth`, { headers: getAuthHeaders(), credentials: "include" });
-  const data = await response.json();
-  if (!data.success || !data.user || !data.user.id) {
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedFile = file;
+    cancelEdit();
+    
+    let preview = document.getElementById("file-preview-container");
+    if (!preview) {
+        preview = document.createElement("div");
+        preview.id = "file-preview-container";
+        preview.className = "file-preview-bar";
+        const area = document.querySelector(".input-area-wa");
+        area.parentNode.insertBefore(preview, area);
+    }
+    
+    const isImg = file.type.startsWith('image/');
+    preview.innerHTML = `
+        <div class="preview-info">
+            ${isImg ? `<img src="${URL.createObjectURL(file)}" class="preview-thumb">` : `<span class="preview-icon">📄</span>`}
+            <span class="preview-name">${safeHtml(file.name)}</span>
+        </div>
+        <button class="preview-close" onclick="cancelFileSelection()">✕</button>`;
+    updateSendBtnState();
+}
+
+function cancelFileSelection() {
+    selectedFile = null;
+    const p = document.getElementById("file-preview-container");
+    if (p) p.remove();
+    const fi = document.getElementById("file-input");
+    if (fi) fi.value = "";
+    updateSendBtnState();
+}
+
+function updateSendBtnState() {
+    const btn = document.getElementById("send-button");
+    const input = document.getElementById("message-input");
+    if (btn) {
+        if ((input && input.value.trim()) || selectedFile || editingMessageId) btn.classList.add("active");
+        else btn.classList.remove("active");
+    }
+}
+
+function updatePresence() { fetch(`${window.API_BASE_URL}/update_presence`, { method: 'POST', headers: getAuthHeaders() }).catch(e=>{}); }
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Auth check before loading
+  try {
+    const res = await fetch(`${window.API_BASE_URL}/check_auth`, { headers: getAuthHeaders() });
+    const data = await res.json();
+    if (!data.success) {
+      window.location.href = "index2.html";
+      return;
+    }
+    if (data.user) currentUser = data.user;
+  } catch (e) {
     window.location.href = "index2.html";
     return;
   }
 
-  currentUser = data.user.id;
-  document.body.setAttribute("data-user-id", currentUser);
+  loadFriends();
+  setInterval(loadFriends, 10000);
+  setInterval(() => { if (currentFriend) loadMessages(currentFriend.id, false); }, 4000);
+  setInterval(updatePresence, 60000);
+  updatePresence();
 
-  await loadFriends();
-  startPolling();
-}
+  document.getElementById("send-button").addEventListener("click", sendMessage);
+  document.getElementById("message-input").addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+  document.getElementById("message-input").addEventListener("input", updateSendBtnState);
 
-document.addEventListener("DOMContentLoaded", () => {
-  init().catch(() => {
-    window.location.href = "index2.html";
+  document.getElementById("back-button").addEventListener("click", () => {
+    document.body.classList.remove("chat-open");
+    currentFriend = null;
+    cancelFileSelection();
+    cancelEdit();
+  });
+
+  document.getElementById("file-button").addEventListener("click", () => document.getElementById("file-input").click());
+  document.getElementById("file-input").addEventListener("change", handleFileSelect);
+
+  const toggle = document.getElementById("online-status-toggle");
+  if (toggle) toggle.addEventListener("change", (e) => {
+      fetch(`${window.API_BASE_URL}/toggle_online_status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+          body: JSON.stringify({ visible: e.target.checked })
+      }).catch(e=>{});
   });
 });
 
+// Re-render when language changes
 document.addEventListener("laoverse:languagechange", () => {
   renderFriendsList();
-  if (currentFriend) {
-    const header = document.getElementById("chat-header-name");
-    if (header) header.textContent = currentFriend.username || t("messages.noName");
-    renderMessages(messagesByFriend[currentFriend.id] || [], true);
-  } else {
-    renderEmptyChat();
-  }
+  if (currentFriend) loadMessages(currentFriend.id, true);
 });
+
+window.cancelFileSelection = cancelFileSelection;
+window.cancelEdit = cancelEdit;
+window.selectFriendById = selectFriendById;
+window.startEdit = startEdit;
+window.deleteMessage = deleteMessage;
+window.goToFriendProfile = () => { if (currentFriend) window.location.href = `user-profile.html?id=${currentFriend.id}`; };

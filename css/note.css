@@ -1,3 +1,5 @@
+@import url('shared-styles.css');
+
 /* note.css - LaoVerse Note Page Styling */
 
 
@@ -564,17 +566,12 @@ border: 1px solid var(--neon-blue);
 
 
 .post-actions {
-
-display: flex;
-
-gap: 1.5rem;
-
-margin-top: 1rem;
-
-padding-top: 1rem;
-
-border-top: 1px solid rgba(102, 240, 255, 0.2);
-
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(102, 240, 255, 0.2);
+  flex-wrap: wrap;
 }
 
 .post-edit-box {
@@ -629,10 +626,10 @@ border-top: 1px solid rgba(102, 240, 255, 0.2);
 /* Icon styling for buttons with theme support */
 .btn-icon {
   display: inline-block;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   line-height: 1;
-  margin-right: 0.3rem;
+  margin-right: 0.2rem;
   transition: all 0.3s ease;
   vertical-align: middle;
 }
@@ -646,21 +643,63 @@ border-top: 1px solid rgba(102, 240, 255, 0.2);
   justify-content: center;
   gap: 0.1rem;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   transition: all 0.3s ease;
-  padding: 10px 10px;
+  padding: 6px 10px;
   line-height: 1;
   width: fit-content;
   flex-shrink: 1;
+  border-radius: 5px;
+  background-color: rgba(102, 240, 255, 0.05);
+  border: 1px solid rgba(102, 240, 255, 0.1);
 }
 
 .delete-post-btn {
   color: #ff6666;
+  border-color: rgba(255, 102, 102, 0.2);
 }
 
 .like-btn:hover, .comment-btn:hover, .edit-post-btn:hover, .delete-post-btn:hover {
   background-color: var(--light-blue);
-  border-radius: 5px;
+  color: var(--black);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.reply-to-comment-btn,
+.edit-comment-btn,
+.delete-comment-btn {
+  background: rgba(102, 240, 255, 0.05);
+  border: 1px solid rgba(102, 240, 255, 0.1);
+  color: var(--neon-blue);
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.delete-comment-btn {
+  color: #ff6666;
+  border-color: rgba(255, 102, 102, 0.1);
+}
+
+.reply-to-comment-btn:hover,
+.edit-comment-btn:hover {
+  background-color: var(--neon-blue);
+  color: var(--black);
+}
+
+.delete-comment-btn:hover {
+  background-color: #ff6666;
+  color: white;
 }
 
 .like-btn .like-icon {

@@ -3,10 +3,8 @@ let friendRequestsState = [];
 let searchResultsState = [];
 
 function t(key, vars) {
-  if (window.LanguageManager && typeof window.LanguageManager.translate === "function") {
-    return window.LanguageManager.translate(key, vars);
-  }
-  return key;
+  return (window.LanguageManager && typeof window.LanguageManager.translate === "function") 
+    ? window.LanguageManager.translate(key, vars) : key;
 }
 
 function safeHtml(value) {
@@ -19,7 +17,10 @@ function safeHtml(value) {
 }
 
 function profileImage(path) {
-  return path && String(path).trim() ? path : "default-profile.png";
+  if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
+    return window.LanguageManager.resolveMediaUrl(path || "default-profile.png");
+  }
+  return path || "default-profile.png";
 }
 
 function showMessage(message, type) {
@@ -46,7 +47,7 @@ function renderFriends(friends) {
   if (!container) return;
 
   if (friendsState.length === 0) {
-    container.innerHTML = `<p>${safeHtml(t("friends.noFriends"))}</p>`;
+    container.innerHTML = `<p class="empty-msg">${safeHtml(t("friends.noFriends"))}</p>`;
     return;
   }
 
@@ -54,11 +55,15 @@ function renderFriends(friends) {
     <div class="friend-item">
       <img src="${safeHtml(profileImage(friend.profile_pic))}"
            onerror="this.src='default-profile.png'"
-           alt="${safeHtml(friend.username)}">
-      <div>
-        <h3>${safeHtml(friend.username)}</h3>
-        <button onclick="messageFriend('${safeHtml(friend.id)}')">${safeHtml(t("friends.sendMessage"))}</button>
-        <button onclick="removeFriend('${safeHtml(friend.id)}')" class="remove-btn">${safeHtml(t("friends.remove"))}</button>
+           alt="${safeHtml(friend.username)}"
+           onclick="window.location.href='user-profile.html?id=${encodeURIComponent(friend.id)}'"
+           style="cursor:pointer;">
+      <div class="friend-info">
+        <h3 onclick="window.location.href='user-profile.html?id=${encodeURIComponent(friend.id)}'" style="cursor:pointer;">${safeHtml(friend.username)}</h3>
+        <div class="friend-actions">
+            <button onclick="messageFriend('${safeHtml(friend.id)}')">${safeHtml(t("friends.sendMessage"))}</button>
+            <button onclick="removeFriend('${safeHtml(friend.id)}')" class="remove-btn">${safeHtml(t("friends.remove"))}</button>
+        </div>
       </div>
     </div>
   `).join("");
@@ -70,7 +75,7 @@ function renderFriendRequests(requests) {
   if (!container) return;
 
   if (friendRequestsState.length === 0) {
-    container.innerHTML = `<p>${safeHtml(t("friends.noRequests"))}</p>`;
+    container.innerHTML = `<p class="empty-msg">${safeHtml(t("friends.noRequests"))}</p>`;
     return;
   }
 
@@ -78,11 +83,15 @@ function renderFriendRequests(requests) {
     <div class="request-item">
       <img src="${safeHtml(profileImage(request.profile_pic))}"
            onerror="this.src='default-profile.png'"
-           alt="${safeHtml(request.username)}">
-      <div>
-        <h3>${safeHtml(request.username)}</h3>
-        <button onclick="acceptRequest('${safeHtml(request.id)}')" class="accept-btn">${safeHtml(t("friends.accept"))}</button>
-        <button onclick="rejectRequest('${safeHtml(request.id)}')" class="reject-btn">${safeHtml(t("friends.reject"))}</button>
+           alt="${safeHtml(request.username)}"
+           onclick="window.location.href='user-profile.html?id=${encodeURIComponent(request.id)}'"
+           style="cursor:pointer;">
+      <div class="request-info">
+        <h3 onclick="window.location.href='user-profile.html?id=${encodeURIComponent(request.id)}'" style="cursor:pointer;">${safeHtml(request.username)}</h3>
+        <div class="request-actions">
+            <button onclick="acceptRequest('${safeHtml(request.id)}')" class="accept-btn">${safeHtml(t("friends.accept"))}</button>
+            <button onclick="rejectRequest('${safeHtml(request.id)}')" class="reject-btn">${safeHtml(t("friends.reject"))}</button>
+        </div>
       </div>
     </div>
   `).join("");
@@ -94,7 +103,7 @@ function renderSearchResults(users) {
   if (!container) return;
 
   if (searchResultsState.length === 0) {
-    container.innerHTML = `<p>${safeHtml(t("friends.noUsers"))}</p>`;
+    container.innerHTML = `<p class="empty-msg">${safeHtml(t("friends.noUsers"))}</p>`;
     return;
   }
 
@@ -102,9 +111,11 @@ function renderSearchResults(users) {
     <div class="search-result-item">
       <img src="${safeHtml(profileImage(user.profile_pic))}"
            onerror="this.src='default-profile.png'"
-           alt="${safeHtml(user.username)}">
-      <div>
-        <h3>${safeHtml(user.username)}</h3>
+           alt="${safeHtml(user.username)}"
+           onclick="window.location.href='user-profile.html?id=${encodeURIComponent(user.id)}'"
+           style="cursor:pointer;">
+      <div class="search-info">
+        <h3 onclick="window.location.href='user-profile.html?id=${encodeURIComponent(user.id)}'" style="cursor:pointer;">${safeHtml(user.username)}</h3>
         <button onclick="sendFriendRequest('${safeHtml(user.id)}')">${safeHtml(t("friends.sendRequest"))}</button>
       </div>
     </div>
@@ -113,7 +124,10 @@ function renderSearchResults(users) {
 
 async function loadFriends() {
   try {
-    const response = await fetch(`${window.API_BASE_URL}/get_friends`, { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/get_friends`, {
+      headers: getAuthHeaders(),
+      credentials: "include"
+    });
     const data = await response.json();
     if (data.success) {
       renderFriends(data.friends || []);
@@ -123,7 +137,10 @@ async function loadFriends() {
 
 async function loadFriendRequests() {
   try {
-    const response = await fetch(`${window.API_BASE_URL}/get_friend_requests`, { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/get_friend_requests`, {
+      headers: getAuthHeaders(),
+      credentials: "include"
+    });
     const data = await response.json();
     if (data.success) {
       renderFriendRequests(data.requests || []);
@@ -139,7 +156,10 @@ async function handleSearch(event) {
   }
 
   try {
-    const response = await fetch(`${window.API_BASE_URL}/search_users?query=${encodeURIComponent(query)}`, { credentials: "include" });
+    const response = await fetch(`${window.API_BASE_URL}/search_users?query=${encodeURIComponent(query)}`, {
+      headers: getAuthHeaders(),
+      credentials: "include"
+    });
     const data = await response.json();
     if (data.success) {
       renderSearchResults(data.users || []);
@@ -207,7 +227,7 @@ async function sendFriendRequest(userId) {
 }
 
 async function removeFriend(friendId) {
-  const confirmed = await showConfirm(t("friends.removeConfirm"));
+  const confirmed = await window.showConfirm(t("friends.removeConfirm"));
   if (!confirmed) return;
 
   try {

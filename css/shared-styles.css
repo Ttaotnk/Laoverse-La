@@ -1,0 +1,46 @@
+/* Shared Styles for consistency across LaoVerse */
+:root {
+  --neon-blue: #66f0ff;
+  --light-blue: #00b7d4;
+  --black: #000000;
+  --white: #ffffff;
+  --gray: #222222;
+  --light-gray: #333333;
+  --error-red: #ff4444;
+}
+
+/* UI สำหรับปุ่มแก้ไข/ลบทั่วทั้งระบบ */
+.edit-btn, .delete-btn, .edit-comment-btn, .delete-comment-btn, 
+.comment-edit-toggle, .comment-delete-btn, .reply-toggle,
+.msg-edit-btn, .msg-delete-btn {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(102, 240, 255, 0.05);
+    border: 1px solid rgba(102, 240, 255, 0.2);
+    color: var(--white);
+}
+
+.delete-btn, .delete-comment-btn, .comment-delete-btn, .msg-delete-btn {
+    color: var(--error-red);
+    border-color: rgba(255, 68, 68, 0.2);
+}
+
+/* ปรับขนาดเล็กพิเศษสำหรับมือถือ */
+@media (max-width: 480px) {
+    .edit-btn, .delete-btn, .edit-comment-btn, .delete-comment-btn,
+    .comment-edit-toggle, .comment-delete-btn, .reply-toggle,
+    .msg-edit-btn, .msg-delete-btn {
+        padding: 2px 5px;
+        font-size: 0.65rem;
+    }
+    .btn-icon {
+        width: 12px;
+        height: 12px;
+    }
+}

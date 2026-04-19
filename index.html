@@ -11,6 +11,7 @@
   <script src="theme.js"></script>
     <script src="language.js"></script>
     <script src="confirm.js"></script>
+    <script src="nav-badges.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -29,7 +30,10 @@
         </nav>
     </header>
     <div class="container">
-        <form id="postForm" class="post-form">
+        <div class="search-container">
+            <input type="text" id="postSearch" data-i18n-placeholder="feed.searchPlaceholder" placeholder="ຄົ້ນຫາໂພສ...">
+            <button id="searchButton" style="font-size: 1.2rem;">🔍</button>
+        </div>        <form id="postForm" class="post-form">
             <textarea id="postContent" data-i18n-placeholder="feed.placeholder" placeholder="ທ່ານກຳລັງຄິດຫຍັງຢູ່?"></textarea>
             <div id="image-preview"></div>
             <div class="post-actions">

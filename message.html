@@ -1,21 +1,22 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="lo">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title data-i18n="messages.title">Laoverse</title>
     <link rel="icon" href="/logo.png" type="image/png">
     <link rel="stylesheet" href="css/message.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="api.js"></script>
-  <script src="theme.js"></script>
+    <script src="theme.js"></script>
     <script src="language.js"></script>
     <script src="confirm.js"></script>
+    <script src="nav-badges.js"></script>
 </head>
-<body>
+<body class="whatsapp-mode">
     <header class="main-header">
         <div class="logo">
-            <img src="logo.png" alt="Logo"><br>
+            <img src="logo.png" alt="Logo">
         </div>
         <nav class="main-nav">
             <ul>
@@ -28,28 +29,58 @@
             </ul>
         </nav>
     </header>
-    <div class="content-container">
-        <div class="friends-container">
-            <div class="friends-header" data-i18n="messages.friendsHeader">ລາຍຊື່ໝູ່ເພື່ອນ</div>
-            <div id="friends-list">
+
+    <div class="app-container">
+        <!-- Friends List View -->
+        <div id="friends-view" class="view active">
+            <div class="view-header">
+                <h2 data-i18n="messages.title">ຂໍ້ຄວາມ</h2>
+                <div class="header-actions">
+                     <label class="online-toggle-label">
+                        <span data-i18n="settings.onlineStatus" style="font-size: 0.8rem; font-weight: 500;">ສະຖານະອອນລາຍ</span>
+                        <input type="checkbox" id="online-status-toggle" checked>
+                        <span class="slider"></span>
+                     </label>
+                </div>
+            </div>
+            <div id="friends-list" class="scroll-area">
                 <div class="loading" data-i18n="messages.loadingFriends">ກຳລັງໂຫຼດລາຍຊື່ໝູ່ເພື່ອນ...</div>
             </div>
         </div>
-        <div class="chat-container">
-            <div class="chat-header">
-                <span id="chat-header-name"></span>
+
+        <!-- Chat Room View -->
+        <div id="chat-view" class="view">
+            <div class="chat-header-wa">
+                <button id="back-button" class="back-btn">
+                    <span class="back-icon">←</span>
+                </button>
+                <div class="chat-user-info" onclick="goToFriendProfile()">
+                    <div class="avatar-wrapper">
+                        <img id="chat-avatar" src="default-profile.png" alt="avatar">
+                        <span id="chat-online-dot" class="online-dot"></span>
+                    </div>
+                    <div class="user-detail">
+                        <span id="chat-header-name" class="user-name"></span>
+                        <span id="chat-status-text" class="status-text"></span>
+                    </div>
+                </div>
             </div>
-            <div id="chat-messages">
-                <div class="loading" id="chat-empty-state" data-i18n="messages.emptyChat">ເລືອກໝູ່ເພື່ອເລີ່ມແຊັດ</div>
+            
+            <div id="chat-messages" class="scroll-area chat-bg">
+                <div id="chat-empty-state" class="empty-chat-msg" data-i18n="messages.emptyChat">ເລືອກໝູ່ເພື່ອເລີ່ມແຊັດ</div>
             </div>
-            <div class="input-container">
-                <button class="action-button" id="file-button" data-i18n-title="messages.attachFile" title="ແນບໄຟລ໌">📎</button>
-                <input type="file" id="file-input" accept="*/*">
-                <textarea id="message-input" data-i18n-placeholder="messages.inputPlaceholder" placeholder="ພິມຂໍ້ຄວາມ..." rows="1"></textarea>
-                <button class="action-button" id="send-button" data-i18n="messages.send" data-i18n-title="messages.send" title="ສົ່ງຂໍ້ຄວາມ">ສົ່ງ</button>
+
+            <div class="input-area-wa">
+                <button class="wa-action-btn" id="file-button">📎</button>
+                <input type="file" id="file-input" style="display:none;">
+                <div class="input-wrapper">
+                    <textarea id="message-input" data-i18n-placeholder="messages.inputPlaceholder" placeholder="ພິມຂໍ້ຄວາມ..." rows="1"></textarea>
+                </div>
+                <button class="wa-send-btn" id="send-button">➤</button>
             </div>
         </div>
     </div>
+
     <script src="messages.js"></script>
 </body>
 </html>

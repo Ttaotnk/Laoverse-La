@@ -41,7 +41,7 @@
       "common.cancel": "ຍົກເລີກ",
       "common.confirm": "ຢືນຢັນ",
       "common.save": "ບັນທຶກ",
-      "common.edit": "ແກ້ໄຂ",
+      "common.edit": "ແກ้ໄຂ",
       "common.delete": "ລຶບ",
       "common.confirmDelete": "ທ່ານຕ້ອງການລຶບໂພສນີ້ຈິງບໍ?",
       "common.editPost": "ແກ້ໄຂໂພສ",
@@ -61,13 +61,14 @@
       "feed.uploadImage": "ອັບໂຫຼດ",
       "feed.post": "ໂພສ",
       "feed.noPosts": "ຍັງບໍ່ມີໂພສ",
+      "feed.searchPlaceholder": "ຄົ້ນຫາໂພສ...",
       "feed.commentPlaceholder": "ຂຽນຄຳເຫັນ...",
       "feed.replyPlaceholder": "ພິມຄຳຕອບກັບ...",
       "feed.reply": "ຕອບກັບ",
       "feed.emptyPostError": "ກະລຸນາປ້ອນຂໍ້ຄວາມ ຫຼືເລືອກຮູບພາບ",
       "feed.postSuccess": "ໂພສສຳເລັດ!",
       "feed.postFailed": "ໂພສບໍ່ສຳເລັດ",
-      "feed.loadFailed": "ເກີດຂໍ້ຜິດພາດໃນການໂຫຼດໂພສ",
+      "feed.loadFailed": "ເກີດຂໍ้ຜິດພາດໃນການໂຫຼດໂພສ",
       "feed.commentRequired": "ກະລຸນາປ້ອນຄຳເຫັນ",
       "feed.replyRequired": "ກະລຸນາປ້ອນຄຳຕອບກັບ",
       "feed.commentFailed": "ບໍ່ສາມາດສົ່ງຄຳເຫັນ",
@@ -79,6 +80,27 @@
       "feed.commentDeleteFailed": "ລຶບຄຳເຫັນບໍ່ສຳເລັດ",
       "feed.deletedComment": "ຄຳເຫັນຖືກລຶບແລ້ວ",
       "feed.noComments": "ຍັງບໍ່ມີຄຳເຫັນ",
+      "feed.like": "ຖືກໃຈ",
+      "feed.comments": "ຄຳເຫັນ",
+      "feed.commentAdded": "ສົ່ງຄຳເຫັນສຳເລັດ",
+      "feed.replyAdded": "ສົ່ງ ຄຳ ຕອບ ກັບ ສຳ ເລັດ",
+      "messages.title": "ຂໍ້ຄວາມ",
+      "messages.unreadCount": "{count} ຂໍ້ຄວາມໃໝ່",
+      "messages.online": "ອອນລາຍ",
+      "messages.offline": "ອອຟລາຍ",
+      "messages.lastSeen": "ເຫັນຫຼ້າສຸດ {time}",
+      "messages.back": "ກັບຄືນ",
+      "messages.friendsHeader": "ລາຍຊື່ໝູ່ເພື່ອນ",
+      "messages.loadingFriends": "ກຳລັງໂຫຼດລາຍຊື່ໝູ່ເພື່ອນ...",
+      "messages.emptyChat": "ເລືອກໝູ່ເພື່ອເລີ່ມແຊັດ",
+      "messages.attachFile": "ແນບໄຟລ໌",
+      "messages.inputPlaceholder": "ພິມຂໍ້ຄວາມ...",
+      "messages.send": "ສົ່ງ",
+      "messages.noName": "ບໍ່ມີຊື່",
+      "messages.unknownSender": "ບໍ່ຮູ້ຊື່",
+      "messages.audioUnsupported": "ເບຣາວເຊີບໍ່ຮອງຮັບສຽງ",
+      "messages.videoUnsupported": "ເບຣາວເຊີບໍ່ຮອງຮັບວິດີໂອ",
+      "messages.downloadFile": "ດາວໂຫຼດໄຟລ໌",
       "messages.confirmDeleteMessage": "ທ່ານຕ້ອງການລຶບຂໍ້ຄວາມນີ້ຈິງບໍ?",
       "friends.title": "ລາຍຊື່ໝູ່ເພື່ອນ",
       "friends.searchPlaceholder": "ຄົ້ນຫາໝູ່ເພື່ອນ...",
@@ -98,19 +120,6 @@
       "friends.requestFailed": "ສົ່ງຄຳຂໍບໍ່ສຳເລັດ",
       "friends.removeConfirm": "ທ່ານຕ້ອງການລຶບໝູ່ຄົນນີ້ຈິງບໍ?",
       "friends.removeSuccess": "ລຶບໝູ່ສຳເລັດ",
-      "messages.title": "ຂໍ້ຄວາມ",
-      "messages.friendsHeader": "ລາຍຊື່ໝູ່ເພື່ອນ",
-      "messages.loadingFriends": "ກຳລັງໂຫຼດລາຍຊື່ໝູ່ເພື່ອນ...",
-      "messages.emptyChat": "ເລືອກໝູ່ເພື່ອເລີ່ມແຊັດ",
-      "messages.attachFile": "ແນບໄຟລ໌",
-      "messages.inputPlaceholder": "ພິມຂໍ້ຄວາມ...",
-      "messages.send": "ສົ່ງ",
-      "messages.noName": "ບໍ່ມີຊື່",
-      "messages.unknownSender": "ບໍ່ຮູ້ຊື່",
-      "messages.audioUnsupported": "ເບຣາວເຊີບໍ່ຮອງຮັບສຽງ",
-      "messages.videoUnsupported": "ເບຣາວເຊີບໍ່ຮອງຮັບວິດີໂອ",
-      "messages.downloadPdf": "ດາວໂຫຼດ PDF",
-      "messages.downloadFile": "ດາວໂຫຼດໄຟລ໌",
       "note.title": "ແຈ້ງເຕືອນ",
       "note.empty": "ທ່ານຍັງບໍ່ມີແຈ້ງເຕືອນ",
       "note.loadFailed": "ບໍ່ສາມາດໂຫຼດແຈ້ງເຕືອນໄດ້",
@@ -133,7 +142,7 @@
       "profile.alreadyFriend": "ເປັນໝູ່ແລ້ວ",
       "profile.pending": "ລໍຖ້າການຕອບຮັບ",
       "profile.notFound": "ບໍ່ພົບໂປຣໄຟລ໌",
-      "profile.loadFailed": "ເກີດຂໍ້ຜິດພາດໃນການໂຫຼດໂປຣໄຟລ໌",
+      "profile.loadFailed": "ເກີດຂໍ้ຜິດພາດໃນການໂຫຼດໂປຣໄຟລ໌",
       "profile.noPosts": "ຍັງບໍ່ມີໂພສ",
       "profile.showPostsFailed": "ບໍ່ມີໂພສທີ່ຈະສະແດງ",
       "profile.updateSuccess": "ອັບເດດໂປຣໄຟລ໌ສຳເລັດ!",
@@ -157,6 +166,7 @@
       "settings.confirmPassword": "ຢືນຢັນລະຫັດຜ່ານໃໝ່",
       "settings.passwordHint": "ລະຫັດຕ້ອງມີຢ່າງນ້ອຍ 8 ຕົວ ແລະມີ A-Z, a-z, 0-9 ແລະສັນຍາລັກ",
       "settings.changePassword": "ປ່ຽນລະຫັດຜ່ານ",
+      "settings.onlineStatus": "ສະຖານະອອນລາຍ",
       "settings.support": "ຊ່ອງທາງຕິດຕໍ່ຊ່ວຍເຫຼືອ",
       "settings.goSupport": "ໄປໜ້າຕິດຕໍ່ຜູ້ດູແລເວັບ",
       "settings.account": "ບັນຊີ",
@@ -173,7 +183,7 @@
       "settings.deleteSuccess": "ລຶບບັນຊີສຳເລັດ",
       "settings.deleteFail": "ລຶບບັນຊີບໍ່ສຳເລັດ",
       "support.title": "ຕິດຕໍ່ຝ່າຍຊ່ວຍເຫຼືອ",
-      "support.pageTitle": "ຕິດຕໍ່ຊ່ວຍເຫຼືອ",
+      "support.pageTitle": "ຕິດຕໍ່ຊ່ວຍເຫຼືอ",
       "support.contactTitle": "ຂໍ້ມູນຕິດຕໍ່",
       "support.facebook": "Facebook",
       "support.gmail": "Gmail",
@@ -183,13 +193,15 @@
       "support.message": "ລາຍລະອຽດບັນຫາ",
       "support.send": "ສົ່ງຄຳຮ້ອງຂໍ",
       "support.fillAll": "ກະລຸນາກອກຂໍ້ມູນໃຫ້ຄົບ",
+      "support.noEmail": "ບໍ່ມີອີເມວ",
       "support.success": "ສົ່ງຄຳຮ້ອງຂໍສຳເລັດ",
       "support.fail": "ສົ່ງບໍ່ສຳເລັດ",
+      "support.emailLabel": "ອີເມວທີ່ໃຊ້ຕິດຕໍ່ກັບ (Read-only)",
       "auth.loginTitle": "ເຂົ້າສູ່ລະບົບ - LaoVerse",
       "auth.registerTitle": "ລົງທະບຽນ - LaoVerse",
       "auth.loginHeading": "ເຂົ້າສູ່ລະບົບ",
       "auth.registerHeading": "ສະໝັກສະມາຊິກ",
-      "auth.username": "ຊື່",
+      "auth.username": "ຊື່ຫລືອີເມວ",
       "auth.email": "ອີເມວ",
       "auth.password": "ລະຫັດຜ່ານ",
       "auth.confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
@@ -201,6 +213,7 @@
       "auth.fillLogin": "ໃສ່ຊື່ແລະລະຫັດຜ່ານໃຫ້ຄົບຖ້ວນ",
       "auth.passwordMismatch": "ລະຫັດຜ່ານບໍ່ກົງກັນ",
       "auth.passwordWeak": "ລະຫັດຕ້ອງ >= 8 ຕົວ ແລະມີ A-Z a-z 0-9 ແລະສັນຍາລັກ",
+      "auth.invalidEmail": "ທູບແບບອີເມວຜິດ, ເຊ່ນ: exam@gmail.com",
       "auth.registerSuccess": "ສະໝັກສຳເລັດ!",
       "auth.registerFail": "ຊື່ຜູ້ໃຊ້ຫຼືອີເມວນີ້ມີຢູ່ແລ້ວ!",
       "auth.loginFail": "ຊື່ຫຼືລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ (ກະລຸນາກວດສອບຕົວພິມໃຫຍ່-ນ້ອຍ)",
@@ -242,6 +255,7 @@
       "feed.uploadImage": "อัปโหลด",
       "feed.post": "โพสต์",
       "feed.noPosts": "ยังไม่มีโพสต์",
+      "feed.searchPlaceholder": "ค้นหาโพสต์...",
       "feed.commentPlaceholder": "เขียนความคิดเห็น...",
       "feed.replyPlaceholder": "พิมพ์คำตอบกลับ...",
       "feed.reply": "ตอบกลับ",
@@ -260,6 +274,27 @@
       "feed.commentDeleteFailed": "ลบคอมเมนต์ไม่สำเร็จ",
       "feed.deletedComment": "คอมเมนต์ถูกลบแล้ว",
       "feed.noComments": "ยังไม่มีความคิดเห็น",
+      "feed.like": "ถูกใจ",
+      "feed.comments": "ความคิดเห็น",
+      "feed.commentAdded": "ส่งความคิดเห็นสำเร็จ",
+      "feed.replyAdded": "ส่งคำตอบกลับสำเร็จ",
+      "messages.title": "ข้อความ",
+      "messages.unreadCount": "{count} ข้อความใหม่",
+      "messages.online": "ออนไลน์",
+      "messages.offline": "ออฟไลน์",
+      "messages.lastSeen": "เห็นล่าสุด {time}",
+      "messages.back": "กลับ",
+      "messages.friendsHeader": "รายชื่อเพื่อน",
+      "messages.loadingFriends": "กำลังโหลดรายชื่อเพื่อน...",
+      "messages.emptyChat": "เลือกเพื่อนเพื่อเริ่มแชต",
+      "messages.attachFile": "แนบไฟล์",
+      "messages.inputPlaceholder": "พิมพ์ข้อความ...",
+      "messages.send": "ส่ง",
+      "messages.noName": "ไม่มีชื่อ",
+      "messages.unknownSender": "ไม่ทราบชื่อ",
+      "messages.audioUnsupported": "เบราว์เซอร์ไม่รองรับเสียง",
+      "messages.videoUnsupported": "เบราว์เซอร์ไม่รองรับวิดีโอ",
+      "messages.downloadFile": "ดาวน์โหลดไฟล์",
       "messages.confirmDeleteMessage": "คุณต้องการลบข้อความนี้จริงหรือไม่?",
       "friends.title": "รายชื่อเพื่อน",
       "friends.searchPlaceholder": "ค้นหาเพื่อน...",
@@ -279,19 +314,6 @@
       "friends.requestFailed": "ส่งคำขอไม่สำเร็จ",
       "friends.removeConfirm": "คุณต้องการลบเพื่อนคนนี้จริงหรือไม่?",
       "friends.removeSuccess": "ลบเพื่อนสำเร็จ",
-      "messages.title": "ข้อความ",
-      "messages.friendsHeader": "รายชื่อเพื่อน",
-      "messages.loadingFriends": "กำลังโหลดรายชื่อเพื่อน...",
-      "messages.emptyChat": "เลือกเพื่อนเพื่อเริ่มแชต",
-      "messages.attachFile": "แนบไฟล์",
-      "messages.inputPlaceholder": "พิมพ์ข้อความ...",
-      "messages.send": "ส่ง",
-      "messages.noName": "ไม่มีชื่อ",
-      "messages.unknownSender": "ไม่ทราบชื่อ",
-      "messages.audioUnsupported": "เบราว์เซอร์ไม่รองรับเสียง",
-      "messages.videoUnsupported": "เบราว์เซอร์ไม่รองรับวิดีโอ",
-      "messages.downloadPdf": "ดาวน์โหลด PDF",
-      "messages.downloadFile": "ดาวน์โหลดไฟล์",
       "note.title": "แจ้งเตือน",
       "note.empty": "คุณยังไม่มีแจ้งเตือน",
       "note.loadFailed": "ไม่สามารถโหลดแจ้งเตือนได้",
@@ -338,6 +360,7 @@
       "settings.confirmPassword": "ยืนยันรหัสผ่านใหม่",
       "settings.passwordHint": "รหัสต้องมีอย่างน้อย 8 ตัว และมี A-Z, a-z, 0-9 และสัญลักษณ์",
       "settings.changePassword": "เปลี่ยนรหัสผ่าน",
+      "settings.onlineStatus": "สถานะออนไลน์",
       "settings.support": "ช่องทางติดต่อช่วยเหลือ",
       "settings.goSupport": "ไปหน้าติดต่อผู้ดูแลเว็บ",
       "settings.account": "บัญชี",
@@ -364,13 +387,15 @@
       "support.message": "รายละเอียดปัญหา",
       "support.send": "ส่งคำร้องขอ",
       "support.fillAll": "กรุณากรอกข้อมูลให้ครบ",
+      "support.noEmail": "ไม่มีอีเมล",
       "support.success": "ส่งคำร้องขอสำเร็จ",
       "support.fail": "ส่งไม่สำเร็จ",
+      "support.emailLabel": "อีเมลที่ใช้ติดต่อกลับ (อ่านอย่างเดียว)",
       "auth.loginTitle": "เข้าสู่ระบบ - LaoVerse",
       "auth.registerTitle": "สมัครสมาชิก - LaoVerse",
       "auth.loginHeading": "เข้าสู่ระบบ",
       "auth.registerHeading": "สมัครสมาชิก",
-      "auth.username": "ชื่อ",
+      "auth.username": "ชื่อหรืออีเมล",
       "auth.email": "อีเมล",
       "auth.password": "รหัสผ่าน",
       "auth.confirmPassword": "ยืนยันรหัสผ่าน",
@@ -382,6 +407,7 @@
       "auth.fillLogin": "กรอกชื่อและรหัสผ่านให้ครบถ้วน",
       "auth.passwordMismatch": "รหัสผ่านไม่ตรงกัน",
       "auth.passwordWeak": "รหัสต้อง >= 8 ตัว และมี A-Z a-z 0-9 และสัญลักษณ์",
+      "auth.invalidEmail": "รูปแบบอีเมลผิด, ตัวอย่าง: exam@gmail.com",
       "auth.registerSuccess": "สมัครสำเร็จ!",
       "auth.registerFail": "ชื่อผู้ใช้หรืออีเมลนี้มีอยู่แล้ว!",
       "auth.loginFail": "ชื่อหรือรหัสผ่านไม่ถูกต้อง (กรุณาตรวจสอบตัวพิมพ์ใหญ่-เล็ก)",
@@ -422,6 +448,7 @@
       "feed.uploadImage": "Upload",
       "feed.post": "Post",
       "feed.noPosts": "No posts yet",
+      "feed.searchPlaceholder": "Search for Posts...",
       "feed.commentPlaceholder": "Write a comment...",
       "feed.replyPlaceholder": "Write a reply...",
       "feed.reply": "Reply",
@@ -440,6 +467,27 @@
       "feed.commentDeleteFailed": "Failed to delete comment",
       "feed.deletedComment": "Comment deleted",
       "feed.noComments": "No comments yet",
+      "feed.like": "Like",
+      "feed.comments": "Comments",
+      "feed.commentAdded": "Comment added successfully",
+      "feed.replyAdded": "Reply added successfully",
+      "messages.title": "Messages",
+      "messages.unreadCount": "{count} new messages",
+      "messages.online": "Online",
+      "messages.offline": "Offline",
+      "messages.lastSeen": "Last seen {time}",
+      "messages.back": "Back",
+      "messages.friendsHeader": "Friends",
+      "messages.loadingFriends": "Loading friends...",
+      "messages.emptyChat": "Select a friend to start chatting",
+      "messages.attachFile": "Attach file",
+      "messages.inputPlaceholder": "Type a message...",
+      "messages.send": "Send",
+      "messages.noName": "Unnamed",
+      "messages.unknownSender": "Unknown sender",
+      "messages.audioUnsupported": "Your browser does not support audio",
+      "messages.videoUnsupported": "Your browser does not support video",
+      "messages.downloadFile": "Download file",
       "messages.confirmDeleteMessage": "Are you sure you want to delete this message?",
       "friends.title": "Friends List",
       "friends.searchPlaceholder": "Search friends...",
@@ -459,19 +507,6 @@
       "friends.requestFailed": "Failed to send friend request",
       "friends.removeConfirm": "Do you really want to remove this friend?",
       "friends.removeSuccess": "Friend removed successfully",
-      "messages.title": "Messages",
-      "messages.friendsHeader": "Friends",
-      "messages.loadingFriends": "Loading friends...",
-      "messages.emptyChat": "Select a friend to start chatting",
-      "messages.attachFile": "Attach file",
-      "messages.inputPlaceholder": "Type a message...",
-      "messages.send": "Send",
-      "messages.noName": "Unnamed",
-      "messages.unknownSender": "Unknown sender",
-      "messages.audioUnsupported": "Your browser does not support audio",
-      "messages.videoUnsupported": "Your browser does not support video",
-      "messages.downloadPdf": "Download PDF",
-      "messages.downloadFile": "Download file",
       "note.title": "Notifications",
       "note.empty": "You have no notifications",
       "note.loadFailed": "Unable to load notifications",
@@ -518,6 +553,7 @@
       "settings.confirmPassword": "Confirm new password",
       "settings.passwordHint": "Password must be 8+ chars and include A-Z, a-z, 0-9, and a symbol",
       "settings.changePassword": "Change password",
+      "settings.onlineStatus": "Online Status",
       "settings.support": "Support",
       "settings.goSupport": "Contact support",
       "settings.account": "Account",
@@ -544,13 +580,15 @@
       "support.message": "Describe your issue",
       "support.send": "Send request",
       "support.fillAll": "Please complete all fields",
+      "support.noEmail": "No email",
       "support.success": "Support request sent successfully",
       "support.fail": "Failed to send support request",
+      "support.emailLabel": "Contact Email (Read-only)",
       "auth.loginTitle": "Login - LaoVerse",
       "auth.registerTitle": "Register - LaoVerse",
       "auth.loginHeading": "Login",
       "auth.registerHeading": "Register",
-      "auth.username": "Username",
+      "auth.username": "Username or email",
       "auth.email": "Email",
       "auth.password": "Password",
       "auth.confirmPassword": "Confirm password",
@@ -562,6 +600,7 @@
       "auth.fillLogin": "Please enter both username and password",
       "auth.passwordMismatch": "Passwords do not match",
       "auth.passwordWeak": "Password must be 8+ chars and include A-Z, a-z, 0-9, and a symbol",
+      "auth.invalidEmail": "Invalid email format, e.g. exam@gmail.com",
       "auth.registerSuccess": "Registration successful!",
       "auth.registerFail": "This username or email already exists!",
       "auth.loginFail": "Incorrect username or password (check case sensitivity)",
@@ -651,51 +690,76 @@
 
   function resolveMediaUrl(url) {
     if (!url) return "";
-    // If it already starts with https://, assume it's correct
+    if (url.startsWith("data:") || url.startsWith("blob:")) return url;
     if (url.startsWith("https://")) return url;
 
     const backendUrl = window.BACKEND_URL;
-
-    // Replace localhost:3000 if present
+    
+    // แบบที่ 1: ผ่าน URL ปกติ
+    let resolved = url;
     if (url.includes("localhost:3000")) {
-      return url.replace(/http:\/\/localhost:3000/g, backendUrl);
-    }
-
-    // If it's a relative path starting with uploads/ or /uploads/
-    if (url.startsWith("uploads/") || url.startsWith("/uploads/")) {
+      resolved = url.replace(/http:\/\/localhost:3000/g, backendUrl);
+    } else if (url.startsWith("uploads/") || url.startsWith("/uploads/")) {
       const path = url.startsWith("/") ? url : `/${url}`;
-      return `${backendUrl}${path}`;
+      resolved = `${backendUrl}${path}`;
     }
 
-    return url;
+    return resolved;
+  }
+
+  // แบบที่ 2: ดึงไฟล์แบบ Direct Fetch (Binary) เพื่อดูผ่าน Blob (เพิ่มความชัวร์)
+  async function fetchMediaAsBlob(url) {
+    const resolvedUrl = resolveMediaUrl(url);
+    try {
+        const response = await fetch(resolvedUrl, { headers: getAuthHeaders() });
+        if (!response.ok) throw new Error("Fetch failed");
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+    } catch (e) {
+        return resolvedUrl; // fallback to normal url
+    }
+  }
+
+  // ฟังก์ชันโหลดสื่ออัจฉริยะ (ใช้ได้ทุกหน้า)
+  async function smartLoad(element, path, isBackground = false) {
+    if (!element || !path) return;
+    
+    const normalUrl = resolveMediaUrl(path);
+    
+    // ตั้งค่า URL ปกติก่อนเพื่อให้เห็นรูปทันที (ถ้าโหลดได้)
+    if (element.tagName === 'A') {
+        element.href = normalUrl;
+    } else {
+        element.src = normalUrl;
+    }
+
+    // ลองโหลดแบบ Blob ใน Background เพื่อความชัวร์ (แก้ปัญหา Permission/CORS บางกรณี)
+    try {
+        const blobUrl = await fetchMediaAsBlob(path);
+        if (blobUrl && blobUrl !== normalUrl) {
+            if (element.tagName === 'A') {
+                element.href = blobUrl;
+            } else {
+                element.src = blobUrl;
+            }
+        }
+    } catch (e) {
+        // ถ้า Blob พลาด ก็ใช้ URL ปกติที่ตั้งไว้แต่แรก
+    }
   }
 
   function applyMediaResolution() {
-    document.querySelectorAll("img, video, audio, source").forEach((el) => {
-      const src = el.getAttribute("src");
-      if (src) {
-        const resolved = resolveMediaUrl(src);
-        if (resolved !== src) {
-          el.setAttribute("src", resolved);
-        }
-      }
-
-      // Also check onerror for profile pics
-      if (el.tagName === "IMG" && !el.getAttribute("data-error-handled")) {
-        const originalOnError = el.onerror;
-        el.onerror = function () {
-          this.src = "default-profile.png";
-          if (originalOnError) originalOnError.call(this);
-        };
-        el.setAttribute("data-error-handled", "true");
-      }
+    document.querySelectorAll("img[data-src], video[data-src], audio[data-src]").forEach((el) => {
+      const path = el.getAttribute("data-src");
+      if (path) smartLoad(el, path);
     });
 
-    document.querySelectorAll("a[href]").forEach((el) => {
-      const href = el.getAttribute("href");
-      if (href && (href.includes("uploads/") || href.includes("localhost:3000"))) {
-        el.setAttribute("href", resolveMediaUrl(href));
-      }
+    // ตรวจสอบ img ทั่วไปที่ยังไม่มีการประมวลผล
+    document.querySelectorAll("img:not([data-src]), video:not([data-src])").forEach((el) => {
+        const src = el.getAttribute("src");
+        if (src && (src.includes("uploads/") || src.includes("localhost:3000"))) {
+            smartLoad(el, src);
+        }
     });
   }
 
@@ -718,12 +782,16 @@
   }
 
   async function checkBackendHealth() {
-    // API URL - should match NEXT_PUBLIC_API_URL or your hardcoded backend
     const apiUrl = window.BACKEND_URL;
+    // ถ้า BACKEND_URL ยังไม่พร้อม (undefined/empty) ให้ข้ามไปก่อน ไม่แสดง maintenance overlay
+    if (!apiUrl || apiUrl === 'undefined') return;
     try {
-      // Use originalFetch to avoid infinite loop or token headers if not needed for health check
-      const response = await originalFetch(`${apiUrl}/api/health`, { method: "GET", cache: "no-store" }).catch(e => { throw e });
-      hideMaintenanceOverlay();
+      const response = await originalFetch(`${apiUrl}/api/health`, { method: "GET", cache: "no-store" });
+      if (response.ok) {
+        hideMaintenanceOverlay();
+      } else {
+        showMaintenanceOverlay();
+      }
     } catch (error) {
       showMaintenanceOverlay();
     }
@@ -778,6 +846,8 @@
     applyLanguage,
     formatRelativeTime,
     resolveMediaUrl,
+    fetchMediaAsBlob,
+    smartLoad,
     applyMediaResolution
   };
 

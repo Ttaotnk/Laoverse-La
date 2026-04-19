@@ -227,7 +227,7 @@ function renderProfilePosts(posts) {
     }
     return url;
   };
-  
+
   const resolveProfilePic = (pic) => {
     if (!pic) return "default-profile.png";
     return resolve(pic);
@@ -337,7 +337,7 @@ async function likePost(postId) {
   try {
     const response = await fetch(`${window.API_BASE_URL}/like`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         ...getAuthHeaders()
       },
@@ -348,7 +348,7 @@ async function likePost(postId) {
     if (data.success) {
       await loadProfile(currentProfileId);
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 async function addComment(postId, comment, parentCommentId) {
@@ -360,7 +360,7 @@ async function addComment(postId, comment, parentCommentId) {
 
     const response = await fetch(`${window.API_BASE_URL}/comment`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         ...getAuthHeaders()
       },
@@ -418,7 +418,7 @@ async function sendFriendRequest(userId) {
   try {
     const response = await fetch(`${window.API_BASE_URL}/send_request`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         ...getAuthHeaders()
       },
@@ -439,7 +439,7 @@ async function sendFriendRequest(userId) {
 
 function openEditModal() {
   const modal = document.getElementById("editProfileModal");
-  if (modal) modal.style.display = "block";
+  if (modal) modal.style.display = "flex";
 }
 
 function closeEditModal() {
@@ -450,22 +450,22 @@ function closeEditModal() {
 function openEditPostModal(postId) {
   const modal = document.getElementById("editPostModal");
   const post = currentProfilePosts.find((p) => p.id === postId);
-  
+
   if (!post) return;
-  
+
   editingPostId = postId;
   const contentInput = document.getElementById("editPostContent");
   const fileInputName = document.getElementById("editPostImageName");
-  
+
   if (contentInput) {
     contentInput.value = post.content || "";
   }
   if (fileInputName) {
     fileInputName.textContent = "";
   }
-  
+
   if (modal) {
-    modal.style.display = "block";
+    modal.style.display = "flex";
   }
 }
 
@@ -481,7 +481,7 @@ async function deletePost(postId) {
   console.log('deletePost called with:', postId);
   const confirmed = await showConfirm(t("common.confirmDelete"));
   console.log('Confirmation result:', confirmed);
-  
+
   if (!confirmed) {
     console.log('Delete cancelled by user');
     return;
@@ -499,11 +499,11 @@ async function deletePost(postId) {
       body: `post_id=${encodeURIComponent(postId)}`,
       credentials: "include"
     });
-    
+
     console.log('Response status:', response.status);
     const data = await response.json();
     console.log('Response data:', data);
-    
+
     if (data.success) {
       showMessage(t("profile.postDeleted"), "success");
       await loadProfile(currentProfileId);
@@ -521,7 +521,7 @@ async function deletePost(postId) {
 
 async function handleEditPost(event) {
   event.preventDefault();
-  
+
   if (!editingPostId) return;
 
   const form = event.target || document.getElementById("editPostForm");
@@ -621,7 +621,7 @@ function setupInteractions() {
 
   document.addEventListener("click", async (event) => {
     console.log('Click event detected on:', event.target);
-    
+
     const likeBtn = event.target.closest(".like-btn");
     if (likeBtn) {
       await likePost(likeBtn.dataset.id);
@@ -786,7 +786,7 @@ function setupInteractions() {
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    const response = await fetch(`${window.API_BASE_URL}/check_auth`, { 
+    const response = await fetch(`${window.API_BASE_URL}/check_auth`, {
       headers: getAuthHeaders()
     });
     const data = await response.json();

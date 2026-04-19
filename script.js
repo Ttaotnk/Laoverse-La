@@ -9,9 +9,38 @@ const showMessage = (message, type = "info", duration = 3000) => {
   }, duration);
 };
 
+/* =========================
+   👁 TOGGLE PASSWORD (NEW)
+========================= */
+function setupTogglePassword(inputId, buttonId) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(buttonId);
+
+  if (!input || !btn) return;
+
+  btn.addEventListener("click", () => {
+    if (input.type === "password") {
+      input.type = "text";
+      btn.textContent = "🙈";
+    } else {
+      input.type = "password";
+      btn.textContent = "👁";
+    }
+  });
+}
+
+/* =========================
+   REGISTER
+========================= */
 let registerForm = document.getElementById('registerForm');
+
 if (registerForm) {
-  registerForm.addEventListener('submit', function(event) {
+
+
+  setupTogglePassword("register-password", "toggle-register-password");
+  setupTogglePassword("confirm-password", "toggle-confirm-password");
+
+  registerForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
     let username = document.getElementById('register-username').value.trim();
@@ -24,10 +53,17 @@ if (registerForm) {
       return;
     }
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      showMessage("The email format is incorrect. exam@gmail.com", "register");
+      return;
+    }
+
     if (password !== confirmPassword) {
       showMessage(t('auth.passwordMismatch'), "register");
       return;
     }
+
     const strong = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
     if (!strong.test(password)) {
       showMessage(t('auth.passwordWeak'), "register");
@@ -35,10 +71,10 @@ if (registerForm) {
     }
 
     fetch(`${window.API_BASE_URL}/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password, confirmPassword })
-      })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email, password, confirmPassword })
+    })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
@@ -55,9 +91,17 @@ if (registerForm) {
   });
 }
 
+/* =========================
+   LOGIN
+========================= */
 let loginForm = document.getElementById('loginForm');
+
 if (loginForm) {
-  loginForm.addEventListener('submit', function(event) {
+
+
+  setupTogglePassword("login-password", "toggle-login-password");
+
+  loginForm.addEventListener('submit', function (event) {
     event.preventDefault();
 
     let username = document.getElementById('login-username').value;
@@ -69,10 +113,10 @@ if (loginForm) {
     }
 
     fetch(`${window.API_BASE_URL}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    })
       .then(response => response.json())
       .then(data => {
         if (data.success) {
