@@ -109,12 +109,12 @@ body.whatsapp-mode {
   flex: 1;
   max-width: 1200px;
   width: 95%;
-  margin: 1rem auto;
+  margin: 1rem auto 1.5rem auto; /* เพิ่ม margin ด้านล่าง */
   background-color: var(--wa-dark-bg);
   border: 1px solid rgba(102, 240, 255, 0.3);
   border-radius: 12px;
   overflow: hidden;
-  height: calc(100vh - 120px);
+  height: calc(100vh - 130px); /* ปรับความสูงเล็กน้อย */
   position: relative;
 }
 
@@ -256,6 +256,7 @@ body.whatsapp-mode {
 #message-input {
   width: 100%; background: transparent; border: none; color: var(--wa-text);
   padding: 10px 0; font-size: 0.95rem; outline: none; resize: none; max-height: 100px;
+  font-family: 'Noto Sans Lao', sans-serif;
 }
 .wa-send-btn { 
     background: transparent; 
@@ -328,8 +329,12 @@ body.whatsapp-mode {
   .main-nav a { padding: 6px 10px; font-size: 0.75rem; }
 
   .app-container {
-    width: 100%; margin: 0; border: none; border-radius: 0;
-    height: calc(100vh - 140px);
+    width: 100%; margin: 0 0 10px 0; border: none; border-radius: 0;
+    height: calc(100vh - 150px);
+  }
+
+  .input-area-wa {
+    padding: 12px 1rem 30px 1rem; /* เพิ่มพื้นที่ด้านล่างสำหรับมือถือ */
   }
 
   #friends-view {

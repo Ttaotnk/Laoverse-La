@@ -359,10 +359,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   setInterval(updatePresence, 60000);
   updatePresence();
 
-  document.getElementById("message-input").placeholder = t("messages.placeholder") || "Type a message...";
+  document.getElementById("message-input").placeholder = t("messages.inputPlaceholder") || "Type a message...";
   document.getElementById("send-button").addEventListener("click", sendMessage);
-  document.getElementById("message-input").addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  document.getElementById("message-input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { 
+      e.preventDefault(); 
+      sendMessage(); 
+    }
   });
   document.getElementById("message-input").addEventListener("input", updateSendBtnState);
 
