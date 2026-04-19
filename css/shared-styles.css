@@ -44,3 +44,88 @@
         height: 12px;
     }
 }
+/* Navigation Icon Styles */
+.main-nav ul {
+    gap: 0.8rem !important;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    transition: all 0.3s ease;
+}
+
+.main-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px; 
+    height: 46px;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    position: relative;
+    overflow: visible;
+}
+
+.main-nav a:hover .nav-icon {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 0 8px var(--neon-blue));
+}
+
+.main-header {
+    padding: 0.8rem 2rem !important;
+}
+
+.logo img {
+    width: 160px !important;
+}
+
+/* Tooltip for desktop (using title) or badges */
+.main-nav a::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background: rgba(0,0,0,0.8);
+    color: var(--neon-blue);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    border: 1px solid var(--neon-blue);
+    z-index: 1001;
+}
+
+.main-nav a:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 768px) {
+    .main-nav a {
+        width: 40px;
+        height: 40px;
+    }
+    .nav-icon {
+        width: 22px;
+        height: 22px;
+    }
+    .main-nav ul {
+        gap: 0.5rem !important;
+    }
+    .main-header {
+        padding: 0.8rem 1rem !important;
+    }
+    .logo img {
+        width: 130px !important;
+    }
+}

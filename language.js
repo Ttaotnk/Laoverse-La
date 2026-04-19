@@ -647,7 +647,14 @@
     document.documentElement.setAttribute("data-lang", nextLang);
 
     document.querySelectorAll("[data-i18n]").forEach((node) => {
-      setNodeText(node, translate(node.getAttribute("data-i18n"), null, nextLang));
+      const translation = translate(node.getAttribute("data-i18n"), null, nextLang);
+      // หากมีไอคอนหรือเป็นปุ่มแบบไอคอน ให้เปลี่ยนเป็น Tooltip แทนการทับข้อความ
+      if (node.querySelector('.nav-icon') || node.classList.contains('nav-icon')) {
+        node.setAttribute('data-tooltip', translation);
+        node.setAttribute('title', translation); // Fallback title
+      } else {
+        setNodeText(node, translation);
+      }
     });
 
     document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
