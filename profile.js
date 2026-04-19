@@ -93,6 +93,14 @@ function detectFileKind(fileType, filePath) {
   return "file";
 }
 
+function resolveMediaUrl(url) {
+  if (!url) return window.getThemeDefaultProfile();
+  if (window.LanguageManager && typeof window.LanguageManager.resolveMediaUrl === "function") {
+    return window.LanguageManager.resolveMediaUrl(url);
+  }
+  return url;
+}
+
 function renderComments(comments, postId) {
   if (!Array.isArray(comments) || comments.length === 0) {
     return `<div class="no-comments">${safeHtml(t("feed.noComments"))}</div>`;
@@ -108,14 +116,16 @@ function renderComments(comments, postId) {
   const renderThread = (parentId, level) => {
     const list = groups[parentId] || [];
     const currentId = currentUserId ? String(currentUserId) : "";
-    return list.map((comment) => `
+    return list.map((comment) => {
+      const commentPic = resolveMediaUrl(comment.profile_pic);
+      return `
       <div class="comment ${level > 0 ? "comment-reply" : ""}" style="${level > 0 ? `margin-left:${Math.min(level, 3) * 20}px;` : ""}">
-        <img src="${safeHtml(comment.profile_pic || "default-profile.png")}"
+        <img src="${safeHtml(commentPic)}"
              alt="comment-avatar"
              class="comment-profile-pic"
              onclick="goToUserProfile('${safeHtml(comment.user_id || "")}')"
              style="cursor:pointer;"
-             onerror="this.src='default-profile.png'">
+             onerror="this.src=window.getThemeDefaultProfile()">
         <div class="comment-content">
           <div class="comment-header">
             <strong class="comment-username" onclick="goToUserProfile('${safeHtml(comment.user_id || "")}')" style="cursor:pointer;">${safeHtml(comment.username || t("profile.unknownUser"))}</strong>
@@ -143,7 +153,7 @@ function renderComments(comments, postId) {
           ${renderThread(comment.id, level + 1)}
         </div>
       </div>
-    `).join("");
+    `}).join("");
   };
 
   return renderThread("root", 0);
@@ -161,18 +171,11 @@ function renderProfile(profile) {
   const editBtn = document.getElementById("editProfileBtn");
   const editUsername = document.getElementById("editUsername");
 
-  const resolve = (url) => {
-    if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
-      return window.LanguageManager.resolveMediaUrl(url);
-    }
-    return url;
-  };
-
   if (username) username.textContent = profile.username || "";
   if (pic) {
-    pic.src = resolve(profile.profile_pic) || "default-profile.png";
+    pic.src = resolveMediaUrl(profile.profile_pic);
     pic.onerror = function onError() {
-      this.src = "default-profile.png";
+      this.src = window.getThemeDefaultProfile();
     };
   }
   if (postCount) postCount.textContent = String(profile.post_count || 0);
@@ -221,22 +224,10 @@ function renderProfilePosts(posts) {
     return;
   }
 
-  const resolve = (url) => {
-    if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
-      return window.LanguageManager.resolveMediaUrl(url);
-    }
-    return url;
-  };
-
-  const resolveProfilePic = (pic) => {
-    if (!pic) return "default-profile.png";
-    return resolve(pic);
-  };
-
   container.innerHTML = `<h2>${safeHtml(t("profile.posts"))}</h2>${currentProfilePosts.map((post) => {
     let mediaHtml = "";
     if (post.image) {
-      const resolvedImage = resolve(post.image);
+      const resolvedImage = resolveMediaUrl(post.image);
       const kind = detectFileKind(post.file_type, post.image);
       if (kind === "video") {
         mediaHtml = `<video controls playsinline preload="metadata" class="post-image" src="${safeHtml(resolvedImage)}"></video>`;
@@ -266,11 +257,11 @@ function renderProfilePosts(posts) {
     return `
       <div class="post" data-id="${safeHtml(post.id)}">
         <div class="post-header">
-          <img src="${safeHtml(resolveProfilePic(post.profile_pic))}"
+          <img src="${safeHtml(resolveMediaUrl(post.profile_pic))}"
                class="post-profile-pic"
                onclick="goToUserProfile('${safeHtml(post.user_id || "")}')"
                style="cursor:pointer;"
-               onerror="this.src='default-profile.png'">
+               onerror="this.src=window.getThemeDefaultProfile()">
           <div class="post-user-info">
             <strong onclick="goToUserProfile('${safeHtml(post.user_id || "")}')" style="cursor:pointer;">${safeHtml(post.username || t("profile.unknownUser"))}</strong>
             <small>${safeHtml(formatRelativeTime(post.created_at))}</small>
@@ -294,6 +285,7 @@ function renderProfilePosts(posts) {
     `;
   }).join("")}`;
 }
+
 
 async function loadProfile(profileId) {
   showLoading(true);

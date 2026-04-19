@@ -42,7 +42,7 @@ function safeHtml(value) {
 }
 
 function getProfileImage(path) {
-  return path && String(path).trim() ? path : "default-profile.png";
+  return path && String(path).trim() ? path : window.getThemeDefaultProfile();
 }
 
 function detectFileKind(fileType, filePath) {
@@ -93,7 +93,7 @@ function createLoadingDiv() {
 }
 
 function getProfileImage(pic) {
-  if (!pic) return "default-profile.png";
+  if (!pic) return window.getThemeDefaultProfile();
   if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
     return window.LanguageManager.resolveMediaUrl(pic);
   }
@@ -239,7 +239,7 @@ function renderComments(comments, postId) {
              class="comment-profile-pic"
              onclick="viewProfile('${safeHtml(comment.user_id)}')"
              style="cursor:pointer;"
-             onerror="this.onerror=null; this.src='default-profile.png'">
+             onerror="this.onerror=null; this.src=window.getThemeDefaultProfile()">
         <div class="comment-content">
           <div class="comment-header">
             <strong class="comment-username" onclick="viewProfile('${safeHtml(comment.user_id)}')" style="cursor:pointer;">${safeHtml(comment.username)}</strong>
@@ -327,7 +327,7 @@ function renderPosts(posts) {
 
       // Smart load profile pic
       const upic = document.getElementById(userPicId);
-      if (upic) window.LanguageManager.smartLoad(upic, post.profile_pic || 'default-profile.png');
+      if (upic) window.LanguageManager.smartLoad(upic, post.profile_pic || window.getThemeDefaultProfile());
 
       // Smart load post media
       if (post.image) {

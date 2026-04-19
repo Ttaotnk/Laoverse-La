@@ -87,7 +87,7 @@ select, input, textarea {
   background-color: var(--light-gray);
   border: 1px solid rgba(102, 240, 255, 0.4);
   border-radius: 8px;
-  color: white;
+  color: var(--white);
   outline: none;
   font-size: 0.95rem;
 }
@@ -105,17 +105,17 @@ button {
   transition: all 0.2s;
   margin-right: 10px;
 }
-button:hover { background: var(--neon-blue); color: black; }
+button:hover { background: var(--neon-blue); color: var(--black); }
 
 .danger-btn { border-color: #ff4444; color: #ff4444; }
-.danger-btn:hover { background: #ff4444; color: white; }
+.danger-btn:hover { background: #ff4444; color: var(--white); }
 
 /* --- Contact List --- */
 .contact-list { display: grid; gap: 10px; margin-top: 10px; }
 .contact-item {
   display: flex; justify-content: space-between; align-items: center;
   padding: 12px 15px; background: rgba(255,255,255,0.03);
-  border-radius: 10px; text-decoration: none; color: white;
+  border-radius: 10px; text-decoration: none; color: var(--white);
   border: 1px solid rgba(102, 240, 255, 0.1);
 }
 .contact-item:hover { border-color: var(--neon-blue); background: rgba(102, 240, 255, 0.05); }

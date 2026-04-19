@@ -128,7 +128,7 @@ async function openPostModal() {
       commentsHtml += `<div class="comments-section"><h4><img src="icons/comment.svg" alt="comments" class="btn-icon comment-icon"> Comments</h4>`;
       parentComments.forEach(pComment => {
         const canModifyParent = currentUserId && String(pComment.user_id) === String(currentUserId) && !pComment.is_deleted;
-        const pCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(pComment.user_pic || pComment.profile_pic) : (pComment.user_pic || pComment.profile_pic || 'default-profile.png');
+        const pCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(pComment.user_pic || pComment.profile_pic) : (pComment.user_pic || pComment.profile_pic || window.getThemeDefaultProfile());
         commentsHtml += `
           <div class="comment-thread">
             <div class="comment">
@@ -136,7 +136,7 @@ async function openPostModal() {
                    class="comment-profile-pic"
                    onclick="goToUserProfile('${safeHtml(pComment.user_id)}')"
                    style="cursor:pointer;"
-                   onerror="this.src='default-profile.png'">
+                   onerror="this.src=window.getThemeDefaultProfile()">
               <div class="comment-content">
                 <div class="comment-header">
                   <strong onclick="goToUserProfile('${safeHtml(pComment.user_id)}')" style="cursor:pointer;">${safeHtml(pComment.username)}</strong>
@@ -166,14 +166,14 @@ async function openPostModal() {
           commentsHtml += '<div class="child-comments">';
           childComments[pComment._id].forEach(childComment => {
             const canModifyChild = currentUserId && String(childComment.user_id) === String(currentUserId) && !childComment.is_deleted;
-            const childCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(childComment.user_pic || childComment.profile_pic) : (childComment.user_pic || childComment.profile_pic || 'default-profile.png');
+            const childCommentPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(childComment.user_pic || childComment.profile_pic) : (childComment.user_pic || childComment.profile_pic || window.getThemeDefaultProfile());
             commentsHtml += `
               <div class="comment child-comment">
                 <img src="${safeHtml(childCommentPic)}" 
                      class="comment-profile-pic"
                      onclick="goToUserProfile('${safeHtml(childComment.user_id)}')"
                      style="cursor:pointer;"
-                     onerror="this.src='default-profile.png'">
+                     onerror="this.src=window.getThemeDefaultProfile()">
                 <div class="comment-content">
                   <div class="comment-header">
                     <strong onclick="goToUserProfile('${safeHtml(childComment.user_id)}')" style="cursor:pointer;">${safeHtml(childComment.username)}</strong>
@@ -248,7 +248,7 @@ async function openPostModal() {
     modal.id = 'postModal';
     modal.className = 'post-modal';
 
-    const postUserPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(post.user_pic || post.profile_pic) : (post.user_pic || post.profile_pic || 'default-profile.png');
+    const postUserPic = window.LanguageManager ? window.LanguageManager.resolveMediaUrl(post.user_pic || post.profile_pic) : (post.user_pic || post.profile_pic || window.getThemeDefaultProfile());
     const postContent = `
       <div class="post-modal-content">
         <button class="close-modal" onclick="closePostModal()">&times;</button>
@@ -258,7 +258,7 @@ async function openPostModal() {
                  class="post-profile-pic"
                  onclick="goToUserProfile('${safeHtml(post.user_id)}')"
                  style="cursor:pointer;"
-                 onerror="this.src='default-profile.png'">
+                 onerror="this.src=window.getThemeDefaultProfile()">
             <div class="post-user-info">
               <strong onclick="goToUserProfile('${safeHtml(post.user_id)}')" style="cursor:pointer;">${safeHtml(post.username)}</strong>
               <small>${safeHtml(formatRelativeTime(post.created_at))}</small>
@@ -694,11 +694,11 @@ function renderNotifications(notifs) {
     if (notif.type === 'friend-request') {
       return `
         <div class="notification friend-request-notif" data-id="${safeHtml(notif.id)}">
-          <img src="${safeHtml(notif.actor_pic || "default-profile.png")}"
+          <img src="${safeHtml(notif.actor_pic || window.getThemeDefaultProfile())}"
                class="notif-avatar"
                onclick="goToUserProfile('${safeHtml(notif.actor_id || "")}')"
                style="cursor:pointer;"
-               onerror="this.src='default-profile.png'">
+               onerror="this.src=window.getThemeDefaultProfile()">
           <div class="notif-content">
             <div class="notif-message">
               <span class="notif-icon">${icon}</span>
@@ -728,11 +728,11 @@ function renderNotifications(notifs) {
 
     return `
       <div class="notification ${notif.type}-notif" data-id="${safeHtml(notif.id)}" onclick="viewPostFromNotification('${safeHtml(notif.target_id)}')">
-        <img src="${safeHtml(notif.actor_pic || "default-profile.png")}"
+        <img src="${safeHtml(notif.actor_pic || window.getThemeDefaultProfile())}"
              class="notif-avatar"
              onclick="event.stopPropagation(); goToUserProfile('${safeHtml(notif.actor_id || "")}')"
              style="cursor:pointer;"
-             onerror="this.src='default-profile.png'">
+             onerror="this.src=window.getThemeDefaultProfile()">
         <div class="notif-content">
           <div class="notif-message">
             <span class="notif-icon">${icon}</span>

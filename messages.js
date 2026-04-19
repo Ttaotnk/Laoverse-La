@@ -16,7 +16,7 @@ function safeHtml(v) {
 
 function profileImage(path) {
   return (window.LanguageManager && window.LanguageManager.resolveMediaUrl) 
-    ? window.LanguageManager.resolveMediaUrl(path || "default-profile.png") : (path || "default-profile.png");
+    ? window.LanguageManager.resolveMediaUrl(path || window.getThemeDefaultProfile()) : (path || window.getThemeDefaultProfile());
 }
 
 async function resolveMedia(path, el) {
@@ -66,7 +66,7 @@ function renderFriendsList() {
     return `
       <div class="friend-item-wa ${f.is_online ? 'online' : ''} ${active ? "active" : ""}" onclick="selectFriendById('${f.id}')">
         <div class="avatar-wrapper">
-          <img src="${safeHtml(profileImage(f.profile_pic))}" onerror="this.src='default-profile.png'">
+          <img src="${safeHtml(profileImage(f.profile_pic))}" onerror="this.src=window.getThemeDefaultProfile()">
           <span class="online-dot"></span>
         </div>
         <div class="item-content">

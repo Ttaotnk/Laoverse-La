@@ -43,7 +43,6 @@ body {
   left: 0;
   z-index: 2000;
 }
-
 .logo img { width: 160px; }
 .main-nav ul { display: flex; list-style: none; gap: 1.2rem; }
 .main-nav a {
@@ -83,6 +82,8 @@ body {
   height: 140px;
   border-radius: 50%;
   object-fit: cover;
+  flex-shrink: 0;
+  min-width: 140px;
   border: 3px solid var(--neon-blue);
   box-shadow: 0 0 20px rgba(102, 240, 255, 0.4);
 }
@@ -104,7 +105,7 @@ body {
 
 .post { background: var(--gray); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(102, 240, 255, 0.2); margin-bottom: 1.5rem; }
 .post-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
-.post-profile-pic { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--neon-blue); }
+.post-profile-pic { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--neon-blue); object-fit: cover; }
 .post-user-info strong { color: white; display: block; font-size: 1.05rem; }
 .post-user-info small { color: #888; font-size: 0.8rem; }
 
@@ -120,7 +121,7 @@ body {
 /* --- Comments --- */
 .comments-section { margin-top: 1rem; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .comment { display: flex; gap: 0.8rem; margin-bottom: 1rem; }
-.comment-profile-pic { width: 30px; height: 30px; border-radius: 50%; }
+.comment-profile-pic { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
 .comment-username { color: var(--neon-blue); font-size: 0.9rem; font-weight: bold; }
 .comment-text { color: #eee; font-size: 0.9rem; margin-top: 2px; }
 
@@ -241,7 +242,7 @@ body {
   border-color: var(--neon-blue) !important;
   background: rgba(102, 240, 255, 0.05);
 }
-#editPostImage { display: none; }
+#editProfilePic, #editPostImage { display: none; }
 
 /* --- Common UI --- */
 .message { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; z-index: 4000; display: none; }

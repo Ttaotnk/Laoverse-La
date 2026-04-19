@@ -18,9 +18,9 @@ function safeHtml(value) {
 
 function profileImage(path) {
   if (window.LanguageManager && window.LanguageManager.resolveMediaUrl) {
-    return window.LanguageManager.resolveMediaUrl(path || "default-profile.png");
+    return window.LanguageManager.resolveMediaUrl(path || window.getThemeDefaultProfile());
   }
-  return path || "default-profile.png";
+  return path || window.getThemeDefaultProfile();
 }
 
 function showMessage(message, type) {
@@ -54,7 +54,7 @@ function renderFriends(friends) {
   container.innerHTML = friendsState.map((friend) => `
     <div class="friend-item">
       <img src="${safeHtml(profileImage(friend.profile_pic))}"
-           onerror="this.src='default-profile.png'"
+           onerror="this.src=window.getThemeDefaultProfile()"
            alt="${safeHtml(friend.username)}"
            onclick="window.location.href='user-profile.html?id=${encodeURIComponent(friend.id)}'"
            style="cursor:pointer;">
@@ -82,7 +82,7 @@ function renderFriendRequests(requests) {
   container.innerHTML = friendRequestsState.map((request) => `
     <div class="request-item">
       <img src="${safeHtml(profileImage(request.profile_pic))}"
-           onerror="this.src='default-profile.png'"
+           onerror="this.src=window.getThemeDefaultProfile()"
            alt="${safeHtml(request.username)}"
            onclick="window.location.href='user-profile.html?id=${encodeURIComponent(request.id)}'"
            style="cursor:pointer;">
@@ -110,7 +110,7 @@ function renderSearchResults(users) {
   container.innerHTML = searchResultsState.map((user) => `
     <div class="search-result-item">
       <img src="${safeHtml(profileImage(user.profile_pic))}"
-           onerror="this.src='default-profile.png'"
+           onerror="this.src=window.getThemeDefaultProfile()"
            alt="${safeHtml(user.username)}"
            onclick="window.location.href='user-profile.html?id=${encodeURIComponent(user.id)}'"
            style="cursor:pointer;">
