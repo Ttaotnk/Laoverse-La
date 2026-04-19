@@ -121,6 +121,12 @@ async function selectFriend(f) {
   dot.style.backgroundColor = f.is_online ? "var(--wa-online)" : "#555";
   dot.style.display = "block";
 
+  // Clear chat and show loading
+  const container = document.getElementById("chat-messages");
+  if (container) {
+    container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("common.loading"))}</div>`;
+  }
+
   cancelFileSelection();
   cancelEdit();
   
