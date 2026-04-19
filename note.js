@@ -102,7 +102,7 @@ async function openPostModal() {
     const data = await response.json();
 
     if (!data.success || !data.post) {
-      showMessage("Post not found", "error");
+      showMessage(t("profile.notFound") || "Post not found", "error");
       return;
     }
 
@@ -144,9 +144,9 @@ async function openPostModal() {
                  </div>
                  <p>${safeHtml(pComment.is_deleted ? t("feed.deletedComment") : pComment.text)}</p>
                  <div class="comment-actions">
-                   <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
-                   ${canModifyParent ? `
-                     <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(pComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                   ${!pComment.is_deleted ? `<button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(pComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>` : ''}
+                   ${currentUserId && !pComment.is_deleted && (String(pComment.user_id) === String(currentUserId) || String(post.user_id) === String(currentUserId)) ? `
+                     ${String(pComment.user_id) === String(currentUserId) ? `<button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(pComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>` : ``}
                      <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(pComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
                    ` : ``}
                  </div>
@@ -182,8 +182,8 @@ async function openPostModal() {
                    <p>${safeHtml(childComment.is_deleted ? t("feed.deletedComment") : childComment.text)}</p>
                    <div class="comment-actions">
                      <button class="reply-to-comment-btn" onclick="showReplyInput('${safeHtml(pComment._id)}', '${safeHtml(childComment.username)}')"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${t("feed.reply")}</button>
-                     ${canModifyChild ? `
-                       <button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(childComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>
+                     ${currentUserId && !childComment.is_deleted && (String(childComment.user_id) === String(currentUserId) || String(post.user_id) === String(currentUserId)) ? `
+                       ${String(childComment.user_id) === String(currentUserId) ? `<button class="edit-comment-btn" onclick="toggleCommentEdit('${safeHtml(childComment._id)}')"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${t("common.edit")}</button>` : ``}
                        <button class="delete-comment-btn" onclick="deleteCommentAndRefresh('${safeHtml(childComment._id)}')"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${t("common.delete")}</button>
                      ` : ``}
                    </div>
@@ -382,7 +382,7 @@ async function submitReply(postId, event) {
     const data = await response.json();
 
     if (data.success) {
-      showMessage("Comment added successfully", "success");
+      showMessage(t("feed.commentAdded"), "success");
       input.value = '';
       // Reload post to show new comment
       setTimeout(() => {
@@ -448,7 +448,7 @@ async function submitReplyToComment(postId, parentCommentId, event) {
     const data = await response.json();
 
     if (data.success) {
-      showMessage("Reply added successfully", "success");
+      showMessage(t("feed.replyAdded"), "success");
       input.value = '';
       closeReplyInput(parentCommentId);
       // Reload post to show new reply
@@ -794,7 +794,7 @@ async function handleFriendRequest(action, userId, requestId) {
     });
     const data = await response.json();
     if (data.success) {
-      showMessage(action === 'accept' ? "Friend request accepted" : "Friend request declined", "success");
+      showMessage(action === 'accept' ? (t("friends.accepted") || "Friend request accepted") : (t("friends.rejected") || "Friend request declined"), "success");
       await loadNotifications();
       return;
     }

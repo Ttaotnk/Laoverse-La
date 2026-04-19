@@ -133,9 +133,9 @@ function renderComments(comments, postId) {
           </div>
           <p class="comment-text">${safeHtml(comment.is_deleted ? t("feed.deletedComment") : comment.comment)}</p>
           <div class="comment-actions">
-            <button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${safeHtml(t("feed.reply"))}</button>
-            ${currentId && String(comment.user_id) === currentId && !comment.is_deleted ? `
-              <button class="comment-edit-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}</button>
+            ${!comment.is_deleted ? `<button class="reply-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/reply.svg" alt="reply" class="btn-icon reply-icon"> ${safeHtml(t("feed.reply"))}</button>` : ''}
+            ${currentId && !comment.is_deleted && (String(comment.user_id) === currentId || (currentProfile && currentProfile.is_current_user)) ? `
+              ${String(comment.user_id) === currentId ? `<button class="comment-edit-toggle" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/edit.svg" alt="edit" class="btn-icon edit-icon"> ${safeHtml(t("common.edit"))}</button>` : ``}
               <button class="comment-delete-btn" data-post-id="${safeHtml(postId)}" data-comment-id="${safeHtml(comment.id)}"><img src="icons/delete.svg" alt="delete" class="btn-icon delete-icon"> ${safeHtml(t("common.delete"))}</button>
             ` : ``}
           </div>
@@ -362,6 +362,7 @@ async function addComment(postId, comment, parentCommentId) {
     const data = await response.json();
     if (data.success) {
       await loadProfile(currentProfileId);
+      showMessage(parentCommentId ? (t("feed.replyAdded") || "Reply added successfully") : (t("feed.commentAdded") || "Comment added successfully"), "success");
       return true;
     }
     showMessage(data.message || t("feed.commentFailed"), "error");

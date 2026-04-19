@@ -14,6 +14,25 @@ function safeHtml(v) {
   return String(v || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
+function showMessage(message, type) {
+  const box = document.getElementById("message") || createMessageDiv();
+  box.textContent = message;
+  box.className = `message ${type || "info"}`;
+  box.style.display = "block";
+  window.clearTimeout(showMessage.timer);
+  showMessage.timer = window.setTimeout(() => {
+    box.style.display = "none";
+  }, 3000);
+}
+
+function createMessageDiv() {
+  const div = document.createElement("div");
+  div.id = "message";
+  div.className = "message";
+  document.body.appendChild(div);
+  return div;
+}
+
 function profileImage(path) {
   return (window.LanguageManager && window.LanguageManager.resolveMediaUrl) 
     ? window.LanguageManager.resolveMediaUrl(path || window.getThemeDefaultProfile()) : (path || window.getThemeDefaultProfile());
@@ -146,11 +165,11 @@ function renderMessages(list, replaceAll) {
     }
 
     const isOwn = m.direction === 'right';
-    const actionsHtml = isOwn ? `
+    const actionsHtml = `
         <div class="msg-actions">
-            <button class="msg-edit-btn" onclick="startEdit('${m.id}', '${safeHtml(m.message)}')">✎</button>
+            ${isOwn ? `<button class="msg-edit-btn" onclick="startEdit('${m.id}', '${safeHtml(m.message)}')">✎</button>` : ''}
             <button class="msg-delete-btn" onclick="deleteMessage('${m.id}')">🗑</button>
-        </div>` : '';
+        </div>`;
 
     node.innerHTML = `
       <div class="message-content">
@@ -210,6 +229,7 @@ async function sendMessage() {
     if (data.success) {
       loadMessages(currentFriend.id, false);
       loadFriends();
+      showMessage(t("messages.sentSuccess") || "Message sent successfully", "success");
     }
   } catch (e) {}
 }
@@ -251,6 +271,7 @@ async function updateMessage(id, newText) {
         if (data.success) {
             cancelEdit();
             loadMessages(currentFriend.id, true);
+            showMessage(t("messages.editSuccess") || "Message updated", "success");
         }
     } catch(e) {}
 }
@@ -265,7 +286,10 @@ async function deleteMessage(id) {
             body: JSON.stringify({ message_id: id })
         });
         const data = await res.json();
-        if (data.success) loadMessages(currentFriend.id, true);
+        if (data.success) {
+            loadMessages(currentFriend.id, true);
+            showMessage(t("messages.deleteSuccess") || "Message deleted", "success");
+        }
     } catch(e) {}
 }
 
@@ -335,6 +359,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   setInterval(updatePresence, 60000);
   updatePresence();
 
+  document.getElementById("message-input").placeholder = t("messages.placeholder") || "Type a message...";
   document.getElementById("send-button").addEventListener("click", sendMessage);
   document.getElementById("message-input").addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }

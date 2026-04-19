@@ -213,6 +213,28 @@
       :root[data-theme="light"] .contact-value {
         color: #4b5563 !important;
       }
+      :root[data-theme="light"] .wa-send-btn {
+        color: #3b82f6 !important;
+      }
+      :root[data-theme="light"] .chat-header-wa,
+      :root[data-theme="light"] .view-header {
+        background-color: #f0f2f5 !important;
+        border-bottom: 1px solid #e5e7eb !important;
+      }
+      :root[data-theme="light"] .back-btn {
+        color: #1f2937 !important;
+      }
+      :root[data-theme="light"] .nav-badge {
+        border-color: #ffffff !important;
+      }
+      :root[data-theme="light"] .message-wa.left {
+        background-color: #ffffff !important;
+        color: #111b21 !important;
+      }
+      :root[data-theme="light"] .message-wa.right {
+        background-color: #d9fdd3 !important;
+        color: #111b21 !important;
+      }
       /*
         โลโก้ JPG มักมีกรอบดำรอบตัวอักษร — ให้กลมกลืนกับพื้นหลัง header/ธีม
         - ธีมมืด: screen ทำให้พิกเซลดำ (0) รับสีพื้นหลังด้านหลัง

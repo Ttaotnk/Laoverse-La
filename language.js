@@ -804,6 +804,23 @@
     }
   }
 
+  // เพิ่ม Style สำหรับการเปลี่ยนธีมให้สมูทขึ้นและสไตล์ Overlay
+  if (!document.getElementById('laoverse-global-styles')) {
+    const style = document.createElement('style');
+    style.id = 'laoverse-global-styles';
+    style.textContent = `
+      * { transition: background-color 0.2s ease, border-color 0.2s ease; }
+      #laoverse-maintenance-overlay {
+        backdrop-filter: blur(10px);
+      }
+      :root[data-theme="light"] #laoverse-maintenance-overlay .maintenance-card {
+        background: #ffffff !important;
+        color: #1f2937 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function showMaintenanceOverlay() {
     if (document.getElementById("laoverse-maintenance-overlay")) {
       const text = document.getElementById("laoverse-maintenance-text");
@@ -813,10 +830,11 @@
 
     const overlay = document.createElement("div");
     overlay.id = "laoverse-maintenance-overlay";
-    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);color:white;z-index:999999;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;padding:20px;";
+    overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);color:white;z-index:999999;display:flex;align-items:center;justify-content:center;text-align:center;font-family:sans-serif;padding:20px;";
 
     const content = document.createElement("div");
-    content.style.cssText = "background:white;color:#333;padding:40px;border-radius:12px;max-width:500px;box-shadow:0 10px 25px rgba(0,0,0,0.5);";
+    content.className = "maintenance-card";
+    content.style.cssText = "background:var(--gray, #222);color:var(--white, #fff);padding:40px;border-radius:12px;max-width:500px;box-shadow:0 10px 25px rgba(0,0,0,0.5);border:1px solid var(--neon-blue);";
 
     const title = document.createElement("h1");
     title.textContent = "⚠️";
@@ -829,7 +847,7 @@
 
     const btn = document.createElement("button");
     btn.textContent = translate("app.retry");
-    btn.style.cssText = "padding:10px 20px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:bold;";
+    btn.style.cssText = "padding:10px 20px;background:var(--neon-blue);color:var(--black);border:none;border-radius:5px;cursor:pointer;font-weight:bold;";
     btn.onclick = () => window.location.reload();
 
     content.appendChild(title);
