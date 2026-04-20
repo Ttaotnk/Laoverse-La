@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://dried-ampland-armstrong-terms.trycloudflare.com/api";
+const API_BASE_URL = "https://message-automated-light-decent.trycloudflare.com/api";
 const BACKEND_URL = API_BASE_URL.replace(/\/api$/, "");
 
 function getAuthHeaders() {
