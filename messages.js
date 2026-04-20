@@ -40,22 +40,17 @@ function profileImage(path) {
 
 async function resolveMedia(path, el) {
     if (!path) return "";
-    
-    // Method 1: Try resolving URL normally
     const backendUrl = window.BACKEND_URL || "http://localhost:3000";
     let fullUrl = path;
     if (!path.startsWith("http") && !path.startsWith("blob:") && !path.startsWith("data:")) {
         fullUrl = backendUrl + (path.startsWith("/") ? "" : "/") + path;
     }
-    
-    // Method 2: Try Direct Fetch as Blob (for security/consistency)
     if (window.LanguageManager && window.LanguageManager.fetchMediaAsBlob) {
         try {
             const blobUrl = await window.LanguageManager.fetchMediaAsBlob(path);
             if (el) el.src = blobUrl;
             return blobUrl;
         } catch(e) {
-            console.error("Blob fetch failed, falling back to URL:", e);
             if (el) el.src = fullUrl;
             return fullUrl;
         }
@@ -110,50 +105,45 @@ function selectFriendById(id) {
 async function selectFriend(f) {
   currentFriend = f;
   document.body.classList.add("chat-open");
-  
   const local = friends.find(item => String(item.id) === String(f.id));
   if (local) local.unread_count = 0;
   renderFriendsList();
-
   document.getElementById("chat-header-name").textContent = f.username;
   document.getElementById("chat-avatar").src = profileImage(f.profile_pic);
   const dot = document.getElementById("chat-online-dot");
   dot.style.backgroundColor = f.is_online ? "var(--wa-online)" : "#555";
   dot.style.display = "block";
-
-  // Clear chat and show loading
   const container = document.getElementById("chat-messages");
-  if (container) {
-    container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("common.loading"))}</div>`;
-  }
-
+  if (container) container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("common.loading"))}</div>`;
   cancelFileSelection();
   cancelEdit();
-  
   fetch(`${window.API_BASE_URL}/mark_messages_read`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify({ friend_id: f.id })
   }).catch(e => {});
-
   loadMessages(f.id, true);
 }
 
 function renderMessages(list, replaceAll) {
   const container = document.getElementById("chat-messages");
   if (!container) return;
+  
+  // Check if user is near bottom before update
+  const threshold = 150;
+  const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + threshold;
+  
   if (replaceAll) container.innerHTML = "";
   if (!list.length && replaceAll) {
     container.innerHTML = `<div class="empty-chat-msg">${safeHtml(t("messages.emptyChat"))}</div>`;
     return;
   }
 
-  list.forEach(async (m) => {
+  list.forEach((m) => {
     if (document.getElementById(`msg-${m.id}`)) return;
     const node = document.createElement("div");
     node.className = `message-wa ${m.direction}`;
     node.id = `msg-${m.id}`;
-    
     let mediaHtml = "";
     if (m.file_path) {
         const id = `media-${m.id}`;
@@ -161,22 +151,17 @@ function renderMessages(list, replaceAll) {
         else if (m.file_type === 'video') mediaHtml = `<video id="${id}" controls class="message-file" style="max-width:100%; border-radius:8px;"></video>`;
         else if (m.file_type === 'audio') mediaHtml = `<audio id="${id}" controls class="message-file" style="max-width:100%;"></audio>`;
         else mediaHtml = `<a href="#" id="${id}" target="_blank" class="message-file" style="display:block; padding:10px; background:rgba(255,255,255,0.1); border-radius:5px; text-decoration:none; color:inherit;">📄 ${t("common.downloadFile")}</a>`;
-        
         setTimeout(() => {
             const el = document.getElementById(id);
-            if (el) resolveMedia(m.file_path, el).then(url => {
-                if (el.tagName === 'A') el.href = url;
-            });
+            if (el) resolveMedia(m.file_path, el).then(url => { if (el.tagName === 'A') el.href = url; });
         }, 0);
     }
-
     const isOwn = m.direction === 'right';
     const actionsHtml = `
         <div class="msg-actions">
             ${isOwn ? `<button class="msg-edit-btn" onclick="startEdit('${m.id}', '${safeHtml(m.message)}')">✎</button>` : ''}
-            <button class="msg-delete-btn" onclick="deleteMessage('${m.id}')">🗑</button>
+            <button class="msg-delete-btn" onclick="deleteMessage('${m.id}', ${isOwn})">🗑</button>
         </div>`;
-
     node.innerHTML = `
       <div class="message-content">
         ${m.message ? `<div class="message-text">${safeHtml(m.message)}</div>` : ""}
@@ -188,17 +173,18 @@ function renderMessages(list, replaceAll) {
       </div>`;
     container.appendChild(node);
   });
-  container.scrollTop = container.scrollHeight;
+
+  // Only scroll to bottom if it was a full load OR user was already at bottom
+  if (replaceAll || isAtBottom) {
+    container.scrollTop = container.scrollHeight;
+  }
 }
 
 async function loadFriends() {
   try {
     const res = await fetch(`${window.API_BASE_URL}/get_friends`, { headers: getAuthHeaders() });
     const data = await res.json();
-    if (data.success) {
-      friends = data.friends;
-      renderFriendsList();
-    }
+    if (data.success) { friends = data.friends; renderFriendsList(); }
   } catch (e) {}
 }
 
@@ -215,28 +201,17 @@ async function sendMessage() {
   const input = document.getElementById("message-input");
   const msg = input.value.trim();
   if (!msg && !selectedFile) return;
-
-  if (editingMessageId) {
-      updateMessage(editingMessageId, msg);
-      return;
-  }
-
+  if (editingMessageId) { updateMessage(editingMessageId, msg); return; }
   const fd = new FormData();
   fd.append("receiver_id", currentFriend.id);
   if (msg) fd.append("message", msg);
   if (selectedFile) fd.append("file", selectedFile);
-
   input.value = "";
   cancelFileSelection();
-  
   try {
     const res = await fetch(`${window.API_BASE_URL}/send_message`, { method: "POST", headers: getAuthHeaders(), body: fd });
     const data = await res.json();
-    if (data.success) {
-      loadMessages(currentFriend.id, false);
-      loadFriends();
-      showMessage(t("messages.sentSuccess") || "Message sent successfully", "success");
-    }
+    if (data.success) { loadMessages(currentFriend.id, false); loadFriends(); }
   } catch (e) {}
 }
 
@@ -245,7 +220,6 @@ function startEdit(id, text) {
     const input = document.getElementById("message-input");
     input.value = text;
     input.focus();
-    
     let bar = document.getElementById("edit-bar");
     if (!bar) {
         bar = document.createElement("div");
@@ -274,28 +248,28 @@ async function updateMessage(id, newText) {
             body: JSON.stringify({ message_id: id, message: newText })
         });
         const data = await res.json();
-        if (data.success) {
-            cancelEdit();
-            loadMessages(currentFriend.id, true);
-            showMessage(t("messages.editSuccess") || "Message updated", "success");
-        }
+        if (data.success) { cancelEdit(); loadMessages(currentFriend.id, true); showMessage(t("messages.editSuccess"), "success"); }
     } catch(e) {}
 }
 
-async function deleteMessage(id) {
-    const confirmed = await window.showConfirm(t("messages.confirmDeleteMessage"));
-    if (!confirmed) return;
+async function deleteMessage(id, isOwn) {
+    let deleteType = null;
+    if (isOwn) {
+        deleteType = await window.showDeleteOptions();
+        if (!deleteType) return;
+    } else {
+        const confirmed = await window.showConfirm(t("messages.confirmDeleteMessage"));
+        if (!confirmed) return;
+        deleteType = 'me';
+    }
     try {
         const res = await fetch(`${window.API_BASE_URL}/delete_message`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
-            body: JSON.stringify({ message_id: id })
+            body: JSON.stringify({ message_id: id, delete_type: deleteType })
         });
         const data = await res.json();
-        if (data.success) {
-            loadMessages(currentFriend.id, true);
-            showMessage(t("messages.deleteSuccess") || "Message deleted", "success");
-        }
+        if (data.success) { loadMessages(currentFriend.id, true); showMessage(t("messages.deleteSuccess"), "success"); }
     } catch(e) {}
 }
 
@@ -304,7 +278,6 @@ function handleFileSelect(e) {
     if (!file) return;
     selectedFile = file;
     cancelEdit();
-    
     let preview = document.getElementById("file-preview-container");
     if (!preview) {
         preview = document.createElement("div");
@@ -313,14 +286,8 @@ function handleFileSelect(e) {
         const area = document.querySelector(".input-area-wa");
         area.parentNode.insertBefore(preview, area);
     }
-    
     const isImg = file.type.startsWith('image/');
-    preview.innerHTML = `
-        <div class="preview-info">
-            ${isImg ? `<img src="${URL.createObjectURL(file)}" class="preview-thumb">` : `<span class="preview-icon">📄</span>`}
-            <span class="preview-name">${safeHtml(file.name)}</span>
-        </div>
-        <button class="preview-close" onclick="cancelFileSelection()">✕</button>`;
+    preview.innerHTML = `<div class="preview-info">${isImg ? `<img src="${URL.createObjectURL(file)}" class="preview-thumb">` : `<span class="preview-icon">📄</span>`}<span class="preview-name">${safeHtml(file.name)}</span></div><button class="preview-close" onclick="cancelFileSelection()">✕</button>`;
     updateSendBtnState();
 }
 
@@ -345,19 +312,12 @@ function updateSendBtnState() {
 function updatePresence() { fetch(`${window.API_BASE_URL}/update_presence`, { method: 'POST', headers: getAuthHeaders() }).catch(e=>{}); }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  // Auth check before loading
   try {
     const res = await fetch(`${window.API_BASE_URL}/check_auth`, { headers: getAuthHeaders() });
     const data = await res.json();
-    if (!data.success) {
-      window.location.href = "index2.html";
-      return;
-    }
+    if (!data.success) { window.location.href = "index2.html"; return; }
     if (data.user) currentUser = data.user;
-  } catch (e) {
-    window.location.href = "index2.html";
-    return;
-  }
+  } catch (e) { window.location.href = "index2.html"; return; }
 
   loadFriends();
   setInterval(loadFriends, 10000);
@@ -368,20 +328,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("message-input").placeholder = t("messages.inputPlaceholder") || "Type a message...";
   document.getElementById("send-button").addEventListener("click", sendMessage);
   document.getElementById("message-input").addEventListener("keydown", (e) => {
-    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { 
-      e.preventDefault(); 
-      sendMessage(); 
-    }
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); }
   });
   document.getElementById("message-input").addEventListener("input", updateSendBtnState);
-
   document.getElementById("back-button").addEventListener("click", () => {
     document.body.classList.remove("chat-open");
     currentFriend = null;
     cancelFileSelection();
     cancelEdit();
   });
-
   document.getElementById("file-button").addEventListener("click", () => document.getElementById("file-input").click());
   document.getElementById("file-input").addEventListener("change", handleFileSelect);
 
@@ -395,7 +350,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// Re-render when language changes
 document.addEventListener("laoverse:languagechange", () => {
   renderFriendsList();
   if (currentFriend) loadMessages(currentFriend.id, true);

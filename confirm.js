@@ -63,19 +63,22 @@
         background-color: rgba(0, 0, 0, 0.7);
         animation: fadeIn 0.3s ease;
         z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
       }
 
       .confirm-modal-content {
         background-color: var(--gray, #222);
-        margin: 15% auto;
         padding: 2rem;
-        border-radius: 10px;
+        border-radius: 12px;
         width: 90%;
         max-width: 400px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
         border: 1px solid var(--neon-blue, #66f0ff);
         text-align: center;
         animation: slideDown 0.3s ease;
+        position: relative;
       }
 
       .confirm-modal-content h3 {
@@ -237,6 +240,54 @@
         console.log('Confirm modal resolved with:', result);
         resolve(result);
       });
+    });
+  };
+
+  // Add a specialized modal for deleting messages with 3 options
+  window.showDeleteOptions = function() {
+    return new Promise((resolve) => {
+      // Create or get the delete options modal
+      let deleteModal = document.getElementById('deleteOptionsModal');
+      if (!deleteModal) {
+        const modalHTML = `
+        <div id="deleteOptionsModal" class="confirm-modal">
+          <div class="confirm-modal-content">
+            <h3 id="deleteModalTitle">${t('common.delete', 'ลบข้อความ')}</h3>
+            <p id="deleteModalMessage">${t('messages.confirmDeleteMessage', 'ท่านต้องการลบข้อความนี้อย่างไร?')}</p>
+            <div class="confirm-modal-buttons" style="flex-direction: column;">
+              <button id="deleteEveryoneBtn" class="confirm-btn ok" style="max-width: 100%; width: 100%; margin-bottom: 0.5rem; background-color: #ff4444;">
+                ${t('messages.confirmDeleteForEveryone', 'ลบสำหรับทุกคน')}
+              </button>
+              <button id="deleteMeBtn" class="confirm-btn ok" style="max-width: 100%; width: 100%; margin-bottom: 0.5rem; background-color: #555;">
+                ${t('messages.confirmDeleteForMe', 'ลบเฉพาะฉัน')}
+              </button>
+              <button id="deleteCancelBtn" class="confirm-btn cancel" style="max-width: 100%; width: 100%;">
+                ${t('common.cancel', 'ยกเลิก')}
+              </button>
+            </div>
+          </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        deleteModal = document.getElementById('deleteOptionsModal');
+      }
+
+      const everyoneBtn = document.getElementById('deleteEveryoneBtn');
+      const meBtn = document.getElementById('deleteMeBtn');
+      const cancelBtn = document.getElementById('deleteCancelBtn');
+
+      const cleanup = (val) => {
+        deleteModal.style.display = 'none';
+        everyoneBtn.onclick = null;
+        meBtn.onclick = null;
+        cancelBtn.onclick = null;
+        resolve(val);
+      };
+
+      everyoneBtn.onclick = () => cleanup('everyone');
+      meBtn.onclick = () => cleanup('me');
+      cancelBtn.onclick = () => cleanup(null);
+      
+      deleteModal.style.display = 'flex';
     });
   };
 
