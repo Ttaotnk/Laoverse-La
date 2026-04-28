@@ -6,6 +6,9 @@ const imagePreview = document.getElementById("image-preview") || document.create
 
 let feedPosts = [];
 let feedRefreshTimer = null;
+let isScrolling = false;
+let scrollTimer = null;
+let newPostsBuffer = [];
 let currentUserId = null;
 let editingPostId = null;
 
@@ -185,7 +188,7 @@ function setupSearch() {
 }
 
 function shouldPauseFeedRefresh() {
-  if (document.hidden || isSearching) return true;
+  if (document.hidden || isSearching || isScrolling) return true;
   if (document.querySelector("#postContent:focus, .comment-input:focus, .reply-input:focus, #postSearch:focus")) return true;
 
   return Array.from(document.querySelectorAll("video, audio")).some((media) => {
@@ -619,6 +622,10 @@ async function loadFeed() {
     const data = await response.json();
 
     if (data.success) {
+      // Clear any pending new posts banner when doing a full reload
+      newPostsBuffer = [];
+      const banner = document.getElementById("new-posts-banner");
+      if (banner) banner.remove();
       renderPosts(data.posts || []);
       return;
     }
@@ -629,6 +636,69 @@ async function loadFeed() {
   } finally {
     showLoading(false);
   }
+}
+
+async function checkForNewPosts() {
+  try {
+    const response = await fetch(`${window.API_BASE_URL}/loadFeed`, {
+      headers: getAuthHeaders()
+    });
+    const data = await response.json();
+    if (!data.success) return;
+
+    const allPosts = data.posts || [];
+    const currentIds = new Set(feedPosts.map(p => String(p.id)));
+    const newPosts = allPosts.filter(p => !currentIds.has(String(p.id)));
+
+    if (newPosts.length > 0) {
+      newPostsBuffer = newPosts;
+      showNewPostsBanner(newPosts.length);
+    }
+  } catch (error) {}
+}
+
+function showNewPostsBanner(count) {
+  let banner = document.getElementById("new-posts-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "new-posts-banner";
+    Object.assign(banner.style, {
+      position: "fixed",
+      top: "70px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "linear-gradient(135deg, var(--neon-blue, #667eea), var(--light-blue, #764ba2))",
+      color: "var(--black, #fff)",
+      padding: "10px 24px",
+      borderRadius: "24px",
+      cursor: "pointer",
+      zIndex: "9999",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
+      fontWeight: "bold",
+      fontSize: "14px",
+      transition: "transform 0.2s, box-shadow 0.2s",
+      userSelect: "none"
+    });
+    banner.addEventListener("mouseenter", () => {
+      banner.style.transform = "translateX(-50%) scale(1.05)";
+      banner.style.boxShadow = "0 6px 24px rgba(0,0,0,0.4)";
+    });
+    banner.addEventListener("mouseleave", () => {
+      banner.style.transform = "translateX(-50%) scale(1)";
+      banner.style.boxShadow = "0 4px 20px rgba(0,0,0,0.3)";
+    });
+    banner.addEventListener("click", () => {
+      if (newPostsBuffer.length > 0) {
+        feedPosts = [...newPostsBuffer, ...feedPosts];
+        newPostsBuffer = [];
+        renderPosts(feedPosts);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      banner.remove();
+    });
+    document.body.appendChild(banner);
+  }
+  banner.textContent = t("feed.newPosts", { count });
 }
 
 async function toggleLike(postId, button) {
@@ -878,6 +948,14 @@ function setupEventDelegation() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  window.addEventListener("scroll", () => {
+    isScrolling = true;
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      isScrolling = false;
+    }, 2000);
+  }, { passive: true });
+
   if (postImage) {
     postImage.addEventListener("change", handleImagePreview);
   }
@@ -906,9 +984,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupSearch();
   feedRefreshTimer = window.setInterval(() => {
     if (!shouldPauseFeedRefresh()) {
-      loadFeed();
+      checkForNewPosts();
     }
-  }, 30000);
+  }, 60000);
 });
 
 document.addEventListener("laoverse:languagechange", () => {
