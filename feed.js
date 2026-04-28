@@ -35,15 +35,6 @@ function formatRelativeTime(dateString) {
   return "";
 }
 
-function safeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 function getProfileImage(path) {
   return path && String(path).trim() ? path : window.getThemeDefaultProfile();
 }
@@ -212,12 +203,15 @@ function renderContentWithEmbeds(content) {
       return;
     }
     if (url.includes("x.com") || url.includes("twitter.com") || url.includes("facebook.com")) {
-      const safeUrl = safeHtml(url);
+      const safeUrl = window.safeHtml(url);
       embeds += `<div class="post-embed"><a href="${safeUrl}" target="_blank" rel="noopener">${safeUrl}</a></div>`;
     }
   });
 
-  return `<p class="post-text">${safeHtml(text)}</p>${embeds}`;
+  const escapedText = window.safeHtml(text);
+  const linkifiedText = window.linkify(escapedText);
+
+  return `<p class="post-text">${linkifiedText}</p>${embeds}`;
 }
 
 function renderComments(comments, postId, postOwnerId) {
@@ -577,25 +571,35 @@ async function handlePostSubmit(event) {
     // Progress Listener
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
-        const percent = Math.round((e.loaded / e.total) * 100);
+        // Cap at 95% to leave room for server processing
+        const percent = Math.round((e.loaded / e.total) * 95);
         progressBar.style.width = percent + "%";
         progressText.textContent = percent + "%";
       }
     };
 
     xhr.onload = async () => {
-      progressContainer.style.display = "none";
       if (xhr.status >= 200 && xhr.status < 300) {
+        // Jump to 100% only when server responds
+        progressBar.style.width = "100%";
+        progressText.textContent = "100%";
+        
         const data = JSON.parse(xhr.responseText);
         if (data.success) {
-          showMessage(t("feed.postSuccess"), "success");
-          postForm.reset();
-          imagePreview.innerHTML = "";
-          await loadFeed();
+          // Small delay so user sees 100%
+          setTimeout(async () => {
+            progressContainer.style.display = "none";
+            showMessage(t("feed.postSuccess"), "success");
+            postForm.reset();
+            imagePreview.innerHTML = "";
+            await loadFeed();
+          }, 500);
           return;
         }
+        progressContainer.style.display = "none";
         showMessage(data.message || t("feed.postFailed"), "error");
       } else {
+        progressContainer.style.display = "none";
         showMessage(t("feed.postFailed"), "error");
       }
     };

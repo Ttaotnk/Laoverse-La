@@ -10,3 +10,19 @@ function getAuthHeaders() {
 window.API_BASE_URL = API_BASE_URL;
 window.BACKEND_URL = BACKEND_URL;
 window.getAuthHeaders = getAuthHeaders;
+
+window.safeHtml = function(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+window.linkify = function(text) {
+  const urlRegex = /(https?:\/\/[^\s<]+)/g;
+  return text.replace(urlRegex, (url) => {
+    return `<a href="${url}" target="_blank" rel="noopener" class="post-link">${url}</a>`;
+  });
+};

@@ -129,3 +129,19 @@
         width: 130px !important;
     }
 }
+
+/* Post Content Links */
+.post-link {
+    color: var(--neon-blue);
+    text-decoration: none;
+    word-break: break-all;
+    transition: all 0.2s;
+    border-bottom: 1px solid rgba(102, 240, 255, 0.2);
+}
+
+.post-link:hover {
+    color: var(--white);
+    background: rgba(102, 240, 255, 0.1);
+    border-bottom-color: var(--neon-blue);
+    text-shadow: 0 0 8px var(--neon-blue);
+}

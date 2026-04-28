@@ -22,15 +22,6 @@ function formatRelativeTime(value) {
   return "";
 }
 
-function safeHtml(value) {
-  return String(value || "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
 function detectFileKind(fileType, filePath) {
   const type = String(fileType || "").toLowerCase();
   const path = String(filePath || "").toLowerCase();
@@ -265,7 +256,7 @@ async function openPostModal() {
             </div>
           </div>
           <div class="post-content">
-            ${post.content ? `<p class="post-text">${safeHtml(post.content)}</p>` : ""}
+            ${post.content ? `<p class="post-text">${window.linkify(window.safeHtml(post.content))}</p>` : ""}
             ${mediaHtml}
           </div>
            <div class="post-actions">
