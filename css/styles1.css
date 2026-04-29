@@ -138,6 +138,29 @@ header {
   text-shadow: 0 0 5px var(--neon-blue);
 }
 
+/* Language Switcher Styles */
+.language-switcher {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+#languageSelect {
+  background-color: var(--light-gray);
+  color: var(--white);
+  border: 1px solid var(--neon-blue);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+#languageSelect:focus {
+  box-shadow: 0 0 8px var(--neon-blue);
+}
+
 /* Form Styles */
 #loginForm {
   display: flex;

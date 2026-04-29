@@ -1,5 +1,34 @@
 const t = (key, vars) => window.LanguageManager ? window.LanguageManager.translate(key, vars) : key;
 
+/* =========================
+   LANGUAGE SELECTOR
+========================= */
+function setupLanguageSelector() {
+  const languageSelect = document.getElementById("languageSelect");
+  if (!languageSelect) return;
+
+  const currentLang = window.LanguageManager ? window.LanguageManager.getLanguage() : (localStorage.getItem("laoverse_lang") || "lo");
+  languageSelect.value = currentLang;
+
+  languageSelect.addEventListener("change", () => {
+    const selectedLang = languageSelect.value;
+    if (window.LanguageManager) {
+      window.LanguageManager.setLanguage(selectedLang);
+    } else {
+      localStorage.setItem("laoverse_lang", selectedLang);
+      location.reload();
+    }
+  });
+
+  // Listen for external language changes (if any)
+  document.addEventListener("laoverse:languagechange", (e) => {
+    languageSelect.value = e.detail.lang;
+  });
+}
+
+document.addEventListener("DOMContentLoaded", setupLanguageSelector);
+if (document.readyState !== "loading") setupLanguageSelector();
+
 const showMessage = (message, type = "info", duration = 3000) => {
   const messageDiv = document.getElementById(type === "login" ? "login-message" : "register-message");
   messageDiv.textContent = message;
